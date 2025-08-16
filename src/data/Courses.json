@@ -1,0 +1,160 @@
+{
+  "IELTS": {
+    "en": {
+      "title": "IELTS Preparation",
+      "description": "Achieve your target IELTS score with expert-led live sessions, structured study plans, and personalized feedback",
+      "studentNo": "1 Student",
+      "Options": [
+        {
+          "id": 1,
+          "levelno": "1 Level",
+          "priceBefore": 250,
+          "priceAfter": 120,
+          "duration": 12,
+          "totalTime": "24 Hours per 1 Level",
+          "sessionPerWeek": "2-3",
+          "Hours": 2,
+          "scheduleType": "Schedules available 24/7"
+        }
+      ]
+    },
+    "ar": {
+      "title": "التحضير لاختبار IELTS",
+      "description": "حقق هدفك في اختبار IELTS من خلال جلسات مباشرة يقودها خبراء، وخطط دراسية منظمة، وملاحظات شخصية.",
+      "studentNo": "طالب واحد",
+      "Options": [
+        {
+          "id": 1,
+          "levelno": "المستوى 1",
+          "priceBefore": 250,
+          "priceAfter": 120,
+          "duration": 12,
+          "totalTime": "24 ساعة لكل مستوى",
+          "sessionPerWeek": "2-3 جلسات أسبوعياً",
+          "Hours": 2,
+          "scheduleType": "الجداول متاحة 24/7"
+        }
+      ]
+    }
+  },
+  "Group": {
+    "en": {
+      "title": "General Group",
+      "description": "Learn in small groups with interactive live sessions and structured learning plans.",
+      "studentNo": "3-7 Students",
+      "Options": [
+        {
+          "id": 1,
+          "levelno": "1 Level",
+          "priceBefore": 90,
+          "priceAfter": 45,
+          "duration": 10,
+          "totalTime": "5 Weeks",
+          "sessionPerWeek": 2,
+          "Hours": 2,
+          "scheduleType": "Evening Schedule"
+        },
+        {
+          "id": 2,
+          "levelno": "3 Levels",
+          "priceBefore": 270,
+          "priceAfter": 115,
+          "duration": 30,
+          "totalTime": "4 Months",
+          "sessionPerWeek": 2,
+          "Hours": 2,
+          "scheduleType": "Evening Schedule"
+        }
+      ]
+    },
+    "ar": {
+      "title": "المجموعة العامة",
+      "description": "تعلم في مجموعات صغيرة مع جلسات مباشرة تفاعلية وخطط تعلم منظمة.",
+      "studentNo": "من 3 إلى 7 طلاب",
+      "Options": [
+        {
+          "id": 1,
+          "levelno": "المستوى 1",
+          "priceBefore": 90,
+          "priceAfter": 45,
+          "duration": 10,
+          "totalTime": "5 أسابيع",
+          "sessionPerWeek": 2,
+          "Hours": 2,
+          "scheduleType": "جدول مسائي"
+        },
+        {
+          "id": 2,
+          "levelno": "3 مستويات",
+          "priceBefore": 270,
+          "priceAfter": 115,
+          "duration": 30,
+          "totalTime": "4 أشهر",
+          "sessionPerWeek": 2,
+          "Hours": 2,
+          "scheduleType": "جدول مسائي"
+        }
+      ]
+    }
+  },
+  "Private": {
+    "en": {
+      "title": "General Private",
+      "description": "Get personalized one-on-one learning with expert instructors, tailored lessons, and a flexible schedule to fit your needs.",
+      "studentNo": "1 Student",
+      "Options": [
+        {
+          "id": 1,
+          "levelno": "1 Level",
+          "priceBefore": 200,
+          "priceAfter": 100,
+          "duration": 10,
+          "totalTime": "1 Month",
+          "sessionPerWeek": "2-3",
+          "Hours": 1,
+          "scheduleType": "Schedules available 24/7"
+        },
+        {
+          "id": 2,
+          "levelno": "3 Levels",
+          "priceBefore": 600,
+          "priceAfter": 240,
+          "duration": 30,
+          "totalTime": "3 Months",
+          "sessionPerWeek": 2,
+          "Hours": 1,
+          "scheduleType": "Schedules available 24/7"
+        }
+      ]
+    },
+    "ar": {
+      "title": "المجموعة الخاصة",
+      "description": "احصل على تعلم شخصي واحد لواحد مع معلمين خبراء، دروس مخصصة، وجدول مرن يتناسب مع احتياجاتك.",
+      "studentNo": "طالب واحد",
+      "Options": [
+        {
+          "id": 1,
+          "levelno": "المستوى 1",
+          "priceBefore": 200,
+          "priceAfter": 100,
+          "duration": 10,
+          "totalTime": "شهر واحد",
+          "sessionPerWeek": "2-3 جلسات أسبوعياً",
+          "Hours": 1,
+          "scheduleType": "الجداول متاحة 24/7"
+        },
+        {
+          "id": 2,
+          "levelno": "3 مستويات",
+          "priceBefore": 600,
+          "priceAfter": 240,
+          "duration": 30,
+          "totalTime": "3 أشهر",
+          "sessionPerWeek": 2,
+          "Hours": 1,
+          "scheduleType": "الجداول متاحة 24/7"
+        }
+      ]
+    }
+  }
+}

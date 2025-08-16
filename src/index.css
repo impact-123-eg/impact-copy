@@ -1,0 +1,50 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+/* @import "react-datepicker/dist/react-datepicker.css"; */
+
+:root {
+  font-family: "poppins", "Neo Sans Arabic";
+
+  /* website colors */
+  --GradBg: #004a8f;
+  --Main: #0d5cae;
+  --LightTxt: #031323b2;
+  --Light: #e6f1fd;
+  --Input: #e6f1fde5;
+  --Yellow: #f5d019;
+  --SubText: #031323a6;
+  --SubTextBorder: #68686880;
+
+  /* clock colors */
+  --top-selected-color: var(--Yellow);
+  --top-colon-color: black;
+  --clock-wrapper-bg: white;
+  --top-text-color: black;
+  --top-meridiem-color: black;
+
+  --numbers-text-color: black;
+
+  --hand-line-color: var(--Yellow);
+  --hand-circle-center: var(--Yellow);
+  --hand-circle-outer: var(--Yellow);
+  --hand-minute-circle: var(--Yellow);
+
+  --meridiem-selected-bg-color: var(--Yellow);
+  --meridiem-text-color: black;
+  --meridiem-selected-text-color: black;
+}
+
+button,
+Link {
+  cursor: pointer;
+}
+
+* {
+  line-height: 1.4;
+}
+
+hr {
+  color: var(--SubTextBorder);
+}
