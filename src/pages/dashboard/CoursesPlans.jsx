@@ -6,6 +6,7 @@ import {
 } from "@/hooks/Actions/packages/usePackageCruds";
 import ConfirmModal from "@/Components/ConfirmModal";
 import { useGetAllcategories } from "@/hooks/Actions/categories/useCategoryCruds";
+import formatDuration from "@/utilities/formatDuration";
 
 function CoursesPlans() {
   const navigate = useNavigate();
@@ -14,12 +15,14 @@ function CoursesPlans() {
   const [levelToDelete, setLevelToDelete] = useState(null);
 
   const { data: coursesRes } = useGetAllpackages();
-  const courses = coursesRes?.data?.data || [];
-  const tabCourses = courses.filter((course) => course.type === activeTab);
+  const courses = coursesRes?.data || [];
+  console.log(courses);
+  const tabCourses = courses.filter(
+    (course) => course?.category?.name === activeTab
+  );
   const { mutate: mutateDeleteCourse } = useDeletepackage();
   const { data: catData } = useGetAllcategories();
   const categories = catData?.data || [];
-  console.log(catData);
   const tabs = categories.map((cat) => cat.name) || [];
 
   const handleDelete = (id) => {
@@ -140,7 +143,7 @@ function CoursesPlans() {
                     Duration
                   </span>
                   <span className="block font-semibold">
-                    {level.duration} weeks
+                    {formatDuration(level.duration)}
                   </span>
                 </div>
                 <div className="bg-gray-50 p-3 rounded-lg">
@@ -155,7 +158,7 @@ function CoursesPlans() {
                   <span className="block text-gray-500 font-medium">
                     Hours/Session
                   </span>
-                  <span className="block font-semibold">{level.Hours}h</span>
+                  <span className="block font-semibold">{level.hours} h</span>
                 </div>
               </div>
 
