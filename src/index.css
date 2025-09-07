@@ -5,7 +5,7 @@
 /* @import "react-datepicker/dist/react-datepicker.css"; */
 
 :root {
-  font-family: "poppins", "Neo Sans Arabic";
+  font-family: "poppins", "Cairo", "Neo Sans Arabic";
 
   /* website colors */
   --GradBg: #004a8f;
