@@ -13,6 +13,7 @@ const endPoints = {
   packages: "/packages/",
   packagesByCategory: "/packages/category/",
   categories: "/categories/",
+  availabilities: "/availability/",
 
   // categories: "/categories/",
   // deleteCategory: "/categories",

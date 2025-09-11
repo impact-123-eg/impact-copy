@@ -73,7 +73,7 @@ function Nav() {
         </div>
         <div>
           <h1 className="text-xl font-semibold truncate max-w-[140px]">
-            {user?.name}
+            {user?.name?.split(" ")[0]}
           </h1>
           <p className="text-md text-[var(--Yellow)] capitalize">
             {user?.role}
