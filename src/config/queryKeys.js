@@ -18,6 +18,11 @@ const queryKeys = {
   categories: "categories",
   addCategory: "addCategory",
 
+  availabilities: "availability",
+  addAvailability: "addAvailability",
+  updateAvailability: "updateAvailability",
+  deleteAvailability: "deleteAvailability",
+
   // categories: "categories",
 
   // addBlog: "addBlog",
