@@ -1,4 +1,4 @@
-import React from "react";
+import React, { useState } from "react";
 import { Link, useLocation } from "react-router-dom";
 import logo from "../../assets/Logo White 1.png";
 import { RxCalendar, RxDashboard } from "react-icons/rx";
@@ -9,11 +9,14 @@ import { MdOutlineLogout } from "react-icons/md";
 import { PiBooksBold } from "react-icons/pi";
 import { MdPersonOutline } from "react-icons/md";
 import { useAuth } from "@/context/AuthContext";
+import { set } from "date-fns";
+import ConfirmModal from "../ConfirmModal";
 
 function Nav() {
   const location = useLocation();
   const { user, handleLogout } = useAuth();
   const isAdmin = user?.role === "admin";
+  const [modalOpen, setModalOpen] = useState(false);
 
   const menuItems = [
     isAdmin && {
@@ -106,13 +109,26 @@ function Nav() {
       {/* Logout Button */}
       <div className="mt-auto pt-6 border-t border-white/20">
         <button
-          onClick={handleLogout}
+          onClick={() => setModalOpen(true)}
           className="flex items-center gap-4 text-[var(--Yellow)] text-lg font-semibold w-full py-3 px-4 rounded-xl hover:bg-white/5 transition-colors duration-200"
         >
           <MdOutlineLogout size={24} />
           <span>Logout</span>
         </button>
       </div>
+
+      {/* Logout Confirmation Modal */}
+      <ConfirmModal
+        isOpen={modalOpen}
+        onClose={() => setModalOpen(false)}
+        onConfirm={handleLogout}
+        title="Confirm Logout"
+        description="Are you sure you want to logout?"
+        confirmText="Logout"
+        cancelText="Cancel"
+        icon="warning"
+        confirmColor="red"
+      />
     </nav>
   );
 }
