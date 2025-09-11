@@ -99,12 +99,12 @@ function CategoryManagement() {
               </h2>
               <span
                 className={`px-3 py-1 text-sm font-medium rounded-full ${
-                  category.isActive
+                  category.sessionType === "online"
                     ? "bg-[var(--Yellow)] text-black"
-                    : "bg-gray-100 text-gray-800"
+                    : "bg-blue-600 text-gray-100"
                 }`}
               >
-                {category.isActive ? "Active" : "Inactive"}
+                {category.sessionType === "online" ? "Online" : "Recorded"}
               </span>
             </div>
 

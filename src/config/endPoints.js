@@ -11,6 +11,7 @@ const endPoints = {
   users: "users/",
 
   packages: "/packages/",
+  packagesByCategory: "/packages/category/",
   categories: "/categories/",
 
   // categories: "/categories/",

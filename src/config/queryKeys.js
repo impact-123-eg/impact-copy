@@ -14,6 +14,7 @@ const queryKeys = {
   deleteUser: "deleteUser",
 
   packages: "packages",
+  packagesByCategory: "packagesByCategory",
   categories: "categories",
   addCategory: "addCategory",
 

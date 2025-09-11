@@ -49,9 +49,9 @@
     "duration": "2 hours per session",
     "alone": "1 hour per session",
     "sessionsPerWeek": "2-3 Sessions per week",
-    "Group" : "2 Sessions per week",
+    "Group": "2 Sessions per week",
     "schedule": "Evening schedules",
-    "avalible":"Available 24/7",
+    "avalible": "Available 24/7",
     "moreDetails": "More Details"
   },
   "aboutUs": "About Us",
@@ -61,9 +61,9 @@
   "termsOfUse": "Terms of Use",
   "designedBy": "Designed & Developed by:",
   "allRightsReserved": "All Rights Reserved @2025 impact.com",
-  "L":"level",
+  "L": "level",
   "quickLinks": "Quick Links",
-  "Mons" : "months",
+  "Mons": "months",
   "mon": "month",
   "followUs": "Follow Us",
   "contactUs": "Contact Us",
@@ -150,10 +150,10 @@
   "freeTest": "Free Test",
   "freeSess": "Free Session",
   "applicationSuccess": "Application Submitted Successfully",
-  "1level":"1 Level",
-  "Details":"Details",
+  "1level": "1 Level",
+  "Details": "Details",
   "PrivacyPolicy": "privacy-policy",
-  "other":"Other",
+  "other": "Other",
   "TitleOne": "Data We Collect",
   "SubOne": "We may collect the following data when using the 'Impact Academy English' application:",
   "BodyOne": "- Personal Information: Name, phone number, email address.<br>- Account Information: Login data and personal details.<br>- Course Information: Registered courses, progress, and evaluations.<br>- Payment Information: Transaction details and payment methods (processed via secure payment gateways).<br>- Device Information: Operating system and browser type for improving the app.",
@@ -188,22 +188,62 @@
 
   "TitleNine": "Address",
   "BodyNine": "6th District, Block 33, Building 45 - New Damietta",
-    "refundTitle" : "Refund Policy",
+  "refundTitle": "Refund Policy",
   "refundDec": "The student can request a refund within 3 days of registration if they have not been contacted by customer service to coordinate the schedule.<br/>Refund requests must be made through the official customer support channels.<br/>Refunds will be processed within 7 business days after approval.<br/>Non-refundable cases:<br/>- If the student is expelled due to committing a moral violation or due to misconduct towards fellow students, teachers, or company employees.<br/>- If the schedule has been coordinated due to reserving a place for the student in a group or contracting a specific teacher at the agreed-upon time in the individual system.<br/>- If the student starts studying and then suddenly stops.<br/>Flexible solutions for student issues:<br/>Several flexible solutions will be offered, such as freezing remaining levels or transferring them to a friend, provided that it is a new level that the student has not started studying yet.<br/>Contact Channels:<br/>For complaints, suggestions, or requests, students can contact customer service at the following numbers:<br/>+201091085271<br/>+201019725546<br/>Changes in contact numbers will be communicated to students via available communication methods.<br/>Address:<br/>Neighborhood 6, Block 33, Building 45 - New Damietta",
- "useTitle" : "Terms of Use",
+  "useTitle": "Terms of Use",
   "usePolicy": "Study System at Impact Academy<br/><br/>Teacher's Commitment:<br/>The teacher commits to providing full academic support to the student, including explaining educational concepts, providing the curriculum, and offering any additional educational resources the student may need to enhance their learning experience.<br/><br/>The teacher must monitor student progress periodically and provide necessary guidance to ensure optimal academic performance.<br/><br/>Management's Commitment:<br/>The management, through customer service staff, is committed to tracking student progress, reviewing the quality of the educational service provided, and ensuring students' satisfaction with the level of education.<br/><br/>Students may submit complaints or feedback through the customer service representative, and the complaint will be handled seriously in line with the academy's policy.<br/><br/>Management is committed to resolving any issues or feedback provided by students, taking into account the rules and regulations in place at the academy.<br/><br/>Student's Commitment:<br/>The student must attend classes on time, without absences or delays. They are also responsible for completing all assigned academic tasks, including assignments and other educational activities.<br/><br/>The academy is not responsible for any deterioration in the student's level due to non-compliance with regular attendance or due to absence or delay.<br/><br/>The student must adhere to general etiquette and high morals in their interactions with teachers, staff, and fellow students. Any misconduct by the student that affects the study environment or conflicts with the academy’s values may result in expulsion from the course without the right to a refund.<br/><br/>Level Determination:<br/>The student's academic level is determined based on a placement test conducted by an experienced teacher in the field. The goal of this test is to ensure that the student starts studying at a level suitable for their abilities and prior knowledge.<br/><br/>Student's Active Participation Commitment:<br/>The student is required to attend all lectures and actively participate in educational activities. The student must also submit academic assignments on time and attend the level completion test at the designated time.<br/><br/>Passing the level completion test is essential to complete the course and progress to the next level.<br/><br/>Academic Responsibility:<br/>The student's academic level is considered a shared responsibility between the student and the academy. The student is expected to follow instructions and academic schedules, while the academy provides an appropriate learning environment and necessary support.<br/><br/>If the student fails to participate effectively, their academic situation may be evaluated, and necessary measures will be taken to ensure improvement.<br/><br/>Absence and Delay Policies:<br/>In the event of a student's absence from a class or delay, the academy is not responsible for covering the missed content. However, students can refer to class recordings to catch up on missed material.<br/><br/>Missing more than two classes without a valid excuse reduces the student's chances of passing the level, as regular attendance is an essential factor for ensuring maximum benefit from the course.<br/><br/>The academy encourages students to commit to regular attendance and active participation to ensure academic progress and full involvement in all aspects of the course.<br/><br/>If the student books more than one level and wishes to postpone the next level, they must inform the academy at least four lectures before the current level ends, as a new group needs to be added.<br/><br/>Academy Rights:<br/>The academy reserves the right to take disciplinary actions against students in the case of repeated violations or inappropriate behavior, including expelling the student from the course without a refund if necessary.<br/><br/>Attendance and Study System:<br/><br/>1. Lectures Method:<br/>All lectures are delivered via interactive live broadcasts on Zoom or any other platform agreed upon between the academy and the student.<br/>It is preferred that students have their cameras on during lectures to ensure interaction and active participation.<br/>Lectures are recorded for all students so they can revisit the content if needed.<br/><br/>2. Group Study and Individual Lessons:<br/>The level consists of 10 lectures, with each lecture lasting between one to two hours, depending on the number of students in the group. Fixed schedules are assigned to groups and cannot be changed once the course begins, unless moving to a new level or if the academy is notified in advance.<br/><br/>A Telegram or WhatsApp group is created for the students to receive links to attend, lecture recordings, and course updates, and this group remains available for the student throughout their academic journey with the academy.<br/><br/>Individual Courses:<br/>An individual course consists of 10 sessions, each lasting one hour. The schedule is arranged after a placement test to coordinate times according to the student's availability.<br/><br/>Subscription Activation:<br/>The subscription is considered active from the first lecture of the course and ends with the last lecture of the current level.<br/><br/>Individual Lesson Cancellation Policy:<br/>If a student wishes to cancel an individual lesson, they must inform the academy at least 4 hours in advance. If no notice is given or if the student does not attend without prior notice, that lesson will count as part of their scheduled lessons.<br/><br/>Contact Channels:<br/>For complaints, suggestions, or requests, students can contact customer service at the following numbers:<br/>+201091085271<br/>+201019725546<br/>Changes in contact numbers will be communicated to students via available communication methods.<br/><br/>Address:<br/>6th District, Block 33, Building 45 – New Damietta",
-  
-  "ad" : "6th District, Block 33, Building 45 – New damietta"  ,
-  "aboutDecOne" : "One-on-one guidance from expert instructors.",
-  "aboutDectwo" : "Real-time speaking and listening exercises.",
-  "aboutDecthree" :"Regular assessments to measure improvement.",
-  "aboutDecfour" :"Personalized Learning Experiences Designed to Match Your Unique Style, Pace, and Goals.",
-"insOne" : "Haneen Dawood",
-"insTwo" : "Fatma Hamed",
-"insThree" : "Nada Fathy",
-"insFour" : "Shaza Almoselhi",
-"insFive" : "Mazen Yasser",
-"insSix" : "Hanady Gaber",
-"loading" : "loading",
-"payment" : "payment methods"
+
+  "ad": "6th District, Block 33, Building 45 – New damietta",
+  "aboutDecOne": "One-on-one guidance from expert instructors.",
+  "aboutDectwo": "Real-time speaking and listening exercises.",
+  "aboutDecthree": "Regular assessments to measure improvement.",
+  "aboutDecfour": "Personalized Learning Experiences Designed to Match Your Unique Style, Pace, and Goals.",
+  "insOne": "Haneen Dawood",
+  "insTwo": "Fatma Hamed",
+  "insThree": "Nada Fathy",
+  "insFour": "Shaza Almoselhi",
+  "insFive": "Mazen Yasser",
+  "insSix": "Hanady Gaber",
+  "loading": "loading",
+  "payment": "payment methods",
+  "categories": {
+    "sessionType": {
+      "online": "Online Session",
+      "recorded": "Recorded Session",
+      "both": "Online & Recorded Sessions"
+    },
+    "scheduleType": {
+      "night": "Evening Schedules",
+      "morning": "Morning Schedules",
+      "24/7": "Available 24/7"
+    },
+    "hoursPerSession": {
+      "one": "Hour Per Session",
+      "more": "Hours Per Session"
+    },
+    "sessionsPerWeek": {
+      "one": "Session Per Week",
+      "more": "Sessions Per Week"
+    },
+    "moreDetails": "More Details"
+  },
+  "level": "Level",
+  "levels": "Levels",
+  "session": "Session",
+  "sessions": "Sessions",
+  "month": "Month",
+  "months": "Months",
+  "student": "Student",
+  "students": "Students",
+  "validation": {
+    "required": "This field is required",
+    "nameRequired": "Name is required",
+    "emailRequired": "Email is required",
+    "phoneRequired": "Phone number is required",
+    "invalidEmail": "Invalid email address",
+    "invalidPhoneNumber": "Invalid phone number",
+    "minLength": "Minimum length is {{min}} characters",
+    "maxLength": "Maximum length is {{max}} characters",
+    "mustBeTrue": "You must accept this field"
+  }
 }

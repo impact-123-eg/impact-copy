@@ -21,8 +21,7 @@ import EditAdmin from "./pages/dashboard/UpdateEmployee";
 import Requests from "./pages/dashboard/Requests";
 import StudentsBooking from "./pages/dashboard/StudentsBooking";
 import CoursesPlans from "./pages/dashboard/CoursesPlans";
-import EditCourse from "./Components/dashboard/EditCourse";
-import AddCourse from "./Components/dashboard/AddPackage";
+// import AddCourse from "./Components/dashboard/AddEditPackage";
 
 import { AuthProvider } from "./AuthContext";
 import ProtectedRoute from "./ProtectedRoute";
@@ -37,6 +36,9 @@ import { toastOptions } from "./toastConfig";
 import AddEmployee from "./pages/dashboard/AddEmployee";
 import AddCategory from "./Components/dashboard/AddCategory";
 import CategoryManagement from "./pages/dashboard/Categories";
+import AddEditPackage from "./Components/dashboard/AddEditPackage";
+import AddAvailability from "./Components/dashboard/AddAvailability";
+import Availabilities from "./pages/dashboard/Availabilities";
 function App() {
   // const { t, i18n, changeLanguage } = useTranslationContext();
 
@@ -50,7 +52,7 @@ function App() {
               <Route index element={<Home />} />
               <Route path="/about" element={<AboutUs />} />
               <Route path="courses" element={<Courses />} />
-              <Route path="courses/:courseName" element={<CourseDetails />} />
+              <Route path="courses/:id" element={<CourseDetails />} />
             </Route>
 
             {/* Checkout page with a different layout */}
@@ -60,7 +62,10 @@ function App() {
               <Route path="/terms-of-use" element={<Terms />} />
               <Route path="/privacy-policy" element={<Privacy />} />
               <Route path="/refund-policy" element={<Refund />} />
-              <Route path="ApplicationForm/:id" element={<AppForm />} />
+              <Route
+                path="ApplicationForm/:clientCurrency/:id"
+                element={<AppForm />}
+              />
             </Route>
 
             {/* Dashboard layout */}
@@ -70,16 +75,50 @@ function App() {
                 element={<ProtectedRoute element={<HomePage />} />}
               />
               <Route
+                path="availabilities"
+                element={
+                  <ProtectedRoute
+                    element={<Availabilities />}
+                    requiredRoles={["admin"]}
+                  />
+                }
+              />
+              <Route
+                path="availabilities/add-availability"
+                element={
+                  <ProtectedRoute
+                    element={<AddAvailability />}
+                    requiredRoles={["admin"]}
+                  />
+                }
+              />
+
+              <Route
                 path="settings"
-                element={<ProtectedRoute element={<Settings />} />}
+                element={
+                  <ProtectedRoute
+                    element={<Settings />}
+                    requiredRoles={["admin"]}
+                  />
+                }
               />
               <Route
                 path="settings/add-employee"
-                element={<ProtectedRoute element={<AddEmployee />} />}
+                element={
+                  <ProtectedRoute
+                    element={<AddEmployee />}
+                    requiredRoles={["admin"]}
+                  />
+                }
               />
               <Route
                 path="settings/update-employee/:id"
-                element={<ProtectedRoute element={<EditAdmin />} />}
+                element={
+                  <ProtectedRoute
+                    element={<EditAdmin />}
+                    requiredRoles={["admin"]}
+                  />
+                }
               />
               <Route
                 path="requests"
@@ -87,7 +126,12 @@ function App() {
               />
               <Route
                 path="payment"
-                element={<ProtectedRoute element={<Payment />} />}
+                element={
+                  <ProtectedRoute
+                    element={<Payment />}
+                    requiredRoles={["admin"]}
+                  />
+                }
               />
               <Route
                 path="booking"
@@ -95,27 +139,57 @@ function App() {
               />
               <Route
                 path="categories"
-                element={<ProtectedRoute element={<CategoryManagement />} />}
+                element={
+                  <ProtectedRoute
+                    element={<CategoryManagement />}
+                    requiredRoles={["admin"]}
+                  />
+                }
               />
               <Route
                 path="categories/add-category"
-                element={<ProtectedRoute element={<AddCategory />} />}
+                element={
+                  <ProtectedRoute
+                    element={<AddCategory />}
+                    requiredRoles={["admin"]}
+                  />
+                }
               />
               <Route
                 path="categories/edit-category/:id"
-                element={<ProtectedRoute element={<AddCategory />} />}
+                element={
+                  <ProtectedRoute
+                    element={<AddCategory />}
+                    requiredRoles={["admin"]}
+                  />
+                }
               />
               <Route
                 path="courses"
-                element={<ProtectedRoute element={<CoursesPlans />} />}
+                element={
+                  <ProtectedRoute
+                    element={<CoursesPlans />}
+                    requiredRoles={["admin"]}
+                  />
+                }
               />
               <Route
                 path="courses/editcourse/:id"
-                element={<ProtectedRoute element={<AddCourse />} />}
+                element={
+                  <ProtectedRoute
+                    element={<AddEditPackage />}
+                    requiredRoles={["admin"]}
+                  />
+                }
               />
               <Route
                 path="courses/addcourse"
-                element={<ProtectedRoute element={<AddCourse />} />}
+                element={
+                  <ProtectedRoute
+                    element={<AddEditPackage />}
+                    requiredRoles={["admin"]}
+                  />
+                }
               />
             </Route>
 

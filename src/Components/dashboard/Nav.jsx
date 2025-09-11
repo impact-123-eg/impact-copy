@@ -4,6 +4,7 @@ import logo from "../../assets/Logo White 1.png";
 import { RxCalendar, RxDashboard } from "react-icons/rx";
 import { GiPapers, GiWallet } from "react-icons/gi";
 import { CiSettings } from "react-icons/ci";
+import { BiSolidTime } from "react-icons/bi";
 import { MdOutlineLogout } from "react-icons/md";
 import { PiBooksBold } from "react-icons/pi";
 import { MdPersonOutline } from "react-icons/md";
@@ -21,11 +22,16 @@ function Nav() {
       path: "/dash/",
     },
     {
+      name: "Availabilities",
+      icon: <BiSolidTime size={24} />,
+      path: "/dash/availabilities",
+    },
+    {
       name: "Student Booking",
       icon: <RxCalendar size={24} />,
       path: "/dash/booking",
     },
-    {
+    isAdmin && {
       name: "Courses & Plans",
       icon: <PiBooksBold size={24} />,
       path: "/dash/courses",
@@ -73,13 +79,13 @@ function Nav() {
       </section>
 
       {/* Navigation Menu */}
-      <section className="flex-1 space-y-2">
+      <section className="flex-1 space-y-1">
         {menuItems.map((item) => (
           <Link
             key={item.name}
             to={item.path}
             onClick={() => window.scroll(0, 0)}
-            className={`flex items-center gap-4 text-lg rounded-xl py-4 px-4 transition-all duration-200 ${
+            className={`flex items-center gap-4 text-lg rounded-xl py-3 px-4 transition-all duration-200 ${
               isActive(item.path)
                 ? "bg-white text-[var(--Main)] shadow-md"
                 : "text-white hover:bg-white/10"

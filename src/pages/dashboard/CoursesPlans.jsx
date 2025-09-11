@@ -7,6 +7,7 @@ import {
 import ConfirmModal from "@/Components/ConfirmModal";
 import { useGetAllcategories } from "@/hooks/Actions/categories/useCategoryCruds";
 import formatDuration from "@/utilities/formatDuration";
+import { t } from "i18next";
 
 function CoursesPlans() {
   const navigate = useNavigate();
@@ -16,7 +17,6 @@ function CoursesPlans() {
 
   const { data: coursesRes } = useGetAllpackages();
   const courses = coursesRes?.data || [];
-  console.log(courses);
   const tabCourses = courses.filter(
     (course) => course?.category?.name === activeTab
   );
@@ -104,7 +104,7 @@ function CoursesPlans() {
             {/* Package Header */}
             <div className="flex justify-between items-center mb-6 pb-4 border-b">
               <h2 className="text-2xl font-semibold text-gray-800">
-                Level {level.levelno}
+                {level.levelno} {level.levelno < 2 ? "Level" : "Levels"}
               </h2>
               <span className="px-3 py-1 bg-blue-100 text-blue-800 text-sm font-medium rounded-full">
                 {level.scheduleType}
@@ -143,7 +143,7 @@ function CoursesPlans() {
                     Duration
                   </span>
                   <span className="block font-semibold">
-                    {formatDuration(level.duration)}
+                    {formatDuration(level.duration, t)}
                   </span>
                 </div>
                 <div className="bg-gray-50 p-3 rounded-lg">

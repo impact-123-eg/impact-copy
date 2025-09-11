@@ -7,14 +7,9 @@ import {
   useGetcategoryById,
   useUpdateCategory,
 } from "@/hooks/Actions/categories/useCategoryCruds";
+import { categorySchema } from "@/Validation";
 
-const categorySchema = Yup.object({
-  name: Yup.string().required("Category name is required"),
-  enTitle: Yup.string().required("English title is required"),
-  enDescription: Yup.string().required("English description is required"),
-  arTitle: Yup.string().required("Arabic title is required"),
-  arDescription: Yup.string().required("Arabic description is required"),
-});
+// Updated validation schema with new fields
 
 function AddCategory() {
   const navigate = useNavigate();
@@ -39,6 +34,11 @@ function AddCategory() {
     if (editedCategory && mode === "edit") {
       formik.setValues({
         name: editedCategory?.name || "",
+        hoursPerSession: editedCategory?.hoursPerSession || "",
+        sessionsPerWeek: editedCategory?.sessionsPerWeek || "",
+        scheduleType: editedCategory?.scheduleType || "24/7",
+        studentNo: editedCategory?.studentNo || "",
+        sessionType: editedCategory?.sessionType || "online",
         enTitle: editedCategory?.en?.title || "",
         enDescription: editedCategory?.en?.description || "",
         arTitle: editedCategory?.ar?.title || "",
@@ -50,6 +50,11 @@ function AddCategory() {
   const formik = useFormik({
     initialValues: {
       name: "",
+      hoursPerSession: "",
+      sessionsPerWeek: "",
+      scheduleType: "24/7",
+      studentNo: "",
+      sessionType: "online",
       enTitle: "",
       enDescription: "",
       arTitle: "",
@@ -59,6 +64,11 @@ function AddCategory() {
     onSubmit: (values) => {
       const categoryData = {
         name: values.name,
+        hoursPerSession: parseFloat(values.hoursPerSession),
+        sessionsPerWeek: values.sessionsPerWeek,
+        scheduleType: values.scheduleType,
+        studentNo: values.studentNo,
+        sessionType: values.sessionType,
         en: {
           title: values.enTitle,
           description: values.enDescription,
@@ -97,7 +107,7 @@ function AddCategory() {
         );
       }
     },
-    enableReinitialize: true, // Allow reinitialization when values change
+    enableReinitialize: true,
   });
 
   // Show loading state while fetching category data for editing
@@ -119,28 +129,162 @@ function AddCategory() {
       </h1>
 
       <form onSubmit={formik.handleSubmit} className="space-y-6">
-        {/* Category Name */}
-        <div className="space-y-2">
-          <label className="font-semibold text-lg">Category Name *</label>
-          <input
-            name="name"
-            value={formik.values.name}
-            onChange={formik.handleChange}
-            onBlur={formik.handleBlur}
-            placeholder="e.g., IELTS, Group, Private"
-            className={`w-full bg-[var(--Input)] py-3 px-4 rounded-lg border focus:outline-none focus:ring-2 focus:ring-[var(--Yellow)] ${
-              formik.touched.name && formik.errors.name
-                ? "border-red-500"
-                : "border-transparent"
-            }`}
-          />
-          {formik.touched.name && formik.errors.name && (
-            <div className="text-red-500 text-sm">{formik.errors.name}</div>
-          )}
+        {/* Category Details Section */}
+        <div className="grid md:grid-cols-2 gap-6">
+          {/* Basic Information */}
+          <div className="space-y-4">
+            <h3 className="font-semibold text-lg border-b pb-2">
+              Category Details
+            </h3>
+
+            <div className="space-y-2">
+              <label className="font-medium">Category Name *</label>
+              <input
+                name="name"
+                value={formik.values.name}
+                onChange={formik.handleChange}
+                onBlur={formik.handleBlur}
+                placeholder="e.g., IELTS, Group, Private"
+                className={`w-full bg-[var(--Input)] py-2 px-4 rounded-lg border ${
+                  formik.touched.name && formik.errors.name
+                    ? "border-red-500"
+                    : "border-transparent"
+                }`}
+              />
+              {formik.touched.name && formik.errors.name && (
+                <div className="text-red-500 text-sm">{formik.errors.name}</div>
+              )}
+            </div>
+
+            <div className="space-y-2">
+              <label className="font-medium">Hours Per Session *</label>
+              <input
+                name="hoursPerSession"
+                type="number"
+                step="0.5"
+                min="0.5"
+                max="24"
+                value={formik.values.hoursPerSession}
+                onChange={formik.handleChange}
+                onBlur={formik.handleBlur}
+                className={`w-full bg-[var(--Input)] py-2 px-4 rounded-lg border ${
+                  formik.touched.hoursPerSession &&
+                  formik.errors.hoursPerSession
+                    ? "border-red-500"
+                    : "border-transparent"
+                }`}
+              />
+              {formik.touched.hoursPerSession &&
+                formik.errors.hoursPerSession && (
+                  <div className="text-red-500 text-sm">
+                    {formik.errors.hoursPerSession}
+                  </div>
+                )}
+            </div>
+
+            <div className="space-y-2">
+              <label className="font-medium">Student Capacity *</label>
+              <input
+                name="studentNo"
+                value={formik.values.studentNo}
+                onChange={formik.handleChange}
+                onBlur={formik.handleBlur}
+                placeholder="e.g., 1-5, 10-15, 20+"
+                className={`w-full bg-[var(--Input)] py-2 px-4 rounded-lg border ${
+                  formik.touched.studentNo && formik.errors.studentNo
+                    ? "border-red-500"
+                    : "border-transparent"
+                }`}
+              />
+              {formik.touched.studentNo && formik.errors.studentNo && (
+                <div className="text-red-500 text-sm">
+                  {formik.errors.studentNo}
+                </div>
+              )}
+            </div>
+          </div>
+
+          {/* Schedule & Session Type */}
+          <div className="space-y-4">
+            <h3 className="font-semibold text-lg border-b pb-2">
+              Schedule & Type
+            </h3>
+
+            <div className="space-y-2">
+              <label className="font-medium">Schedule Type *</label>
+              <select
+                name="scheduleType"
+                value={formik.values.scheduleType}
+                onChange={formik.handleChange}
+                onBlur={formik.handleBlur}
+                className={`w-full bg-[var(--Input)] py-2 px-4 rounded-lg border ${
+                  formik.touched.scheduleType && formik.errors.scheduleType
+                    ? "border-red-500"
+                    : "border-transparent"
+                }`}
+              >
+                <option value="24/7">All Day (24/7)</option>
+                <option value="morning">Morning</option>
+                <option value="night">Night</option>
+              </select>
+              {formik.touched.scheduleType && formik.errors.scheduleType && (
+                <div className="text-red-500 text-sm">
+                  {formik.errors.scheduleType}
+                </div>
+              )}
+            </div>
+
+            <div className="space-y-2">
+              <label className="font-medium">Session Type *</label>
+              <select
+                name="sessionType"
+                value={formik.values.sessionType}
+                onChange={formik.handleChange}
+                onBlur={formik.handleBlur}
+                className={`w-full bg-[var(--Input)] py-2 px-4 rounded-lg border ${
+                  formik.touched.sessionType && formik.errors.sessionType
+                    ? "border-red-500"
+                    : "border-transparent"
+                }`}
+              >
+                <option value="online">Online</option>
+                <option value="recorded">Recorded</option>
+                <option value="both">Both (Online & Recorded)</option>
+              </select>
+              {formik.touched.sessionType && formik.errors.sessionType && (
+                <div className="text-red-500 text-sm">
+                  {formik.errors.sessionType}
+                </div>
+              )}
+            </div>
+            <div className="space-y-2">
+              <label className="font-medium">Sessions Per Week *</label>
+              <input
+                name="sessionsPerWeek"
+                value={formik.values.sessionsPerWeek}
+                onChange={formik.handleChange}
+                onBlur={formik.handleBlur}
+                placeholder="e.g., 2-3, 4, 5+"
+                className={`w-full bg-[var(--Input)] py-2 px-4 rounded-lg border ${
+                  formik.touched.sessionsPerWeek &&
+                  formik.errors.sessionsPerWeek
+                    ? "border-red-500"
+                    : "border-transparent"
+                }`}
+              />
+              {formik.touched.sessionsPerWeek &&
+                formik.errors.sessionsPerWeek && (
+                  <div className="text-red-500 text-sm">
+                    {formik.errors.sessionsPerWeek}
+                  </div>
+                )}
+            </div>
+          </div>
         </div>
 
-        {/* English Content */}
+        {/* Language Content Section */}
         <div className="grid md:grid-cols-2 gap-6">
+          {/* English Content */}
           <div className="space-y-4">
             <h3 className="font-semibold text-lg border-b pb-2">
               English Content
