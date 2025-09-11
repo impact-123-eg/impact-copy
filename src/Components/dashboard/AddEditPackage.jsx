@@ -11,7 +11,7 @@ import { useGetAllcategories } from "@/hooks/Actions/categories/useCategoryCruds
 
 // Validation Schema
 
-function AddPackage() {
+function AddEditPackage() {
   const navigate = useNavigate();
   const { id: packageId } = useParams();
   const [mode, setMode] = useState(packageId ? "edit" : "add");
@@ -22,47 +22,47 @@ function AddPackage() {
   const { data: categoryData } = useGetAllcategories();
   const categories = categoryData?.data || [];
   const { data: packData } = useGetpackageById({
-    packageId,
-    enabled: mode === "edit" && !!packageId,
+    id: packageId,
+    enabled: !!packageId,
   });
-  const packDetails = packData?.data?.data || {};
+  const packDetails = packData?.data || {};
 
-  useEffect(() => {
-    if (mode === "edit" && packageId) {
-      // Fetch package details for editing
-      formik.setValues({
-        category: packDetails.category || "",
-        levelno: packDetails.levelno || null,
-        priceBefore: packDetails.priceBefore || null,
-        priceAfter: packDetails.priceAfter || null,
-        duration: packDetails.duration || null,
-        durationUnit: packDetails.durationUnit || null,
-        sessionNo: packDetails.sessionNo || null,
+  // Determine initial values based on mode
+  const getInitialValues = () => {
+    if (mode === "edit" && packDetails) {
+      return {
+        category: packDetails.category?._id || "",
+        levelno: packDetails.levelno || "",
+        priceBefore: packDetails.priceBefore || "",
+        priceAfter: packDetails.priceAfter || "",
+        duration: packDetails.duration || "",
+        durationUnit: packDetails.durationUnit || "1",
+        sessionNo: packDetails.sessionNo || "",
         sessionPerWeek: packDetails.sessionPerWeek || "",
-        hours: packDetails.hours || null,
-        scheduleType: packDetails.scheduleType || "",
+        hours: packDetails.hours || "",
+        scheduleType: packDetails.scheduleType || "24/7",
         studentNo: packDetails.studentNo || "",
-      });
+      };
     }
-  }, [packageId]);
+
+    return {
+      category: "",
+      levelno: "",
+      priceBefore: "",
+      priceAfter: "",
+      duration: "",
+      durationUnit: "1",
+      sessionNo: "",
+      sessionPerWeek: "",
+      hours: "",
+      scheduleType: "24/7",
+      studentNo: "",
+    };
+  };
 
   // Formik setup
   const formik = useFormik({
-    initialValues: {
-      category: "",
-
-      // Package fields
-      levelno: null,
-      priceBefore: null,
-      priceAfter: null,
-      duration: null,
-      durationUnit: null,
-      sessionNo: null,
-      sessionPerWeek: "",
-      hours: null,
-      scheduleType: "",
-      studentNo: "",
-    },
+    initialValues: getInitialValues(),
     validationSchema: packageValidationSchema,
     onSubmit: (values) => {
       if (mode === "edit") {
@@ -71,6 +71,7 @@ function AddPackage() {
         handleAddPackage(values);
       }
     },
+    enableReinitialize: true,
   });
 
   const handleAddPackage = async (values) => {
@@ -411,4 +412,4 @@ function AddPackage() {
   );
 }
 
-export default AddPackage;
+export default AddEditPackage;

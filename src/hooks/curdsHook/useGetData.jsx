@@ -42,7 +42,7 @@ const useGetData = ({
   const { token } = useAuth();
 
   const GetDataRequest = () => {
-    console.log(params);
+    // console.log(params);
     return getRequest(url, token, {
       params: {
         ...params,

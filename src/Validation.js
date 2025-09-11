@@ -122,3 +122,36 @@ export const packageValidationSchema = Yup.object({
   scheduleType: Yup.string().required("Schedule type is required"),
   studentNo: Yup.string().required("Student capacity is required"),
 });
+
+export const categorySchema = Yup.object({
+  name: Yup.string().required("Category name is required"),
+  hoursPerSession: Yup.number()
+    .required("Hours per session is required")
+    .min(0.5, "Minimum 0.5 hours")
+    .max(24, "Maximum 24 hours"),
+  sessionsPerWeek: Yup.string().required("Sessions per week is required"),
+  scheduleType: Yup.string()
+    .required("Schedule type is required")
+    .oneOf(["morning", "night", "24/7"], "Invalid schedule type"),
+  studentNo: Yup.string().required("Student capacity is required"),
+  sessionType: Yup.string()
+    .required("Session type is required")
+    .oneOf(["online", "recorded", "both"], "Invalid session type"),
+  enTitle: Yup.string().required("English title is required"),
+  enDescription: Yup.string().required("English description is required"),
+  arTitle: Yup.string().required("Arabic title is required"),
+  arDescription: Yup.string().required("Arabic description is required"),
+});
+
+export const bookingApplicationValidationSchema = (t) =>
+  Yup.object({
+    name: Yup.string().required(
+      t("validation.nameRequired") || "Name is required"
+    ),
+    email: Yup.string()
+      .email(t("validation.invalidEmail") || "Invalid email address")
+      .required(t("validation.emailRequired") || "Email is required"),
+    phoneNumber: Yup.string().required(
+      t("validation.phoneRequired") || "Phone number is required"
+    ),
+  });

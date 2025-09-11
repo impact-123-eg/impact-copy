@@ -1,5 +1,4 @@
-// Utility function to format duration
-const formatDuration = (weeks) => {
+const formatDuration = (weeks, t, ar = false) => {
   const weeksNum = parseInt(weeks);
 
   if (isNaN(weeksNum) || weeksNum <= 0) {
@@ -9,11 +8,11 @@ const formatDuration = (weeks) => {
   // If duration is divisible by 4, show in months
   if (weeksNum % 4 === 0) {
     const months = weeksNum / 4;
-    return `${months} ${months > 1 ? "Months" : "Month"}`;
+    return `${months} ${months > (ar ? 2 : 1) ? t("months") : t("month")}`;
   }
 
   // Otherwise show in weeks
-  return `${weeksNum} ${weeksNum > 1 ? "Weeks" : "Week"}`;
+  return `${weeksNum} ${weeksNum > (ar ? 2 : 1) ? t("weeks") : t("week")}`;
 };
 
 export default formatDuration;

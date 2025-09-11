@@ -25,10 +25,13 @@ import Service from "../Components/Service";
 import Course from "../Components/Course";
 import { doc, updateDoc } from "firebase/firestore";
 import { db } from "../data/firebaseConfig";
+import { useGetAllcategories } from "@/hooks/Actions/categories/useCategoryCruds";
 
 function Home() {
   const { t, i18n } = useTranslation();
   const navigate = useNavigate();
+  const { data: catData } = useGetAllcategories();
+  const categories = catData?.data || [];
   // const location = useLocation();
   // const queryParams = new URLSearchParams(location.search);
   // const success = queryParams.get("success"); // Get success status
@@ -274,17 +277,9 @@ function Home() {
           data-aos-delay="1000"
           className="grid grid-cols-1 md:grid-cols-3 gap-3 lg:gap-6"
         >
-          <Course direc="IELTS" title={t("courses.ielts")} />
-          <Course
-            direc="Group"
-            title={t("courses.group")}
-            selectedCourse="Group"
-          />
-          <Course
-            direc="Private"
-            title={t("courses.private")}
-            selectedCourse="Private"
-          />
+          {categories.map((cat) => (
+            <Course key={cat._id} category={cat} />
+          ))}
         </article>
       </section>
     </main>

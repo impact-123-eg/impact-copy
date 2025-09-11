@@ -1,4 +1,3 @@
-/* eslint-disable no-undef */
 import { useState, useEffect } from "react";
 import { useTranslation } from "react-i18next";
 import { useLocation } from "react-router-dom";
@@ -7,587 +6,210 @@ import cntris from "../data/Countries.json";
 import { db } from "../data/firebaseConfig";
 import { useParams } from "react-router-dom";
 
-import {
-  addDoc,
-  collection,
-  doc,
-  getDoc,
-  serverTimestamp,
-} from "firebase/firestore";
 import vector from "../assets/arrowvector.png";
 import { FaApple } from "react-icons/fa";
 import { IoCardSharp } from "react-icons/io5";
+import { useGetpackageById } from "@/hooks/Actions/packages/usePackageCruds";
+import Option from "@/Components/Option";
+import { useFormik } from "formik";
+import { bookingApplicationValidationSchema } from "@/Validation";
+
 const AppForm = () => {
-  const { id } = useParams(); // ⬅️ This gets the "id" from the URL
+  const { id: packageId, clientCurrency } = useParams();
   const { t, i18n } = useTranslation();
-  // const navigate = useNavigate();
-  const location = useLocation();
-  const [loading, setLoading] = useState(false);
-  const [formData, setFormData] = useState({
-    name: "",
-    email: "",
-    courseCategory: "",
-    phoneNumber: "",
-    country: "",
-    option: "",
-    takenTest: false,
-    type: "",
-    priceAfter: "",
+  const EN = i18n.language === "en";
+
+  const { data: packData } = useGetpackageById({ id: packageId });
+  const coursePackage = packData?.data || {};
+
+  const formik = useFormik({
+    initialValues: {
+      name: "",
+      email: "",
+      phoneNumber: "",
+      package: coursePackage?.category?._id || "",
+      takenTest: false,
+    },
+    validationSchema: bookingApplicationValidationSchema(t),
+    enableReinitiate: true,
+    onSubmit: (values) => {
+      console.log("Form submitted with values:", values);
+      // Payment logic will be implemented here later
+      const bookingData = {
+        name: values.name,
+        email: values.email,
+        phoneNumber: values.phoneNumber,
+        package: coursePackage._id,
+      };
+      handleInitiatePayment();
+    },
   });
-  const [course, setCourse] = useState([]);
-  const [Scourse, setSCourse] = useState([]);
-  const [options, setOptions] = useState("");
-  // const [paymentUrl, setPaymentUrl] = useState("");
-  const [courseDetails, setCourseDetails] = useState("");
-  const [level, setLevel] = useState("");
-  const [levelAr, setLevelAr] = useState("");
-  // const {price , realprice} = useContext(GlobalContext)
-  // const realprice = localStorage.getItem("pricereal");
-  const removeText = localStorage.getItem("price"); // Get price from localStorage
-  const fixedprice = Number(removeText?.replace(/[^\d.]/g, "")); // Remove non-numeric characters
-  const formattedPrice = fixedprice.toFixed(0); // Round to integer
-  (">>>>>>>>>>>>>>>>>>>>");
-  formattedPrice;
-  const currentLanguage = i18n.language;
-  // const textAlignment = i18n.language === 'ar' ? 'text-right' : 'text-left';
 
-  const countries = cntris;
-  // const countriesAr = countries.map((cnt) => cnt.nameAr);
-  const countriesEn = countries.map((cnt) => cnt.nameEn);
-  useEffect(() => {
-    const fetchCourse = async () => {
-      try {
-        console.log("Fetching course for id:", id); // 🔍 check this
-        const docRef = doc(db, "courses", id);
-        const docSnap = await getDoc(docRef);
-
-        if (docSnap.exists()) {
-          const courseData = docSnap.data();
-          console.log("Course Data:", courseData);
-          if (courseData) {
-            setSCourse(courseData);
-            setOptions(courseData.Options.map((opt) => opt.levelno));
-          } else {
-            console.warn("No options data found.");
-          }
-        } else {
-          console.error("No such document!"); // ❌ this is the main issue
-        }
-      } catch (error) {
-        console.error("Error fetching course: ", error);
-      }
-    };
-
-    if (id) fetchCourse();
-  }, [id, currentLanguage]);
-  useEffect(() => {
-      setFormData((prevState) => ({
-        ...prevState,
-        courseCategory: Scourse.Tab || "",
-        option: i18n.language === "en" ? Scourse.Name : Scourse.NameAr,
-        type: i18n.language === "en" ? Scourse.Name : Scourse.NameAr || "",
-        number: id || "",
-      }));
-  }, [location.state , Scourse]);
-  useEffect(() => {
-    const fetchCourse = async () => {
-      try {
-        const docRef = doc(db, "courses", formData.option);
-        const docSnap = await getDoc(docRef);
-
-        if (docSnap.exists()) {
-          const courseData = docSnap.data()?.[currentLanguage];
-
-          if (courseData) {
-            // Filter based on the course ID (number)
-            const filteredCourse = courseData.Options.filter(
-              (data) => data.id === formData.number
-            );
-            setCourse(filteredCourse);
-            setOptions(courseData.Options.map((opt) => opt.levelno));
-          } else {
-            ("No options data found.");
-          }
-        } else {
-          console.error("No such document!");
-        }
-      } catch (error) {
-        console.error("Error fetching course: ", error);
-      }
-    };
-    setCourseDetails(Scourse.Tab);
-    fetchCourse();
-  }, [formData.option, formData.number, currentLanguage]);
-  const pricereal = Scourse.PriceAfter;
-  const courseID = id;
-
-  const [userCountry, setUserCountry] = useState(null);
-
-  useEffect(() => {
-    const fetchUserLocation = async () => {
-      try {
-        const response = await fetch("https://ipapi.co/json/");
-        const data = await response.json();
-        if (data && data.country) {
-          setUserCountry(data.country);
-        } else {
-          console.error("Could not determine user country");
-        }
-      } catch (error) {
-        console.error("Error fetching user location:", error);
-      }
-    };
-    setLevel(Scourse.Name);
-    setLevelAr(Scourse.NameAr);
-    fetchUserLocation();
-  }, [Scourse]);
-  const handleChange = (e) => {
-    const { name, value, type, checked } = e.target;
-    setFormData({ ...formData, [name]: type === "checkbox" ? checked : value });
+  const handleInitiatePayment = () => {
+    // Payment initiation logic will go here
   };
-  const initiatePayment = async (e) => {
-    setLoading(true);
+
+  const handleApplePay = async (e) => {
     e.preventDefault();
-    if (
-      !formData.name ||
-      !formData.email ||
-      !formData.courseCategory ||
-      !formData.phoneNumber ||
-      !formData.country ||
-      !formData.option ||
-      !formData.type
-    ) {
-      setLoading(false);
-      Swal.fire({
-        icon: "error",
-        title: t("error"),
-        text: t("pleaseFillAllFields"),
-        timer: 1000,
-        showConfirmButton: false,
-      });
-      return;
-    }
-
-    try {
-      // Step 1: Create Firebase records
-      const newCourseRef = await addDoc(collection(db, "payments"), {
-        Name: formData.name,
-        Email: formData.email,
-        Money: pricereal,
-        Option: formData.option,
-        category: formData.courseCategory,
-        phone: formData.phoneNumber,
-        country: formData.country,
-        test: formData.takenTest,
-        Time: new Date(),
-        status: "pending",
-        courseData: "",
-        courseTime: "",
-        type: formData.type,
-        Date: new Date(),
-        createdAt: serverTimestamp(),
-      });
-
-      const newCourse = await addDoc(collection(db, "Requests"), {
-        Name: formData.name,
-        Email: formData.email,
-        Money: pricereal,
-        Option: formData.option,
-        category: formData.courseCategory,
-        phone: formData.phoneNumber,
-        country: formData.country,
-        test: formData.takenTest,
-        Time: new Date(),
-        courseData: "",
-        courseTime: "",
-        option: "course request",
-        status: "pending",
-        type: formData.type,
-        Date: new Date(),
-        createdAt: serverTimestamp(),
-      });
-
-      // Step 2: Call payment backend with Firebase document IDs
-      const response = await fetch(
-        "https://impact-backend-ebon.vercel.app/api/initiate-payment",
-        {
-          method: "POST",
-          headers: {
-            "Content-Type": "application/json",
-          },
-          body: JSON.stringify({
-            name: formData.name,
-            email: formData.email,
-            courseCategory: formData.courseCategory,
-            phoneNumber: formData.phoneNumber,
-            country: formData.country,
-            option: formData.option,
-            type: formData.type,
-            takenTest: formData.takenTest,
-            userCountry: userCountry,
-            realprice: pricereal,
-            id: courseID,
-            orderId: newCourseRef.id,
-            itemId: newCourse.id,
-          }),
-        }
-      );
-
-      const data = await response.json();
-
-      if (data.success) {
-        // Redirect to payment page
-        setLoading(false);
-        window.location.href = data.checkoutUrl;
-      } else {
-        setLoading(false);
-        // Handle payment initialization error
-        console.error("Payment initialization failed:", data.message);
-        Swal.fire({
-          icon: "error",
-          title: t("error"),
-          text: t("paymentInitializationFailed"),
-          timer: 2000,
-          showConfirmButton: false,
-        });
-
-        // Optionally update Firebase documents to reflect failure
-        await updateDoc(doc(db, "payments", newCourseRef.id), {
-          status: "payment_failed",
-        });
-
-        await updateDoc(doc(db, "Requests", newCourse.id), {
-          status: "payment_failed",
-        });
-      }
-    } catch (error) {
-      console.error("Payment error:", error);
-      Swal.fire({
-        icon: "error",
-        title: t("error"),
-        text: t("paymentProcessingError"),
-        timer: 2000,
-        showConfirmButton: false,
-      });
-    }
-  };
-  const applePay = async (e) => {
-    setLoading(true);
-    e.preventDefault();
-    if (
-      !formData.name ||
-      !formData.email ||
-      !formData.courseCategory ||
-      !formData.phoneNumber ||
-      !formData.country ||
-      !formData.option ||
-      !formData.type
-    ) {
-      setLoading(false);
-      Swal.fire({
-        icon: "error",
-        title: t("error"),
-        text: t("pleaseFillAllFields"),
-        timer: 1000,
-        showConfirmButton: false,
-      });
-      return;
-    }
-
-    try {
-      // Step 1: Create Firebase records
-      const newCourseRef = await addDoc(collection(db, "payments"), {
-        Name: formData.name,
-        Email: formData.email,
-        Money: pricereal,
-        Option: formData.option,
-        category: formData.courseCategory,
-        phone: formData.phoneNumber,
-        country: formData.country,
-        test: formData.takenTest,
-        Time: new Date(),
-        status: "pending",
-        courseData: "",
-        courseTime: "",
-        type: formData.type,
-        Date: new Date(),
-        createdAt: serverTimestamp(),
-      });
-
-      const newCourse = await addDoc(collection(db, "Requests"), {
-        Name: formData.name,
-        Email: formData.email,
-        Money: pricereal,
-        Option: formData.option,
-        category: formData.courseCategory,
-        phone: formData.phoneNumber,
-        country: formData.country,
-        test: formData.takenTest,
-        Time: new Date(),
-        courseData: "",
-        courseTime: "",
-        option: "course request",
-        status: "pending",
-        type: formData.type,
-        Date: new Date(),
-        createdAt: serverTimestamp(),
-      });
-
-      // Step 2: Call payment backend with Firebase document IDs
-      const response = await fetch(
-        "https://impact-backend-ebon.vercel.app/api/initiate-payment-apple",
-        {
-          method: "POST",
-          headers: {
-            "Content-Type": "application/json",
-          },
-          body: JSON.stringify({
-            name: formData.name,
-            email: formData.email,
-            courseCategory: formData.courseCategory,
-            phoneNumber: formData.phoneNumber,
-            country: formData.country,
-            option: formData.option,
-            type: formData.type,
-            takenTest: formData.takenTest,
-            userCountry: userCountry,
-            realprice: pricereal,
-            id: courseID,
-            orderId: newCourseRef.id,
-            itemId: newCourse.id,
-          }),
-        }
-      );
-
-      const data = await response.json();
-
-      if (data.success) {
-        // Redirect to payment page
-        setLoading(false);
-        window.location.href = data.checkoutUrl;
-      } else {
-        setLoading(false);
-        // Handle payment initialization error
-        console.error("Payment initialization failed:", data.message);
-        Swal.fire({
-          icon: "error",
-          title: t("error"),
-          text: t("paymentInitializationFailed"),
-          timer: 2000,
-          showConfirmButton: false,
-        });
-
-        // Optionally update Firebase documents to reflect failure
-        await updateDoc(doc(db, "payments", newCourseRef.id), {
-          status: "payment_failed",
-        });
-
-        await updateDoc(doc(db, "Requests", newCourse.id), {
-          status: "payment_failed",
-        });
-      }
-    } catch (error) {
-      console.error("Payment error:", error);
-      Swal.fire({
-        icon: "error",
-        title: t("error"),
-        text: t("paymentProcessingError"),
-        timer: 2000,
-        showConfirmButton: false,
-      });
-    }
+    // Implement Apple Pay logic here
   };
 
   return (
-    <section className="md:px-40 px-4">
-      <form
-        onSubmit={initiatePayment}
-        className="grid grid-cols-1 md:grid-cols-2 gap-8"
-      >
-        <article
-          data-aos="fade-right"
-          data-aos-duration="2000"
-          className="space-y-10"
-        >
-          {/* Name Field */}
-          <div className="space-y-2">
-            <label className="block text-lg font-bold text-black">
-              {t("name")}
-            </label>
-            <input
-              type="text"
-              name="name"
-              value={formData.name}
-              onChange={handleChange}
-              className="mt-1 block w-full px-3 py-2 bg-[var(--Input)] rounded-md"
-              placeholder={t("enterName")}
-            />
-          </div>
+    <section className="md:px-20 lg:px-40 px-4 py-8">
+      <div className="flex flex-col lg:flex-row gap-10 lg:gap-16">
+        {/* Form Section */}
+        <div className="flex-1">
+          {/* <h2 className="text-2xl md:text-3xl font-bold text-gray-800 mb-8">
+            {t("applicationForm") || "Application Form"}
+          </h2> */}
 
-          {/* Email Field */}
-          <div className="space-y-2">
-            <label className="block text-lg font-bold text-black">
-              {t("email")}
-            </label>
-            <input
-              type="email"
-              name="email"
-              value={formData.email}
-              onChange={handleChange}
-              className="mt-1 block w-full px-3 py-2 bg-[var(--Input)] rounded-md"
-              placeholder={t("enterEmail")}
-            />
-          </div>
+          <form onSubmit={formik.handleSubmit} className="space-y-8">
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-6 md:gap-8">
+              {/* Left Column */}
+              <div className="space-y-6">
+                {/* Name Field */}
+                <div className="space-y-2">
+                  <label className="block text-base font-semibold text-gray-700">
+                    {t("name")} *
+                  </label>
+                  <input
+                    id="name"
+                    name="name"
+                    type="text"
+                    onChange={formik.handleChange}
+                    onBlur={formik.handleBlur}
+                    value={formik.values.name}
+                    className={`w-full px-4 py-3 bg-gray-50 border rounded-lg focus:outline-none focus:ring-2 focus:ring-[var(--Yellow)] transition-colors ${
+                      formik.touched.name && formik.errors.name
+                        ? "border-red-500"
+                        : "border-gray-200"
+                    }`}
+                    placeholder={t("enterName") || "Enter your name"}
+                  />
+                  {formik.touched.name && formik.errors.name ? (
+                    <div className="text-red-500 text-sm">
+                      {formik.errors.name}
+                    </div>
+                  ) : null}
+                </div>
 
-          {/* Type Selection */}
-          <div className="space-y-2">
-            <label className="block text-lg font-bold text-black">
-              {t("type")}
-            </label>
-            <div
-              style={{
-                backgroundPosition:
-                  i18n.language === "en"
-                    ? "right 20px center"
-                    : "left 20px center",
-                backgroundSize: "10px",
-                backgroundRepeat: "no-repeat",
-              }}
-              className="mt-1 pointer-events-none opacity-70  border border-black cursor-not-allowed appearance-none block w-full px-3 py-2 bg-[var(--Input)] rounded-md"
-            >
-              {i18n.language === "en" ? level : levelAr}
+                {/* Email Field */}
+                <div className="space-y-2">
+                  <label className="block text-base font-semibold text-gray-700">
+                    {t("email")} *
+                  </label>
+                  <input
+                    id="email"
+                    name="email"
+                    type="email"
+                    onChange={formik.handleChange}
+                    onBlur={formik.handleBlur}
+                    value={formik.values.email}
+                    className={`w-full px-4 py-3 bg-gray-50 border rounded-lg focus:outline-none focus:ring-2 focus:ring-[var(--Yellow)] transition-colors ${
+                      formik.touched.email && formik.errors.email
+                        ? "border-red-500"
+                        : "border-gray-200"
+                    }`}
+                    placeholder={t("enterEmail") || "Enter your email"}
+                  />
+                  {formik.touched.email && formik.errors.email ? (
+                    <div className="text-red-500 text-sm">
+                      {formik.errors.email}
+                    </div>
+                  ) : null}
+                </div>
+              </div>
+
+              {/* Right Column */}
+              <div className="space-y-6">
+                {/* Phone Number Field */}
+                <div className="space-y-2">
+                  <label className="block text-base font-semibold text-gray-700">
+                    {t("phoneNumber")} *
+                  </label>
+                  <input
+                    id="phoneNumber"
+                    name="phoneNumber"
+                    type="text"
+                    onChange={formik.handleChange}
+                    onBlur={formik.handleBlur}
+                    value={formik.values.phoneNumber}
+                    className={`w-full px-4 py-3 bg-gray-50 border rounded-lg focus:outline-none focus:ring-2 focus:ring-[var(--Yellow)] transition-colors ${
+                      formik.touched.phoneNumber && formik.errors.phoneNumber
+                        ? "border-red-500"
+                        : "border-gray-200"
+                    }`}
+                    placeholder={
+                      t("enterPhoneNumber") || "Enter your phone number"
+                    }
+                  />
+                  {formik.touched.phoneNumber && formik.errors.phoneNumber ? (
+                    <div className="text-red-500 text-sm">
+                      {formik.errors.phoneNumber}
+                    </div>
+                  ) : null}
+                </div>
+              </div>
             </div>
-          </div>
-        </article>
 
-        <article
-          data-aos="fade-left"
-          data-aos-duration="2000"
-          className="space-y-10"
-        >
-          {/* Phone Number Field */}
-          <div className="space-y-2">
-            <label className="block text-lg font-bold text-black">
-              {t("phoneNumber")}
-            </label>
-            <input
-              type="text"
-              name="phoneNumber"
-              value={formData.phoneNumber}
-              onChange={handleChange}
-              className={`mt-1 block w-full px-3 py-2 bg-[var(--Input)] rounded-md`}
-              placeholder={t("enterPhoneNumber")}
-            />
-          </div>
-
-          {/* Country Selection */}
-          <div className="space-y-2">
-            <label className="block text-lg font-bold text-black">
-              {t("country")}
-            </label>
-            <select
-              name="country"
-              value={formData.country}
-              onChange={handleChange}
-              style={{
-                backgroundImage: `url(${vector})`,
-                backgroundPosition:
-                  i18n.language == "en"
-                    ? "right 20px center"
-                    : "left 20px center",
-                backgroundSize: "10px",
-                backgroundRepeat: "no-repeat",
-              }}
-              className="mt-1 appearance-none block w-full px-3 py-2 bg-[var(--Input)] rounded-md"
-            >
-              <option disabled value="">
-                {t("chooseCountry")}
-              </option>
-              {i18n.language === "ar"
-                ? countries.sort().map((cntry, index) => (
-                    <option key={index} value={cntry.nameEn}>
-                      {cntry.nameAr}
-                    </option>
-                  ))
-                : countriesEn.sort().map((cntry, index) => (
-                    <option key={index} value={cntry}>
-                      {cntry}
-                    </option>
-                  ))}
-              <option value="other">{t("other")}</option>
-            </select>
-          </div>
-
-          {/* Option Selection */}
-          <div className="space-y-2">
-            <label className="block text-lg font-bold text-black">
-              {t("option")}
-            </label>
-            <div
-              style={{
-                backgroundPosition:
-                  i18n.language === "en"
-                    ? "right 20px center"
-                    : "left 20px center",
-                backgroundSize: "10px",
-                backgroundRepeat: "no-repeat",
-              }}
-              className="mt-1 opacity-70 pointer-events-none border border-black cursor-not-allowed appearance-none block w-full px-3 py-2 bg-[var(--Input)] rounded-md"
-            >
-              {courseDetails === "Group" ? t("group") : t("private")}
+            {/* Checkbox Section */}
+            <div className="flex items-start gap-3 pt-4">
+              <input
+                type="checkbox"
+                id="takenTest"
+                name="takenTest"
+                checked={formik.values.takenTest}
+                onChange={formik.handleChange}
+                onBlur={formik.handleBlur}
+                className="cursor-pointer mt-1 w-5 h-5 text-[var(--Yellow)] bg-gray-100 border-gray-300 rounded focus:ring-[var(--Yellow)]"
+              />
+              <label htmlFor="takenTest" className="text-gray-700 text-base">
+                {t("takenTest") || "I have taken the test"}
+              </label>
             </div>
-          </div>
-        </article>
 
-        {/* takenTest Field */}
-        <div className="flex gap-4">
-          <input
-            type="checkbox"
-            id="taken"
-            name="takenTest"
-            checked={formData.takenTest}
-            onChange={handleChange}
-          />
-          <label htmlFor="taken">{t("takenTest")}</label>
-        </div>
-        {/* Submit and Back buttons */}
-        <div className="flex flex-col gap-y-6 items-end md:flex-row md:justify-between mt-12 col-span-1 md:col-span-2">
-          <button
-            data-aos="fade-up-right"
-            type="button"
-            className="p-4 px-8 rounded-3xl border-2 border-[var(--Yellow)]"
-            onClick={() => {
-              window.history.back();
-              window.scroll(0, 0);
-            }}
-          >
-            {t("back")}
-          </button>
-          <div className="">
-            <h1 className=" text-center  text-xl mb-2">{t("payment")}</h1>
-            <div className="flex gap-2">
+            {/* Button Section */}
+            <div className="flex flex-col-reverse md:flex-row justify-between items-center gap-6 pt-8 border-t border-gray-200">
               <button
-                data-aos="fade-up-left"
                 type="button"
-                disabled={loading}
-                onClick={applePay}
-                className={` disabled:opacity-50 disabled:pointer-events-none lg:hidden p-4 px-9 rounded-3xl bg-[var(--Yellow)]`}
+                className="px-8 py-3 rounded-xl border-2 border-[var(--Yellow)] text-[var(--Yellow)] font-medium hover:bg-[var(--Yellow)] hover:text-white transition-colors"
+                onClick={() => window.history.back()}
               >
-                <FaApple size={25} />
+                {t("back") || "Back"}
               </button>
-              <button
-                data-aos="fade-up-left"
-                type="button"
-                disabled={loading}
-                onClick={initiatePayment}
-                className={` disabled:opacity-50 disabled:pointer-events-none p-4 px-9 rounded-3xl bg-[var(--Yellow)]`}
-              >
-                <IoCardSharp size={25} />
-              </button>
+
+              <div className="text-center">
+                <h3 className="text-lg font-semibold text-gray-800 mb-3">
+                  {t("payment") || "Payment"}
+                </h3>
+                <div className="flex gap-3 justify-center">
+                  <button
+                    type="button"
+                    disabled={!formik.isValid}
+                    onClick={handleApplePay}
+                    className="disabled:opacity-50 lg:hidden disabled:pointer-events-none p-3 rounded-xl bg-[var(--Yellow)] text-white hover:bg-yellow-600 transition-colors"
+                  >
+                    <FaApple size={22} />
+                  </button>
+                  <button
+                    type="submit"
+                    disabled={!formik.isValid}
+                    className="disabled:opacity-50 disabled:pointer-events-none px-6 py-3 rounded-xl bg-[var(--Yellow)] text-white font-medium hover:bg-yellow-600 transition-colors flex items-center gap-2"
+                  >
+                    <IoCardSharp size={20} />
+                    {/* <span>{t("payNow") || "Pay Now"}</span> */}
+                  </button>
+                </div>
+              </div>
             </div>
-          </div>
+          </form>
         </div>
-      </form>
+
+        {/* Option/Course Package Summary */}
+        <div className="lg:w-96">
+          <Option option={coursePackage} isBooking={true} />
+        </div>
+      </div>
     </section>
   );
 };

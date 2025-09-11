@@ -30,6 +30,16 @@ export const useGetpackageById = ({ id, enabled }) => {
   return { data, isPending, isSuccess, refetch };
 };
 
+export const useGetpackageByCategoryId = ({ id, enabled }) => {
+  const { data, isPending, isSuccess, refetch } = useGetData({
+    url: `${endPoints.packagesByCategory}${id}`,
+    queryKeys: [queryKeys.packagesByCategory, id],
+    enabled: enabled,
+  });
+
+  return { data, isPending, isSuccess, refetch };
+};
+
 export const useAddpackage = () => {
   const { mutate, data, error, isPending, isSuccess, isError } = usePostData(
     endPoints.packages,

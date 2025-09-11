@@ -3,8 +3,10 @@ import { useNavigate } from "react-router";
 import bg from "../assets/bgcourses-Photoroom.png";
 
 function Course(props) {
-  const { t } = useTranslation(),
-    navigate = useNavigate();
+  const { t, i18n } = useTranslation();
+  const navigate = useNavigate();
+  const AR = i18n.language === "ar";
+  const category = props.category;
 
   return (
     <article
@@ -21,36 +23,43 @@ function Course(props) {
 
       {/* Content */}
       <div className="relative z-20 space-y-10">
-        <h1 className="text-3xl text-[#f5d019] font-bold">{props.title}</h1>
-        <h3 className="text-2xl font-bold">{t("liveSession.title")}</h3>
+        <h1 className="text-3xl text-[#f5d019] font-bold">
+          {AR ? category?.ar.title : category?.en.title}
+        </h1>
+        <h3 className="text-2xl font-bold">
+          {t(`categories.sessionType.${category?.sessionType}`)}
+        </h3>
 
         <div className="space-y-8 text-md lg:text-xl">
-          <p> {t(
-              props.selectedCourse === "Private"
-                ? "liveSession.alone"
-                : "liveSession.duration"
-            )}</p>
           <p>
+            {category?.hoursPerSession}{" "}
             {t(
-              props.selectedCourse === "Group"
-                ? "liveSession.Group"
-                : "liveSession.sessionsPerWeek"
+              category?.hoursPerSession <= (AR ? 2 : 1) ||
+                (category?.hoursPerSession > 10 && AR)
+                ? "categories.hoursPerSession.one"
+                : "categories.hoursPerSession.more"
+            )}
+          </p>
+          <p>
+            {category?.sessionsPerWeek}{" "}
+            {t(
+              parseInt(category?.sessionsPerWeek) <= (AR ? 2 : 1)
+                ? "categories.sessionsPerWeek.one"
+                : "categories.sessionsPerWeek.more"
             )}
           </p>
 
-          <p>{t(props.selectedCourse === "Group"
-                ? "liveSession.schedule":
-                "liveSession.avalible")}</p>
+          <p>{t(`categories.scheduleType.${category?.scheduleType}`)}</p>
         </div>
 
         <button
           onClick={() => {
-            navigate(`/courses/${props.direc}`);
+            navigate(`/courses/${category._id}`);
             window.scroll(0, 0);
           }}
           className="bg-white p-3 my-2 text-black rounded-3xl w-full"
         >
-          {t("liveSession.moreDetails")}
+          {t("categories.moreDetails")}
         </button>
       </div>
     </article>
