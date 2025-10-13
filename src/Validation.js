@@ -19,22 +19,6 @@ export const baseValidationSchema = Yup.object({
     .required("رقم الهاتف مطلوب"),
 });
 
-export const doctorValidationSchema = baseValidationSchema.shape({
-  specializations: Yup.array()
-    .min(1, "يجب اختيار تخصص واحد على الأقل")
-    .max(3, "يجب اختيار 3 تخصصات كحد أقصى")
-    .required("التخصصات مطلوبة"),
-  certifications: Yup.array()
-    .min(1, "يجب رفع ملف شهادة واحد على الأقل")
-    .required("ملفات الشهادات مطلوبة"),
-  sessionFee30: Yup.number()
-    .min(0, "رسوم الجلسة يجب أن تكون 0 أو أكثر")
-    .required("رسوم الجلسة (30 دقيقة) مطلوبة"),
-  sessionFee60: Yup.number()
-    .min(0, "رسوم الجلسة يجب أن تكون 0 أو أكثر")
-    .required("رسوم الجلسة (60 دقيقة) مطلوبة"),
-});
-
 export const loginValidationSchema = Yup.object({
   email: Yup.string()
     .email("Invalid email address")
@@ -154,4 +138,29 @@ export const bookingApplicationValidationSchema = (t) =>
     phoneNumber: Yup.string().required(
       t("validation.phoneRequired") || "Phone number is required"
     ),
+  });
+
+export const freeSessionValidationSchema = (t) =>
+  Yup.object({
+    name: Yup.string()
+      .required(t("validation.nameRequired") || "Name is required")
+      .min(2, t("nameTooShort"))
+      .max(50, t("nameTooLong")),
+    email: Yup.string()
+      .email(t("validation.invalidEmail") || "Invalid email address")
+      .required(t("validation.emailRequired") || "Email is required"),
+    phoneNumber: Yup.string()
+      .required(t("validation.phoneRequired") || "Phone number is required")
+      .matches(
+        /^[+]?[0-9\s\-()]{10,}$/,
+        t("validation.invalidPhone") || "Invalid phone number"
+      ),
+    country: Yup.string().required(
+      t("validation.countryRequired") || "Country is required"
+    ),
+    age: Yup.string()
+      .oneOf(["kid", "teen", "adult"], "invalidAge")
+      .required(t("validation.ageRequired")),
+    freeSessionSlotId: Yup.string().required(t("validation.timeSlotRequired")),
+    freeTest: Yup.string().optional(),
   });

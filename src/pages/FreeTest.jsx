@@ -1,167 +1,275 @@
-import React, { useEffect, useState } from 'react';
-import { useTranslation } from 'react-i18next';
-import { useLocation, useNavigate } from 'react-router-dom';
-import cntris from '../data/Countries.json';
-import Swal from 'sweetalert2';
-import { toast } from "react-hot-toast";
-import { db, collection, addDoc } from '../data/firebaseConfig';
-import { query, where, getDocs, or, serverTimestamp } from 'firebase/firestore';
-import vector from '../assets/arrowvector.png';
-import { Toaster } from "react-hot-toast";
+import React, { useState } from "react";
+import { useFormik } from "formik";
+import { useTranslation } from "react-i18next";
+import { useNavigate } from "react-router-dom";
+import cntris from "../data/Countries.json";
+import { freeSessionValidationSchema } from "@/Validation";
+import FreeSessionCalendar from "@/Components/FreeSessionCalendar";
+import { formatDate } from "@/utilities/formatDateForApi";
 
-const FreeTest = () => {
+const FreeSessionForm = () => {
   const { t, i18n } = useTranslation();
   const navigate = useNavigate();
-  const location = useLocation();
-  const [isSubmitting, setIsSubmitting] = useState(false); // Track submission state
 
+  const [selectedSlot, setSelectedSlot] = useState(null);
 
-  const [formData, setFormData] = useState({ name: '', email: '', phoneNumber: '', country: '', option: '' });
-
-  
-  useEffect(() => {
-    if (location.state) {
-      setFormData(prevState => ({
-        ...prevState,
-        option: location.state.option || '',
-      }));
-    }
-  }, [location.state]);
-
-  const handleChange = (e) => {
-    const { name, value } = e.target;
-    setFormData(prevState => ({ ...prevState, [name]: value }));
+  const handleSlotSelect = (slot) => {
+    setSelectedSlot(slot);
+    formik.setFieldValue("freeSessionSlotId", slot._id);
   };
 
-  const textAlignment = i18n.language === 'ar' ? 'text-right' : 'text-left';
+  // Formik setup
+  const formik = useFormik({
+    initialValues: {
+      name: "",
+      email: "",
+      phoneNumber: "",
+      country: "",
+      age: "",
+      freeSessionSlotId: "",
+      freeTest: "", // Optional free test reference
+    },
+    validationSchema: freeSessionValidationSchema(t),
+    onSubmit: async (values, { setSubmitting }) => {},
+  });
+
   const countries = cntris;
-  const countriesAr = countries.map((cnt) => cnt.nameAr);
-  const countriesEn = countries.map((cnt) => cnt.nameEn);
 
-  const handleSubmit = async (e) => {
-    e.preventDefault();
-
-    if (!formData.name || !formData.email || !formData.option || !formData.phoneNumber || !formData.country) {
-      Swal.fire({
-        icon: 'error',
-        title: t('error'),
-        text: t('pleaseFillAllFields'),
-        timer: 1000,
-        showConfirmButton: false
-      });
-      return;
-    }
-    setIsSubmitting(true); // Disable the button while submitting
-
-    try {
-        const docRef = await addDoc(collection(db, 'Requests'), {
-          name: formData.name,
-          email: formData.email,
-          phoneNumber: formData.phoneNumber,
-          country: formData.country,
-          option: formData.option,
-          status : "success",
-        createdAt: serverTimestamp(), // Adds a timestamp
-        });
-
-        toast.success(t('applicationSuccess'), {
-          duration: 2000,
-          position: "top-center",
-          style: {
-            background: "var(--Light)",
-            color: "black",
-            padding: "16px",
-            width: "auto",
-            borderRadius: "9999px",
-            maxWidth: "80%",
-            textAlign: "center"
-          }
-        });
-        setTimeout(() => {
-          navigate('/');
-        }, 2000);
-        window.scroll(0, 0);
-      }
-     catch (e) {
-      console.error("Error adding document: ", e);
-      Swal.fire({
-        icon: 'error',
-        title: t('error'),
-        text: t('somethingwrong'),
-        timer: 1000,
-        showConfirmButton: false
-      });
-    }
+  const formatTimeSlot = (slot) => {
+    const startDate = new Date(slot.startTime);
+    const endDate = new Date(slot.endTime);
+    return `${formatDate(startDate)}   --   ${startDate.toLocaleTimeString([], {
+      hour: "2-digit",
+      minute: "2-digit",
+    })} - ${endDate.toLocaleTimeString([], {
+      hour: "2-digit",
+      minute: "2-digit",
+    })}`;
   };
 
   return (
-    <section className="md:px-40 px-4">
-            <Toaster />
-      <h2 className="text-3xl font-bold mb-10 my-4">{t('applicationForm')}</h2>
+    <section className="md:px-40 px-4 py-8">
+      <h2 className="text-3xl font-bold mb-8 text-[var(--Main)]">
+        {t("bookFreeSession")}
+      </h2>
 
-      <form onSubmit={handleSubmit} className="grid grid-cols-1 md:grid-cols-2 gap-8">
+      {/* Step 1: Calendar View */}
+      {!selectedSlot && (
+        <div className="mb-8">
+          <h3 className="text-xl font-semibold text-[var(--Main)] mb-4">
+            {t("selectDateAndTime")}
+          </h3>
+          <FreeSessionCalendar onSlotSelect={handleSlotSelect} />
+        </div>
+      )}
+
+      {/* Step 2: Booking Form */}
+      {selectedSlot && (
+        <div className="bg-[var(--Light)] p-6 rounded-xl shadow-sm mb-6 border border-[var(--Input)]">
+          <div className="flex justify-between items-center mb-4">
+            <h3 className="text-xl font-bold text-[var(--Main)] ">
+              {t("selectedSlot")}
+            </h3>
+            <button
+              type="button"
+              onClick={() => setSelectedSlot(null)}
+              className="px-4 py-2 text-base underline underline-offset-8 font-bold text-[var(--Main)] hover:text-[var(--Yellow)] transition-colors duration-200"
+            >
+              {t("changeSlot")}
+            </button>
+          </div>
+          <div className="flex items-center justify-center gap-3 bg-[var(--Main)] text-white rounded-lg px-4 py-2">
+            <p className="font-medium" dir="ltr">
+              {formatTimeSlot(selectedSlot)}
+            </p>
+          </div>
+        </div>
+      )}
+
+      <form
+        onSubmit={formik.handleSubmit}
+        className="grid grid-cols-1 md:grid-cols-2 gap-6"
+      >
         {/* Name Field */}
-        <div data-aos="fade-right" data-aos-duration="2000" className="space-y-2">
-          <label className="block text-lg font-bold text-black">{t('name')}</label>
-          <input type="text" name="name" value={formData.name} onChange={handleChange} className="mt-1 block w-full px-3 py-2 bg-[var(--Input)] rounded-md" placeholder={t('enterName')} />
+        <div className="space-y-2">
+          <label
+            htmlFor="name"
+            className="block text-lg font-bold text-[var(--Main)]"
+          >
+            {t("name")}
+          </label>
+          <input
+            id="name"
+            name="name"
+            type="text"
+            onChange={formik.handleChange}
+            onBlur={formik.handleBlur}
+            value={formik.values.name}
+            className={`mt-1 block w-full px-3 py-2 bg-[var(--Input)] rounded-md border ${
+              formik.touched.name && formik.errors.name
+                ? "border-red-500"
+                : "border-transparent"
+            }`}
+            placeholder={t("enterName")}
+          />
+          {formik.touched.name && formik.errors.name && (
+            <div className="text-red-500 text-sm mt-1">
+              {formik.errors.name}
+            </div>
+          )}
         </div>
 
         {/* Email Field */}
-        <div data-aos="fade-left" data-aos-duration="2000" className="space-y-2">
-          <label className="block text-lg font-bold text-black">{t('email')}</label>
-          <input type="email" name="email" value={formData.email} onChange={handleChange} className="mt-1 block w-full px-3 py-2 bg-[var(--Input)] rounded-md" placeholder={t('enterEmail')} />
+        <div className="space-y-2">
+          <label
+            htmlFor="email"
+            className="block text-lg font-bold text-[var(--Main)]"
+          >
+            {t("email")}
+          </label>
+          <input
+            id="email"
+            name="email"
+            type="email"
+            onChange={formik.handleChange}
+            onBlur={formik.handleBlur}
+            value={formik.values.email}
+            className={`mt-1 block w-full px-3 py-2 bg-[var(--Input)] rounded-md border ${
+              formik.touched.email && formik.errors.email
+                ? "border-red-500"
+                : "border-transparent"
+            }`}
+            placeholder={t("enterEmail")}
+          />
+          {formik.touched.email && formik.errors.email && (
+            <div className="text-red-500 text-sm mt-1">
+              {formik.errors.email}
+            </div>
+          )}
         </div>
 
         {/* Phone Number Field */}
-        <div data-aos="fade-right" data-aos-duration="2000" className="space-y-2">
-          <label className="block text-lg font-bold text-black">{t('phoneNumber')}</label>
-          <input type="text" name="phoneNumber" value={formData.phoneNumber} onChange={handleChange} className={`mt-1 block w-full px-3 py-2 bg-[var(--Input)] rounded-md `} placeholder={t('enterPhoneNumber')} />
+        <div className="space-y-2">
+          <label
+            htmlFor="phoneNumber"
+            className="block text-lg font-bold text-[var(--Main)]"
+          >
+            {t("phoneNumber")}
+          </label>
+          <input
+            id="phoneNumber"
+            name="phoneNumber"
+            type="text"
+            onChange={formik.handleChange}
+            onBlur={formik.handleBlur}
+            value={formik.values.phoneNumber}
+            className={`mt-1 block w-full px-3 py-2 bg-[var(--Input)] rounded-md border ${
+              formik.touched.phoneNumber && formik.errors.phoneNumber
+                ? "border-red-500"
+                : "border-transparent"
+            }`}
+            placeholder={t("enterPhoneNumber")}
+          />
+          {formik.touched.phoneNumber && formik.errors.phoneNumber && (
+            <div className="text-red-500 text-sm mt-1">
+              {formik.errors.phoneNumber}
+            </div>
+          )}
         </div>
 
         {/* Country Selection */}
-        <div data-aos="fade-left" data-aos-duration="2000" className="space-y-2">
-          <label className="block text-lg font-bold text-black">{t('country')}</label>
-          <select name="country" value={formData.countriesEn} onChange={handleChange}
-            style={{ backgroundImage: `url(${vector})`, backgroundPosition: i18n.language == 'en' ? 'right 20px center' : 'left 20px center', backgroundSize: '10px', backgroundRepeat: 'no-repeat', }}
-            className="mt-1 appearance-none block w-full px-3 py-2 bg-[var(--Input)] rounded-md">
-            <option disabled value="">{t('chooseCountry')}</option>
-            {i18n.language === 'ar'
-              ? countries.sort().map((cntry, index) => <option key={index} value={cntry.nameEn}>{cntry.nameAr}</option>)
-              : countriesEn.sort().map((cntry, index) => <option key={index}>{cntry}</option>)
-            }
-            <option value="other">{t('other')}</option>
+        <div className="space-y-2">
+          <label
+            htmlFor="country"
+            className="block text-lg font-bold text-[var(--Main)]"
+          >
+            {t("country")}
+          </label>
+          <select
+            id="country"
+            name="country"
+            onChange={formik.handleChange}
+            onBlur={formik.handleBlur}
+            value={formik.values.country}
+            className={`mt-1 appearance-none block w-full px-3 py-2 bg-[var(--Input)] rounded-md border ${
+              formik.touched.country && formik.errors.country
+                ? "border-red-500"
+                : "border-transparent"
+            }`}
+          >
+            <option value="">{t("chooseCountry")}</option>
+            {i18n.language === "ar"
+              ? countries.sort().map((country, index) => (
+                  <option key={index} value={country.nameEn}>
+                    {country.nameAr}
+                  </option>
+                ))
+              : countries
+                  .map((cnt) => cnt.nameEn)
+                  .sort()
+                  .map((country, index) => (
+                    <option key={index} value={country}>
+                      {country}
+                    </option>
+                  ))}
           </select>
+          {formik.touched.country && formik.errors.country && (
+            <div className="text-red-500 text-sm mt-1">
+              {formik.errors.country}
+            </div>
+          )}
         </div>
 
-        {/* Option Field */}
-        <div data-aos="fade-right" data-aos-duration="2000" className="space-y-2">
-          <label className="block text-lg font-bold text-black">{t('option')}</label>
-          <select name="option" value={formData.option} onChange={handleChange}
-            style={{ backgroundImage: `url(${vector})`, backgroundPosition: i18n.language == 'en' ? 'right 20px center' : 'left 20px center', backgroundSize: '10px', backgroundRepeat: 'no-repeat', }}
-            className="mt-1 appearance-none block w-full px-3 py-2 bg-[var(--Input)] rounded-md">
-            <option disabled value="">{t('chooseOption')}</option>
-            <option value="Free Session">{t('freeSess')}</option>
-            <option value="Free Test">{t('freeTest')}</option>
+        {/* Age Selection */}
+        <div className="space-y-2">
+          <label
+            htmlFor="age"
+            className="block text-lg font-bold text-[var(--Main)]"
+          >
+            {t("age")}
+          </label>
+          <select
+            id="age"
+            name="age"
+            onChange={formik.handleChange}
+            onBlur={formik.handleBlur}
+            value={formik.values.age}
+            className={`mt-1 block w-full px-3 py-2 bg-[var(--Input)] rounded-md border ${
+              formik.touched.age && formik.errors.age
+                ? "border-red-500"
+                : "border-transparent"
+            }`}
+          >
+            <option value="">{t("chooseAge")}</option>
+            <option value="kid">{t("kid")}</option>
+            <option value="teen">{t("teen")}</option>
+            <option value="adult">{t("adult")}</option>
           </select>
+          {formik.touched.age && formik.errors.age && (
+            <div className="text-red-500 text-sm mt-1">{formik.errors.age}</div>
+          )}
         </div>
 
-        {/* Submit and Back buttons */}
-        <div className="flex gap-y-6 items-end justify-between mt-12 col-span-1 md:col-span-2">
-          <button data-aos="fade-up-right" type="button" className="p-4 px-8 rounded-3xl border-2 border-[var(--Yellow)]" onClick={() => { navigate(-1); window.scroll(0, 0); }}>
-            {t('back')}
+        {/* Submit and Back buttons - Full Width */}
+        <div className="flex flex-col sm:flex-row gap-4 justify-between items-center md:col-span-2 mt-8">
+          <button
+            type="button"
+            onClick={() => navigate(-1)}
+            className="px-8 py-3 font-bold rounded-3xl border-2 border-[var(--Yellow)] text-[var(--Main)] hover:bg-[var(--Light)] transition-colors"
+          >
+            {t("back")}
           </button>
           <button
-        data-aos="fade-up-left"
-        type="submit"
-        className="p-4 px-8 rounded-3xl bg-[var(--Yellow)]"
-        disabled={isSubmitting} // Disable the button when isSubmitting is true
-      >
-        {isSubmitting ? t('submit') : t('submit')}
-      </button>
+            type="submit"
+            disabled={formik.isSubmitting}
+            className="px-8 py-3 rounded-3xl bg-[var(--Yellow)] text-white hover:bg-opacity-90 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
+          >
+            {formik.isSubmitting ? t("booking") : t("bookSession")}
+          </button>
         </div>
       </form>
-    </section >
+    </section>
   );
 };
 
-export default FreeTest;
+export default FreeSessionForm;

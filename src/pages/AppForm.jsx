@@ -1,12 +1,5 @@
-import { useState, useEffect } from "react";
 import { useTranslation } from "react-i18next";
-import { useLocation } from "react-router-dom";
-import Swal from "sweetalert2";
-import cntris from "../data/Countries.json";
-import { db } from "../data/firebaseConfig";
 import { useParams } from "react-router-dom";
-
-import vector from "../assets/arrowvector.png";
 import { FaApple } from "react-icons/fa";
 import { IoCardSharp } from "react-icons/io5";
 import { useGetpackageById } from "@/hooks/Actions/packages/usePackageCruds";

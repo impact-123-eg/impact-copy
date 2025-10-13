@@ -37,8 +37,7 @@ import AddEmployee from "./pages/dashboard/AddEmployee";
 import AddCategory from "./Components/dashboard/AddCategory";
 import CategoryManagement from "./pages/dashboard/Categories";
 import AddEditPackage from "./Components/dashboard/AddEditPackage";
-import AddAvailability from "./Components/dashboard/AddAvailability";
-import Availabilities from "./pages/dashboard/Availabilities";
+import FreeSessionManagement from "./pages/dashboard/FreeSessions";
 function App() {
   // const { t, i18n, changeLanguage } = useTranslationContext();
 
@@ -75,19 +74,10 @@ function App() {
                 element={<ProtectedRoute element={<HomePage />} />}
               />
               <Route
-                path="availabilities"
+                path="free-sessions"
                 element={
                   <ProtectedRoute
-                    element={<Availabilities />}
-                    requiredRoles={["admin"]}
-                  />
-                }
-              />
-              <Route
-                path="availabilities/add-availability"
-                element={
-                  <ProtectedRoute
-                    element={<AddAvailability />}
+                    element={<FreeSessionManagement />}
                     requiredRoles={["admin"]}
                   />
                 }

@@ -25,9 +25,9 @@ function Nav() {
       path: "/dash/",
     },
     {
-      name: "Availabilities",
+      name: "Free Sessions",
       icon: <BiSolidTime size={24} />,
-      path: "/dash/availabilities",
+      path: "/dash/free-sessions",
     },
     {
       name: "Student Booking",
@@ -39,9 +39,9 @@ function Nav() {
       icon: <PiBooksBold size={24} />,
       path: "/dash/courses",
     },
-    { name: "Requests", icon: <GiPapers size={24} />, path: "/dash/requests" },
+    // { name: "Requests", icon: <GiPapers size={24} />, path: "/dash/requests" },
     isAdmin && {
-      name: "Payment",
+      name: "Bookings & Payments",
       icon: <GiWallet size={24} />,
       path: "/dash/payment",
     },

@@ -1,285 +1,218 @@
-import { useEffect, useState } from "react";
-import { db, collection, doc, addDoc, deleteDoc } from "../data/firebaseConfig";
-import { query, getDocs, where, orderBy } from "firebase/firestore";
-import { Modal } from "react-responsive-modal";
-import TimeKeeper from "react-timekeeper";
-import { Datepicker } from "flowbite-react";
-import { HiMiniAdjustmentsHorizontal } from "react-icons/hi2";
+import { useState } from "react";
+import { useGetAllBookings } from "@/hooks/Actions/booking/useBookingCruds";
+import BookingRow from "@/Components/dashboard/BookingRow";
 
 function Payment() {
-  const [payments, setPayments] = useState([]);
-  const [openModal, setOpenModal] = useState(false);
   const [searchQuery, setSearchQuery] = useState("");
-  const [selectedRequestId, setSelectedRequestId] = useState(null);
-  const [time, setTime] = useState("12:00");
-  const [date, setDate] = useState(new Date());
-  const [isOpen, setIsOpen] = useState(false);
-  const [sorted, setSorted] = useState(null);
-  const [filterOption, setFilterOption] = useState(null);
+  const [statusFilter, setStatusFilter] = useState("");
+  const [paymentStatusFilter, setPaymentStatusFilter] = useState("");
 
-  useEffect(() => {
-    const fetchRequests = async () => {
-      try {
-        const q = query(
-          collection(db, "payments"),
-          orderBy("createdAt", "desc") // Sorting by createdAt field in descending order
-        );
-        const querySnapshot = await getDocs(q);
+  const { data: bookingData, isLoading } = useGetAllBookings();
+  const bookings = bookingData?.data || [];
 
-        if (querySnapshot.empty) {
-          alert("No successful payments found");
-        } else {
-          const req = querySnapshot.docs.map((doc) => ({
-            id: doc.id,
-            ...doc.data(),
-          }));
-          setPayments(req);
-        }
-      } catch (e) {
-        console.error("Error fetching successful payments: ", e);
-      }
-    };
+  const handleSearchChange = (e) =>
+    setSearchQuery(e.target.value.toLowerCase());
 
-    fetchRequests();
-  }, []);
-   (payments)
-  const handleSearchChange = (e) => setSearchQuery(e.target.value);
-
-  const filteredRequests = payments.filter((req) => {
+  const filteredBookings = bookings?.filter((booking) => {
     const matchesSearch =
-      req.Name?.toLowerCase().includes(searchQuery) ||
-      req.Email?.toLowerCase().includes(searchQuery);
+      booking?.name?.toLowerCase().includes(searchQuery) ||
+      booking?.email?.toLowerCase().includes(searchQuery) ||
+      booking?.phoneNumber?.includes(searchQuery);
 
-    const matchesFilter = filterOption ? req.status === filterOption : true;
+    const matchesStatus = statusFilter
+      ? booking?.status === statusFilter
+      : true;
+    const matchesPaymentStatus = paymentStatusFilter
+      ? booking?.paymentStatus === paymentStatusFilter
+      : true;
 
-    return matchesSearch && matchesFilter;
+    return matchesSearch && matchesStatus && matchesPaymentStatus;
   });
-  const sortedRequests = sorted
-    ? [...filteredRequests].sort((a, b) => {
-        if (a[sorted] > b[sorted]) return 1;
-        if (a[sorted] < b[sorted]) return -1;
-        return 0;
-      })
-    : filteredRequests;
 
-  const submitData = async () => {
-    if (!date || !time || !selectedRequestId) {
-      alert("Please select a date and time.");
-      return;
-    }
+  // Get counts for filter badges
+  const getStatusCount = (status) =>
+    bookings.filter((booking) => booking.status === status).length;
 
-    try {
-      const selectedRequest = payments.find(
-        (req) => req.id === selectedRequestId
-      );
-
-      const requestData = {
-        name: selectedRequest.name,
-        email: selectedRequest.email,
-        phoneNumber: selectedRequest.phoneNumber,
-        country: selectedRequest.country,
-        date: `${date.getDate()}/${date.getMonth() + 1}/${date.getFullYear()}`,
-        time: time,
-      };
-
-      await addDoc(collection(db, selectedRequest.option), requestData);
-
-      const requestRef = doc(db, "payments", selectedRequestId);
-      await deleteDoc(requestRef);
-      const updatedRequests = payments.filter(
-        (req) => req.id !== selectedRequestId
-      );
-      setPayments(updatedRequests);
-      setOpenModal(false);
-      window.scroll(0, 0);
-    } catch (e) {
-      console.error("Error processing request: ", e);
-      alert("Failed to process the request.");
-    }
-  };
+  const getPaymentStatusCount = (paymentStatus) =>
+    bookings.filter((booking) => booking.paymentStatus === paymentStatus)
+      .length;
 
   return (
-    <main className="space-y-10">
-      <h1 className="font-bold text-2xl">Payments</h1>
+    <main className="space-y-6 max-w-7xl mx-auto">
+      <h1 className="font-bold text-2xl text-[var(--Main)]">
+        Package Bookings
+      </h1>
 
-      <section className="flex items-center justify-start space-x-8">
-        <form className="inline-block w-[40%] bg-[var(--Light)]/95 p-2 rounded-xl">
-          <div className=" flex relative">
-            <input
-              type="search"
-              placeholder="Search by name or email"
-              className="w-[800px]  p-4  border-1 rounded-xl focus:outline-0"
-              value={searchQuery}
-              onChange={handleSearchChange}
-            />
-          </div>
-        </form>
-
-        <div className="relative inline-block text-left">
-          <button
-            onClick={() => setIsOpen(!isOpen)}
-            className="text-2xl p-4 rounded-xl bg-[var(--Yellow)] text-black focus:outline-none"
-          >
-            <HiMiniAdjustmentsHorizontal />
-          </button>
-          {isOpen && (
-            <div className="absolute -right-20 mt-2 w-fit rounded-lg border-2 border-[var(--Yellow)] shadow-lg bg-[var(--Input)]">
-              <div className="w-full">
-                <button
-                  onClick={() => setFilterOption("success")}
-                  className="w-full px-4 py-2 text-[var(--SubText)] hover:bg-[var(--Yellow)]/50"
-                >
-                  success
-                </button>
-                <hr />
-                <button
-                  onClick={() => setFilterOption("pending")}
-                  className="w-full px-4 py-2 text-[var(--SubText)] hover:bg-[var(--Yellow)]/50"
-                >
-                  pending
-                </button>
-                <hr />
-                <button
-                  onClick={() => setFilterOption(null)}
-                  className="w-full px-4 py-2 text-red-500 hover:bg-red-200"
-                >
-                  Clear Filter
-                </button>
-              </div>
+      {/* Search and Filter Section */}
+      <section className="bg-white p-6 rounded-2xl shadow space-y-6">
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+          {/* Search Input */}
+          <div>
+            <label className="block text-sm font-medium text-[var(--Main)] mb-2">
+              Search Bookings
+            </label>
+            <div className="relative">
+              <input
+                type="search"
+                placeholder="Search by name, email, or phone"
+                className="w-full bg-[var(--Input)] py-3 px-4 pr-10 rounded-xl border border-transparent focus:outline-none focus:ring-2 focus:ring-[var(--Yellow)]"
+                value={searchQuery}
+                onChange={handleSearchChange}
+              />
+              <span className="absolute right-3 top-3 text-[var(--SubText)]">
+                🔍
+              </span>
             </div>
-          )}
+          </div>
+
+          {/* Status Filter */}
+          <div>
+            <label className="block text-sm font-medium text-[var(--Main)] mb-2">
+              Booking Status
+            </label>
+            <select
+              value={statusFilter}
+              onChange={(e) => setStatusFilter(e.target.value)}
+              className="w-full bg-[var(--Input)] py-3 px-4 rounded-xl border border-transparent focus:outline-none focus:ring-2 focus:ring-[var(--Yellow)]"
+            >
+              <option value="">All Status ({bookings.length})</option>
+              <option value="pending">
+                Pending ({getStatusCount("pending")})
+              </option>
+              <option value="confirmed">
+                Confirmed ({getStatusCount("confirmed")})
+              </option>
+              <option value="cancelled">
+                Cancelled ({getStatusCount("cancelled")})
+              </option>
+              <option value="expired">
+                Expired ({getStatusCount("expired")})
+              </option>
+            </select>
+          </div>
+
+          {/* Payment Status Filter */}
+          <div>
+            <label className="block text-sm font-medium text-[var(--Main)] mb-2">
+              Payment Status
+            </label>
+            <select
+              value={paymentStatusFilter}
+              onChange={(e) => setPaymentStatusFilter(e.target.value)}
+              className="w-full bg-[var(--Input)] py-3 px-4 rounded-xl border border-transparent focus:outline-none focus:ring-2 focus:ring-[var(--Yellow)]"
+            >
+              <option value="">All Payments</option>
+              <option value="unpaid">
+                Unpaid ({getPaymentStatusCount("unpaid")})
+              </option>
+              <option value="paid">
+                Paid ({getPaymentStatusCount("paid")})
+              </option>
+              <option value="failed">
+                Failed ({getPaymentStatusCount("failed")})
+              </option>
+              <option value="refunded">
+                Refunded ({getPaymentStatusCount("refunded")})
+              </option>
+            </select>
+          </div>
+
+          {/* Payment Method Filter */}
+          <div>
+            <label className="block text-sm font-medium text-[var(--Main)] mb-2">
+              Payment Method
+            </label>
+            <select
+              onChange={(e) => setPaymentStatusFilter(e.target.value)}
+              className="w-full bg-[var(--Input)] py-3 px-4 rounded-xl border border-transparent focus:outline-none focus:ring-2 focus:ring-[var(--Yellow)]"
+            >
+              <option value="">All Methods</option>
+              <option value="card">Card</option>
+              <option value="apple">Apple Pay</option>
+              <option value="wallet">Wallet</option>
+            </select>
+          </div>
         </div>
       </section>
 
-      <section className="overflow-hidden border-2 border-[#347792] rounded-xl">
-        {sortedRequests.length > 0 ? (
-          <table className="w-full text-center table-auto">
-            <thead className="bg-[var(--Light)] text-[var(--SubText)] text-xl">
-              <tr>
-                <th className="p-4">Name</th>
-                <th className="p-4">Email</th>
-                <th className="p-4">Course Category</th>
-                <th className="p-4">Course Option</th>
-                <th className="p-4">Course Type</th>
-                <th className="p-4">Money</th>
-                <th className="p-4">phone</th>
-                <th className="p-4">Date</th>
-                <th className="p-4">Time</th>
-                <th className="p-4">Status</th>
-              </tr>
-            </thead>
-
-            <tbody>
-              {sortedRequests.map((req) => (
-                <tr key={req.id} className="hover:bg-gray-100 ">
-                  <td className="p-4">{req.Name}</td>
-                  <td className="p-4" style={{ whiteSpace: "pre-line", textAlign: "left" }}>
-  {req.Email.replace("@", "@\n")}
-</td>
-                  <td className="p-4">{req.category}</td>
-                  <td className="p-4">{req?.Option}</td>
-                  <td className="p-4">{req?.type}</td>
-                  <td className="p-4">{req?.Money} $</td>
-                  <td className="p-4">{req?.phone}</td>
-                  <td className="p-4">
-                    {req?.Date
-                      ? new Intl.DateTimeFormat("en-US", {
-                          year: "numeric",
-                          month: "short",
-                          day: "numeric",
-                        }).format(req?.Date.toDate())
-                      : "N/A"}
-                  </td>
-                  <td className="p-4">
-                    {req?.Time
-                      ? new Intl.DateTimeFormat("en-US", {
-                          hour: "2-digit",
-                          minute: "2-digit",
-                        }).format(req?.Time.toDate())
-                      : "N/A"}
-                  </td>
-                  <td
-                    className={`${
-                      req.status === "success"
-                        ? "text-green-600"
-                        : "text-yellow-500"
-                    }`}
-                  >
-                    {req.status}
-                  </td>
+      {/* Bookings Table */}
+      <section className="bg-white rounded-2xl shadow overflow-hidden">
+        {isLoading ? (
+          <div className="text-center py-12">
+            <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-[var(--Yellow)] mx-auto"></div>
+            <p className="mt-4 text-[var(--SubText)]">Loading bookings...</p>
+          </div>
+        ) : filteredBookings.length > 0 ? (
+          <div className="overflow-x-auto">
+            <table className="w-full">
+              <thead className="bg-[var(--Light)]">
+                <tr className="text-left text-[var(--SubText)]">
+                  <th className="p-4 font-medium">Customer</th>
+                  <th className="p-4 font-medium">Contact</th>
+                  <th className="p-4 font-medium">Package</th>
+                  <th className="p-4 font-medium">Amount</th>
+                  <th className="p-4 font-medium">Status</th>
+                  <th className="p-4 font-medium">Payment</th>
+                  <th className="p-4 font-medium">Method</th>
+                  <th className="p-4 font-medium">Date</th>
+                  <th className="p-4 font-medium">Actions</th>
                 </tr>
-              ))}
-            </tbody>
-          </table>
+              </thead>
+              <tbody className="divide-y divide-[var(--Light)]">
+                {filteredBookings.map((booking) => (
+                  <BookingRow key={booking._id} booking={booking} />
+                ))}
+              </tbody>
+            </table>
+          </div>
         ) : (
-          <h2 className="py-8 text-4xl font-semibold text-center">
-            No Requests Available
-          </h2>
+          <div className="text-center py-12">
+            <div className="text-4xl mb-4">📦</div>
+            <h2 className="text-xl font-semibold text-[var(--Main)] mb-2">
+              No Bookings Found
+            </h2>
+            <p className="text-[var(--SubText)]">
+              {searchQuery || statusFilter || paymentStatusFilter
+                ? "Try adjusting your search or filters"
+                : "No bookings have been made yet"}
+            </p>
+          </div>
         )}
       </section>
 
-      <Modal
-        open={openModal}
-        onClose={() => setOpenModal(false)}
-        center
-        styles={{
-          modal: { borderRadius: "1rem", maxWidth: "42rem", width: "100%" },
-        }}
-      >
-        <h2 className="my-12 text-3xl font-bold">Choose Date & Time</h2>
-        <div className="grid grid-cols-2 gap-4">
-          <div className="flex justify-center items-start drop-shadow-lg">
-            <Datepicker
-              dateFormat="dd/MM/yyyy"
-              minDate={new Date()}
-              inline
-              value={date}
-              onChange={(newDate) => setDate(newDate)}
-              theme={{
-                root: {
-                  base: "p-3 h-full w-full focus:outline-none focus:ring-2 focus:ring-[var(--Main)]",
-                },
-                popup: {
-                  footer: {
-                    base: "mt-2 flex space-x-2",
-                    button: { today: "bg-[var(--Main)] text-white" },
-                  },
-                },
-                views: {
-                  days: {
-                    items: {
-                      item: { selected: "bg-[var(--Yellow)] text-white" },
-                    },
-                  },
-                },
-              }}
-            />
+      {/* Summary Stats */}
+      {!isLoading && bookings.length > 0 && (
+        <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
+          <div className="bg-white p-4 rounded-xl shadow text-center">
+            <div className="text-2xl font-bold text-[var(--Main)]">
+              {bookings.length}
+            </div>
+            <div className="text-sm text-[var(--SubText)]">Total Bookings</div>
           </div>
-
-          <div className="p-4 drop-shadow-lg">
-            <TimeKeeper
-              time={time}
-              onChange={(newTime) => setTime(newTime.formatted24)}
-              switchToMinuteOnHourSelect={true}
-            />
+          <div className="bg-white p-4 rounded-xl shadow text-center">
+            <div className="text-2xl font-bold text-green-600">
+              {getStatusCount("confirmed")}
+            </div>
+            <div className="text-sm text-[var(--SubText)]">Confirmed</div>
+          </div>
+          <div className="bg-white p-4 rounded-xl shadow text-center">
+            <div className="text-2xl font-bold text-blue-600">
+              {getPaymentStatusCount("paid")}
+            </div>
+            <div className="text-sm text-[var(--SubText)]">Paid</div>
+          </div>
+          <div className="bg-white p-4 rounded-xl shadow text-center">
+            <div className="text-2xl font-bold text-[var(--Yellow)]">
+              {bookings.reduce(
+                (sum, booking) => sum + (booking.amount || 0),
+                0
+              )}{" "}
+              EGP
+            </div>
+            <div className="text-sm text-[var(--SubText)]">Total Revenue</div>
           </div>
         </div>
-
-        <div className="flex justify-between my-8">
-          <button
-            className="px-8 py-2 rounded-xl border-2 border-[var(--Yellow)]"
-            onClick={() => setOpenModal(false)}
-          >
-            Cancel
-          </button>
-          <button
-            className="px-8 py-2 rounded-xl bg-[var(--Yellow)]"
-            onClick={submitData}
-          >
-            Submit
-          </button>
-        </div>
-      </Modal>
+      )}
     </main>
   );
 }

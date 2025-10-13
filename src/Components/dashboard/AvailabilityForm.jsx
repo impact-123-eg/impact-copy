@@ -20,11 +20,13 @@ const validationSchema = Yup.object({
         groups: Yup.array()
           .of(
             Yup.object({
-              level: Yup.string().required("Group level is required"),
-              count: Yup.number()
-                .required("Count is required")
-                .min(1, "Count must be at least 1")
-                .integer("Count must be a whole number"),
+              level: Yup.string()
+                .oneOf(
+                  ["Starter", "Beginner", "Intermediate", "Advanced"],
+                  "Please select a valid level"
+                )
+                .required("Level is required"),
+              instructor: Yup.string().optional(),
             })
           )
           .min(1, "At least one group is required"),
@@ -33,14 +35,35 @@ const validationSchema = Yup.object({
     .min(1, "At least one time slot is required"),
 });
 
+// Generate time options in 30-minute intervals
+const generateTimeOptions = () => {
+  const options = [];
+  for (let hour = 0; hour < 24; hour++) {
+    for (let minute = 0; minute < 60; minute += 30) {
+      const timeString = `${hour.toString().padStart(2, "0")}:${minute
+        .toString()
+        .padStart(2, "0")}`;
+      options.push(timeString);
+    }
+  }
+  return options;
+};
+
+const timeOptions = generateTimeOptions();
+
 const AvailabilityForm = ({ date, day, onSubmit, onCancel }) => {
   const formik = useFormik({
     initialValues: {
-      slots: [{ start: "", end: "", groups: [{ level: "", count: 1 }] }],
+      slots: [
+        {
+          start: "09:00",
+          end: "10:00",
+          groups: [{ level: "", instructor: "" }],
+        },
+      ],
     },
     validationSchema,
     onSubmit: (values) => {
-      // Transform the data to match the backend schema
       const availabilityData = {
         date,
         day,
@@ -49,39 +72,44 @@ const AvailabilityForm = ({ date, day, onSubmit, onCancel }) => {
           end: slot.end,
           groups: slot.groups.map((group) => ({
             level: group.level,
-            users: Array(parseInt(group.count) || 1).fill(null), // Create empty slots
+            instructor: group.instructor || undefined,
           })),
         })),
       };
-
       onSubmit(availabilityData);
     },
   });
 
   const addSlot = () => {
+    const lastSlot = formik.values.slots[formik.values.slots.length - 1];
+    const newEndTime = lastSlot ? lastSlot.end : "10:00";
+    const newStartTime = incrementTime(newEndTime, 30); // Start next slot 30 mins after previous ends
+
     const newSlots = [
       ...formik.values.slots,
-      { start: "", end: "", groups: [{ level: "", count: 1 }] },
+      {
+        start: newStartTime,
+        end: incrementTime(newStartTime, 60),
+        groups: [{ level: "", instructor: "" }],
+      },
     ];
     formik.setFieldValue("slots", newSlots);
   };
 
   const removeSlot = (index) => {
     if (formik.values.slots.length <= 1) return;
-
     const newSlots = formik.values.slots.filter((_, i) => i !== index);
     formik.setFieldValue("slots", newSlots);
   };
 
   const addGroup = (slotIndex) => {
     const newSlots = [...formik.values.slots];
-    newSlots[slotIndex].groups.push({ level: "", count: 1 });
+    newSlots[slotIndex].groups.push({ level: "", instructor: "" });
     formik.setFieldValue("slots", newSlots);
   };
 
   const removeGroup = (slotIndex, groupIndex) => {
     if (formik.values.slots[slotIndex].groups.length <= 1) return;
-
     const newSlots = [...formik.values.slots];
     newSlots[slotIndex].groups = newSlots[slotIndex].groups.filter(
       (_, i) => i !== groupIndex
@@ -92,6 +120,12 @@ const AvailabilityForm = ({ date, day, onSubmit, onCancel }) => {
   const handleSlotChange = (slotIndex, field, value) => {
     const newSlots = [...formik.values.slots];
     newSlots[slotIndex][field] = value;
+
+    // Auto-adjust end time if start time changes and end is before start
+    if (field === "start" && newSlots[slotIndex].end <= value) {
+      newSlots[slotIndex].end = incrementTime(value, 60);
+    }
+
     formik.setFieldValue("slots", newSlots);
   };
 
@@ -101,13 +135,32 @@ const AvailabilityForm = ({ date, day, onSubmit, onCancel }) => {
     formik.setFieldValue("slots", newSlots);
   };
 
+  // Helper function to increment time by minutes
+  const incrementTime = (timeString, minutesToAdd) => {
+    const [hours, minutes] = timeString.split(":").map(Number);
+    const totalMinutes = hours * 60 + minutes + minutesToAdd;
+    const newHours = Math.floor(totalMinutes / 60) % 24;
+    const newMinutes = totalMinutes % 60;
+    return `${newHours.toString().padStart(2, "0")}:${newMinutes
+      .toString()
+      .padStart(2, "0")}`;
+  };
+
   return (
     <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center p-4 z-50">
       <div className="bg-white rounded-2xl shadow-xl w-full max-w-4xl max-h-[90vh] overflow-y-auto">
         <div className="p-6 space-y-6">
-          <h2 className="font-bold text-2xl text-[var(--Main)]">
-            Create Availability for {date} ({day})
-          </h2>
+          <div className="flex justify-between items-center">
+            <h2 className="font-bold text-2xl text-[var(--Main)]">
+              Create Availability for {date} ({day})
+            </h2>
+            <button
+              onClick={onCancel}
+              className="p-2 text-[var(--SubText)] hover:text-[var(--Main)] rounded-full hover:bg-[var(--Light)]"
+            >
+              ✕
+            </button>
+          </div>
 
           <form onSubmit={formik.handleSubmit} className="space-y-6">
             {formik.values.slots.map((slot, slotIndex) => (
@@ -130,14 +183,13 @@ const AvailabilityForm = ({ date, day, onSubmit, onCancel }) => {
                   )}
                 </div>
 
-                <div className="grid grid-cols-2 gap-x-8 gap-y-4">
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-x-8 gap-y-4">
                   {/* Start Time Input */}
                   <div>
                     <label className="block text-sm font-medium text-[var(--Main)] mb-2">
                       Start Time
                     </label>
-                    <input
-                      type="time"
+                    <select
                       value={slot.start}
                       onChange={(e) =>
                         handleSlotChange(slotIndex, "start", e.target.value)
@@ -147,9 +199,15 @@ const AvailabilityForm = ({ date, day, onSubmit, onCancel }) => {
                         formik.errors.slots &&
                         formik.errors.slots[slotIndex]?.start
                           ? "border-red-500"
-                          : "border-transparent"
+                          : "border-[var(--Input)]"
                       }`}
-                    />
+                    >
+                      {timeOptions.map((time) => (
+                        <option key={time} value={time}>
+                          {time}
+                        </option>
+                      ))}
+                    </select>
                     {formik.touched.slots &&
                     formik.errors.slots &&
                     formik.errors.slots[slotIndex]?.start ? (
@@ -164,8 +222,7 @@ const AvailabilityForm = ({ date, day, onSubmit, onCancel }) => {
                     <label className="block text-sm font-medium text-[var(--Main)] mb-2">
                       End Time
                     </label>
-                    <input
-                      type="time"
+                    <select
                       value={slot.end}
                       onChange={(e) =>
                         handleSlotChange(slotIndex, "end", e.target.value)
@@ -175,9 +232,17 @@ const AvailabilityForm = ({ date, day, onSubmit, onCancel }) => {
                         formik.errors.slots &&
                         formik.errors.slots[slotIndex]?.end
                           ? "border-red-500"
-                          : "border-transparent"
+                          : "border-[var(--Input)]"
                       }`}
-                    />
+                    >
+                      {timeOptions
+                        .filter((time) => time > slot.start)
+                        .map((time) => (
+                          <option key={time} value={time}>
+                            {time}
+                          </option>
+                        ))}
+                    </select>
                     {formik.touched.slots &&
                     formik.errors.slots &&
                     formik.errors.slots[slotIndex]?.end ? (
@@ -204,14 +269,13 @@ const AvailabilityForm = ({ date, day, onSubmit, onCancel }) => {
                   {slot.groups.map((group, groupIndex) => (
                     <div
                       key={groupIndex}
-                      className="grid grid-cols-2 gap-x-8 gap-y-4 items-start p-3 bg-white rounded-lg"
+                      className="grid grid-cols-1 md:grid-cols-2 gap-x-8 gap-y-4 items-start p-3 bg-white rounded-lg"
                     >
                       <div>
                         <label className="block text-sm font-medium text-[var(--Main)] mb-2">
                           Group Level
                         </label>
-                        <input
-                          type="text"
+                        <select
                           value={group.level}
                           onChange={(e) =>
                             handleGroupChange(
@@ -230,8 +294,13 @@ const AvailabilityForm = ({ date, day, onSubmit, onCancel }) => {
                               ? "border-red-500"
                               : "border-transparent"
                           }`}
-                          placeholder="e.g., Beginner, Intermediate, Advanced"
-                        />
+                        >
+                          <option value="">Select Level</option>
+                          <option value="Starter">Starter</option>
+                          <option value="Beginner">Beginner</option>
+                          <option value="Intermediate">Intermediate</option>
+                          <option value="Advanced">Advanced</option>
+                        </select>
                         {formik.touched.slots &&
                         formik.errors.slots &&
                         formik.errors.slots[slotIndex]?.groups &&
@@ -249,43 +318,22 @@ const AvailabilityForm = ({ date, day, onSubmit, onCancel }) => {
                       <div className="flex items-end space-x-4">
                         <div className="flex-1">
                           <label className="block text-sm font-medium text-[var(--Main)] mb-2">
-                            Number of Users
+                            Instructor (Optional)
                           </label>
                           <input
-                            type="number"
-                            min="1"
-                            value={group.count}
+                            type="text"
+                            value={group.instructor}
                             onChange={(e) =>
                               handleGroupChange(
                                 slotIndex,
                                 groupIndex,
-                                "count",
+                                "instructor",
                                 e.target.value
                               )
                             }
-                            className={`w-full bg-[var(--Input)] py-2 px-4 rounded-lg border ${
-                              formik.touched.slots &&
-                              formik.errors.slots &&
-                              formik.errors.slots[slotIndex]?.groups &&
-                              formik.errors.slots[slotIndex].groups[groupIndex]
-                                ?.count
-                                ? "border-red-500"
-                                : "border-transparent"
-                            }`}
+                            placeholder="Instructor name"
+                            className="w-full bg-[var(--Input)] py-2 px-4 rounded-lg border border-transparent"
                           />
-                          {formik.touched.slots &&
-                          formik.errors.slots &&
-                          formik.errors.slots[slotIndex]?.groups &&
-                          formik.errors.slots[slotIndex].groups[groupIndex]
-                            ?.count ? (
-                            <div className="text-red-500 text-sm mt-1">
-                              {
-                                formik.errors.slots[slotIndex].groups[
-                                  groupIndex
-                                ].count
-                              }
-                            </div>
-                          ) : null}
                         </div>
 
                         {slot.groups.length > 1 && (
@@ -320,27 +368,29 @@ const AvailabilityForm = ({ date, day, onSubmit, onCancel }) => {
             ) : null}
 
             {/* Form Actions */}
-            <div className="flex justify-end space-x-4 pt-4">
-              <button
-                type="button"
-                onClick={onCancel}
-                className="px-6 py-2 border border-[var(--SubText)] text-[var(--SubText)] rounded-xl hover:bg-gray-100 transition-colors"
-              >
-                Cancel
-              </button>
+            <div className="flex flex-col sm:flex-row justify-end gap-4 pt-4">
               <button
                 type="button"
                 onClick={addSlot}
-                className="px-6 py-2 bg-[var(--Light)] text-[var(--Main)] rounded-xl hover:bg-opacity-80 transition-colors"
+                className="px-6 py-2 bg-[var(--Light)] text-[var(--Main)] rounded-xl hover:bg-opacity-80 transition-colors order-2 sm:order-1"
               >
-                Add Another Time Slot
+                + Add Another Time Slot
               </button>
-              <button
-                type="submit"
-                className="px-6 py-2 bg-[var(--Yellow)] hover:bg-opacity-90 transition-colors rounded-xl"
-              >
-                Save Availability
-              </button>
+              <div className="flex gap-4 order-1 sm:order-2">
+                <button
+                  type="button"
+                  onClick={onCancel}
+                  className="px-6 py-2 border border-[var(--SubText)] text-[var(--SubText)] rounded-xl hover:bg-gray-100 transition-colors"
+                >
+                  Cancel
+                </button>
+                <button
+                  type="submit"
+                  className="px-6 py-2 bg-[var(--Yellow)] hover:bg-opacity-90 transition-colors rounded-xl"
+                >
+                  Save Availability
+                </button>
+              </div>
             </div>
           </form>
         </div>

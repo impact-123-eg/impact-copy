@@ -12,8 +12,6 @@ const Availability = () => {
   const [selectedDate, setSelectedDate] = useState(new Date());
   const [showForm, setShowForm] = useState(false);
   const [availabilityData, setAvailabilityData] = useState([]);
-  console.log("CHOSEN DAY", availabilityData);
-  console.log("SELECTED DATE", selectedDate);
 
   // Use your custom hook for data fetching
   const {
@@ -29,7 +27,10 @@ const Availability = () => {
   const handleDateChange = (date) => {
     setSelectedDate(() => date);
     setAvailabilityData(() => {
-      return availabilities.filter((item) => item?.date === formatDate(date));
+      return (
+        availabilities.filter((item) => item?.date === formatDate(date))[0] ||
+        {}
+      );
     });
   };
 
@@ -39,16 +40,14 @@ const Availability = () => {
       {
         onSuccess: () => {
           setShowForm(false);
+          refetch();
         },
       }
     );
   };
 
   const formatDate = (date) => {
-    const year = date.getFullYear();
-    const month = String(date.getMonth() + 1).padStart(2, "0");
-    const day = String(date.getDate()).padStart(2, "0");
-    return `${year}-${month}-${day}`;
+    return date.toISOString().split("T")[0];
   };
 
   const getDayName = (date) => {
@@ -89,17 +88,24 @@ const Availability = () => {
         {/* Availability List Section */}
         <div className="bg-white p-6 rounded-2xl shadow">
           <h2 className="font-medium text-lg text-[var(--Main)] mb-4">
-            Existing Availability
+            Existing Availability for
+            <span className="font-medium text-base text-[var(--SubText)] ml-2">
+              "
+              {new Date(selectedDate).toLocaleDateString("en-US", {
+                weekday: "long",
+                year: "numeric",
+                month: "long",
+                day: "numeric",
+              })}
+              "
+            </span>
           </h2>
           {isLoading ? (
             <div className="text-center py-4 text-[var(--SubText)]">
               Loading availability...
             </div>
           ) : (
-            <AvailabilityList
-              availability={availabilityData}
-              onRefresh={refetch}
-            />
+            <AvailabilityList availability={availabilityData} />
           )}
         </div>
       </div>
