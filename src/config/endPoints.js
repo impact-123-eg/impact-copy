@@ -24,6 +24,11 @@ const endPoints = {
 
   //User
   getFreeSessionSlots: "/free-session-slots/upcoming?days=14",
+  freeSessionBookings: "/free-session-bookings/",
+
+  startTest: "freetests/start/",
+  submitTest: "freetests/submit/",
+  getTest: "freetests/",
 };
 
 export default endPoints;

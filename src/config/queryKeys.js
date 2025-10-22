@@ -38,6 +38,11 @@ const queryKeys = {
   moveFreeSessionBooking: "moveFreeSessionBooking",
 
   getFreeSessionSlots: "getFreeSessionSlots",
+  freeSessionBookings: "freeSessionBookings",
+
+  startTest: "startTest",
+  submitTest: "submitTest",
+  getTest: "getTest",
 };
 
 export default queryKeys;

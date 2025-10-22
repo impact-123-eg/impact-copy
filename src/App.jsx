@@ -12,7 +12,6 @@ import AppForm from "./pages/AppForm";
 import Courses from "./pages/Courses";
 import CourseDetails from "./pages/info";
 import Checkout from "./pages/Checkout";
-import FreeTest from "./pages/FreeTest";
 import Login from "./pages/dashboard/Login";
 import HomePage from "./pages/dashboard/HomePage";
 import DashLayout from "./Layouts/DashLayout";
@@ -21,7 +20,6 @@ import EditAdmin from "./pages/dashboard/UpdateEmployee";
 import Requests from "./pages/dashboard/Requests";
 import StudentsBooking from "./pages/dashboard/StudentsBooking";
 import CoursesPlans from "./pages/dashboard/CoursesPlans";
-// import AddCourse from "./Components/dashboard/AddEditPackage";
 
 import { AuthProvider } from "./AuthContext";
 import ProtectedRoute from "./ProtectedRoute";
@@ -38,6 +36,11 @@ import AddCategory from "./Components/dashboard/AddCategory";
 import CategoryManagement from "./pages/dashboard/Categories";
 import AddEditPackage from "./Components/dashboard/AddEditPackage";
 import FreeSessionManagement from "./pages/dashboard/FreeSessions";
+import FreeSessionForm from "./pages/FreeSession";
+import FreeSessionSuccess from "./pages/FreeSessionSuccess";
+import FreeSessionConfirmed from "./pages/FreeSessionConfirmed";
+import FreeSessionCancelled from "./pages/FreeSessionCancelled";
+import FreeTestContainer from "./Components/free-test/FreeTestContainer";
 function App() {
   // const { t, i18n, changeLanguage } = useTranslationContext();
 
@@ -57,7 +60,20 @@ function App() {
             {/* Checkout page with a different layout */}
             <Route path="/" element={<SubLayout />}>
               <Route path="checkout" element={<Checkout />} />
-              <Route path="bookTest" element={<FreeTest />} />
+              <Route path="free-test" element={<FreeTestContainer />} />
+              <Route path="free-session" element={<FreeSessionForm />} />
+              <Route
+                path="free-session/success"
+                element={<FreeSessionSuccess />}
+              />
+              <Route
+                path="/free-session-confirmed"
+                element={<FreeSessionConfirmed />}
+              />
+              <Route
+                path="/free-session-cancelled"
+                element={<FreeSessionCancelled />}
+              />
               <Route path="/terms-of-use" element={<Terms />} />
               <Route path="/privacy-policy" element={<Privacy />} />
               <Route path="/refund-policy" element={<Refund />} />

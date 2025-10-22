@@ -75,7 +75,9 @@ function Home() {
           <div className="flex md:justify-between flex-col md:flex-row items-center gap-4 text-xs md:text-xl">
             <button
               onClick={() => {
-                navigate("/bookTest", { state: { option: "Free Session" } });
+                navigate("/free-session", {
+                  state: { option: "Free Session" },
+                });
                 window.scroll(0, 0);
               }}
               className={`p-4 sm:px-6 w-[150px] md:w-[250px] rounded-3xl bg-[var(--Yellow)] ${
@@ -212,7 +214,7 @@ function Home() {
         >
           <button
             onClick={() => {
-              navigate("/bookTest", { state: { option: "Free Session" } });
+              navigate("/free-session", { state: { option: "Free Session" } });
               window.scroll(0, 0);
             }}
             className={`p-3 sm:p-4 rounded-3xl bg-[var(--Yellow)] ${
