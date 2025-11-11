@@ -3,7 +3,8 @@
   "Courses": "Courses",
   "AboutUs": "About Us",
   "AboutOur": "About Our Academy",
-  "BookFree": "Book Free Test",
+  "BookFree": "Book Free Session",
+  "BookFreeTest": "Book Free Test",
   "Arabic": "Arabic",
   "fluencyStartsHere1": "Fluency Starts Here!",
   "fluencyStartsHere2": "Learn English",
@@ -344,7 +345,9 @@
       "finishLevel": "Finish Level",
       "submitting": "Submitting...",
       "listenCarefully": "Listen carefully to the audio",
-      "noAudioForThisQuestion": "No audio available for this question"
+      "noAudioForThisQuestion": "No audio available for this question",
+      "timeUp": "Time's up",
+      "timeLeft": "Time left: {{s}}s"
     },
     "progress": {
       "currentLevel": "Current Level",
@@ -395,7 +398,9 @@
       "tryAgain": "Try again",
       "noAudioAvailable": "No audio available",
       "replayAudio": "Replay audio",
-      "audioNotSupported": "Your browser does not support the audio element."
+      "audioNotSupported": "Your browser does not support the audio element.",
+      "playLimitNote": "Audio can be played twice only. Remaining: {{n}}",
+      "playLimitReached": "Play limit reached (2/2)"
     },
     "errors": {
       "nameRequired": "Name is required",

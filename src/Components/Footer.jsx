@@ -91,7 +91,7 @@ const Footer = () => {
         data-aos-duration="1000"
         className="space-y-4 mt-12 text-md"
       >
-        <div className=" cursor-pointer">
+        <div className=" cursor-pointer flex gap-2">
           <span
             onClick={() => navigate("/privacy-policy")}
             className="border-b-2"
@@ -113,11 +113,18 @@ const Footer = () => {
             {t("termsOfUse")}
           </span>
         </div>
-        <p className="my-3">
-          {t("designedBy")}{" "}
+        <p className="my-3 flex gap-2">
+          {t("designedBy")}
           <a href="https://ABSai.dev" target="_blank" className=" underline">
-            {" "}
             ABSai.dev
+          </a>
+          &
+          <a
+            href="https://www.linkedin.com/in/ahmed-assem-325116318/"
+            target="_blank"
+            className=" underline"
+          >
+            Ahmed Assem
           </a>
         </p>
         <p>{t("allRightsReserved")}</p>

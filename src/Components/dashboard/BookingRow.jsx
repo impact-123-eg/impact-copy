@@ -1,81 +1,83 @@
 import React from "react";
 
+// Status badge styling
+const getStatusBadge = (status) => {
+  const baseClasses = "px-3 py-1 rounded-full text-xs font-medium";
+
+  switch (status) {
+    case "confirmed":
+      return `${baseClasses} bg-green-100 text-green-800`;
+    case "pending":
+      return `${baseClasses} bg-yellow-100 text-yellow-800`;
+    case "cancelled":
+      return `${baseClasses} bg-red-100 text-red-800`;
+    case "expired":
+      return `${baseClasses} bg-gray-100 text-gray-800`;
+    default:
+      return `${baseClasses} bg-gray-100 text-gray-800`;
+  }
+};
+
+// Payment status badge styling
+const getPaymentStatusBadge = (paymentStatus) => {
+  const baseClasses = "px-3 py-1 rounded-full text-xs font-medium";
+
+  switch (paymentStatus) {
+    case "paid":
+      return `${baseClasses} bg-green-100 text-green-800`;
+    case "unpaid":
+      return `${baseClasses} bg-yellow-100 text-yellow-800`;
+    case "failed":
+      return `${baseClasses} bg-red-100 text-red-800`;
+    case "refunded":
+      return `${baseClasses} bg-blue-100 text-blue-800`;
+    default:
+      return `${baseClasses} bg-gray-100 text-gray-800`;
+  }
+};
+
+// Payment method display
+const getPaymentMethodDisplay = (method) => {
+  switch (method) {
+    case "card":
+      return "💳 Card";
+    case "apple":
+      return "🍎 Apple Pay";
+    case "wallet":
+      return "💰 Wallet";
+    default:
+      return method;
+  }
+};
+
+// Format date
+const formatDate = (dateString) => {
+  if (!dateString) return "N/A";
+
+  try {
+    const date = new Date(dateString);
+    return new Intl.DateTimeFormat("en-US", {
+      year: "numeric",
+      month: "short",
+      day: "numeric",
+    }).format(date);
+  } catch (error) {
+    return "Invalid Date";
+  }
+};
+
+// Format currency
+const formatCurrency = (amount, currency = "EGP") => {
+  return new Intl.NumberFormat("en-US", {
+    style: "currency",
+    currency: currency,
+    minimumFractionDigits: 0,
+    maximumFractionDigits: 2,
+  }).format(amount || 0);
+};
+
 function BookingRow({ booking }) {
-  // Status badge styling
-  const getStatusBadge = (status) => {
-    const baseClasses = "px-3 py-1 rounded-full text-xs font-medium";
-
-    switch (status) {
-      case "confirmed":
-        return `${baseClasses} bg-green-100 text-green-800`;
-      case "pending":
-        return `${baseClasses} bg-yellow-100 text-yellow-800`;
-      case "cancelled":
-        return `${baseClasses} bg-red-100 text-red-800`;
-      case "expired":
-        return `${baseClasses} bg-gray-100 text-gray-800`;
-      default:
-        return `${baseClasses} bg-gray-100 text-gray-800`;
-    }
-  };
-
-  // Payment status badge styling
-  const getPaymentStatusBadge = (paymentStatus) => {
-    const baseClasses = "px-3 py-1 rounded-full text-xs font-medium";
-
-    switch (paymentStatus) {
-      case "paid":
-        return `${baseClasses} bg-green-100 text-green-800`;
-      case "unpaid":
-        return `${baseClasses} bg-yellow-100 text-yellow-800`;
-      case "failed":
-        return `${baseClasses} bg-red-100 text-red-800`;
-      case "refunded":
-        return `${baseClasses} bg-blue-100 text-blue-800`;
-      default:
-        return `${baseClasses} bg-gray-100 text-gray-800`;
-    }
-  };
-
-  // Payment method display
-  const getPaymentMethodDisplay = (method) => {
-    switch (method) {
-      case "card":
-        return "💳 Card";
-      case "apple":
-        return "🍎 Apple Pay";
-      case "wallet":
-        return "💰 Wallet";
-      default:
-        return method;
-    }
-  };
-
-  // Format date
-  const formatDate = (dateString) => {
-    if (!dateString) return "N/A";
-
-    try {
-      const date = new Date(dateString);
-      return new Intl.DateTimeFormat("en-US", {
-        year: "numeric",
-        month: "short",
-        day: "numeric",
-      }).format(date);
-    } catch (error) {
-      return "Invalid Date";
-    }
-  };
-
-  // Format currency
-  const formatCurrency = (amount, currency = "EGP") => {
-    return new Intl.NumberFormat("en-US", {
-      style: "currency",
-      currency: currency,
-      minimumFractionDigits: 0,
-      maximumFractionDigits: 2,
-    }).format(amount || 0);
-  };
+  const pkg = booking?.package;
 
   return (
     <tr className="hover:bg-[var(--Light)] transition-colors">
@@ -97,7 +99,8 @@ function BookingRow({ booking }) {
 
       {/* Package Info - This would need to be populated from the referenced Package */}
       <td className="p-4 text-[var(--SubText)]">
-        {booking.package ? "Package Info" : "N/A"}
+        {`${pkg.category.name} — ${pkg.levelno} Level`} — {pkg.priceAfter}{" "}
+        {pkg.currency || "EGP"}
       </td>
 
       {/* Amount */}
@@ -131,7 +134,7 @@ function BookingRow({ booking }) {
       </td>
 
       {/* Actions */}
-      <td className="p-4">
+      {/* <td className="p-4">
         <div className="flex space-x-2">
           <button
             className="p-1 text-blue-600 hover:text-blue-800"
@@ -139,7 +142,7 @@ function BookingRow({ booking }) {
           >
             👁️
           </button>
-          {/* {booking.paymentStatus === "unpaid" && (
+          {booking.paymentStatus === "unpaid" && (
             <button
               className="p-1 text-green-600 hover:text-green-800"
               title="Mark as Paid"
@@ -154,9 +157,9 @@ function BookingRow({ booking }) {
             >
               ❌
             </button>
-          )} */}
+          )}
         </div>
-      </td>
+      </td> */}
     </tr>
   );
 }

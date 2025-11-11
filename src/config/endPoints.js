@@ -21,10 +21,13 @@ const endPoints = {
   freeSessionSlotByDateForAdmin: "/free-session-slots/admin/by-date/",
   freeSessionAvailableDays: "/free-session-slots/available-days/",
   moveFreeSessionBooking: "/free-session-groups/move-booking/",
+  dashboard: "/dashboard/",
 
   //User
   getFreeSessionSlots: "/free-session-slots/upcoming?days=14",
   freeSessionBookings: "/free-session-bookings/",
+  createPayment: "/payments/create-booking",
+  paymentStatus: "/payments/status/",
 
   startTest: "freetests/start/",
   submitTest: "freetests/submit/",

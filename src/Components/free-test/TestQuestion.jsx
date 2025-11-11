@@ -1,5 +1,5 @@
 // components/free-test/TestQuestion.jsx (UPDATED)
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useRef } from "react";
 import { useTranslation } from "react-i18next";
 import TestProgress from "./TestProgress";
 import AudioPlayer from "./AudioPlayer";
@@ -16,10 +16,44 @@ const TestQuestion = ({
 }) => {
   const { t } = useTranslation();
   const [selectedAnswer, setSelectedAnswer] = useState(null);
+  const [remainingSeconds, setRemainingSeconds] = useState(30);
+  const [expired, setExpired] = useState(false);
+  const submitRef = useRef(false);
 
   useEffect(() => {
     setSelectedAnswer(null);
-  }, [questionNumber]);
+    setExpired(false);
+    submitRef.current = false;
+
+    // Timer only for questions without audio
+    const isAudio = Boolean(question?.audioUrl);
+    if (isAudio) {
+      setRemainingSeconds(null);
+      return;
+    }
+
+    const storageKey = `freeTest:q:${String(currentLevel)}:${String(
+      questionNumber
+    )}:startedAt`;
+    const now = Date.now();
+    const startedAt = Number(localStorage.getItem(storageKey)) || now;
+    if (!localStorage.getItem(storageKey)) {
+      localStorage.setItem(storageKey, String(now));
+    }
+
+    const tick = () => {
+      const elapsed = Math.floor((Date.now() - startedAt) / 1000);
+      const left = Math.max(0, 30 - elapsed);
+      setRemainingSeconds(left);
+      if (left === 0) {
+        setExpired(true);
+      }
+    };
+
+    tick();
+    const id = setInterval(tick, 250);
+    return () => clearInterval(id);
+  }, [questionNumber, question?.audioUrl, currentLevel]);
 
   const handleAnswerSelect = (answerIndex) => {
     if (!isLoading) {
@@ -31,6 +65,15 @@ const TestQuestion = ({
     if (selectedAnswer === null || isLoading) return;
     await onSubmitAnswer(selectedAnswer);
   };
+
+  // Auto-submit on expiry for non-audio questions
+  // If the user selected an answer before time ran out, submit that answer; otherwise submit null
+  useEffect(() => {
+    if (expired && !submitRef.current && !question?.audioUrl) {
+      submitRef.current = true;
+      onSubmitAnswer(selectedAnswer ?? null);
+    }
+  }, [expired, onSubmitAnswer, question?.audioUrl, selectedAnswer]);
 
   const getOptionLetter = (index) => {
     return String.fromCharCode(65 + index);
@@ -56,7 +99,13 @@ const TestQuestion = ({
       <div className="p-8">
         {question?.audioUrl ? (
           <div className="mb-6">
-            <AudioPlayer src={question.audioUrl} />
+            <AudioPlayer
+              src={question.audioUrl}
+              storageKey={`freeTest:${String(currentLevel)}:${String(
+                questionNumber
+              )}:audio`}
+              maxPlays={2}
+            />
             <p className="text-sm text-[var(--SubText)] text-center mt-2">
               {t("freeTest.questions.listenCarefully")}
             </p>
@@ -66,6 +115,27 @@ const TestQuestion = ({
             <p className="text-sm text-gray-500">
               {t("freeTest.questions.noAudioForThisQuestion")}
             </p>
+          </div>
+        )}
+
+        {!question?.audioUrl && (
+          <div className="mb-4 flex items-center justify-center">
+            <span
+              className={`inline-flex items-center px-3 py-1 rounded-full text-sm ${
+                expired
+                  ? "bg-red-100 text-red-700"
+                  : remainingSeconds <= 10
+                  ? "bg-yellow-100 text-yellow-700"
+                  : "bg-[var(--Light)] text-[var(--Main)]"
+              }`}
+            >
+              {expired
+                ? t("freeTest.questions.timeUp", "Time's up")
+                : t("freeTest.questions.timeLeft", {
+                    defaultValue: "Time left: {{s}}s",
+                    s: remainingSeconds ?? 0,
+                  })}
+            </span>
           </div>
         )}
 
@@ -113,7 +183,7 @@ const TestQuestion = ({
 
         <button
           onClick={handleSubmit}
-          disabled={selectedAnswer === null || isLoading}
+          disabled={selectedAnswer === null || isLoading || expired}
           className="w-full py-4 bg-[var(--Yellow)] text-white font-semibold rounded-xl hover:bg-opacity-90 transition-colors disabled:opacity-50 disabled:cursor-not-allowed text-lg"
         >
           {isLoading ? (

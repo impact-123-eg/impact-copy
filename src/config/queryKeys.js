@@ -39,10 +39,13 @@ const queryKeys = {
 
   getFreeSessionSlots: "getFreeSessionSlots",
   freeSessionBookings: "freeSessionBookings",
+  freeSessionBookingsById: "freeSessionBookingsById",
 
   startTest: "startTest",
   submitTest: "submitTest",
   getTest: "getTest",
+  dashboard: "dashboard",
+  createPayment: "createPayment",
 };
 
 export default queryKeys;

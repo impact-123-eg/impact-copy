@@ -31,7 +31,25 @@ const FreeTestContainer = () => {
     existingTest,
   } = useFreeTest();
 
-  // Effect to automatically manage stage transitions
+  // Clear persisted client state between test runs (audio play counters, per-question timers)
+  const clearAudioPlayCounters = () => {
+    try {
+      const keys = Object.keys(localStorage);
+      for (const k of keys) {
+        if (
+          // Audio play counters used by AudioPlayer
+          (k.startsWith("freeTest:") && k.endsWith(":audio")) ||
+          k.startsWith("audio:") ||
+          // Per-question timers used by TestQuestion
+          (k.startsWith("freeTest:q:") && k.endsWith(":startedAt"))
+        ) {
+          localStorage.removeItem(k);
+        }
+      }
+    } catch {}
+  };
+
+  // Effect to automatically manage stage transitions (edge-aware)
   useEffect(() => {
     console.log("Stage check:", {
       stage: testStage,
@@ -41,20 +59,39 @@ const FreeTestContainer = () => {
     });
 
     if (testData?.finalResults) {
-      setTestStage("completion");
-      setShowTransition(false);
-    } else if (shouldShowTransition && !showTransition) {
-      // Show transition when we should and it's not already showing
+      // Move to completion
+      if (testStage !== "completion") {
+        setTestStage("completion");
+        setShowTransition(false);
+      }
+      return;
+    }
+
+    // Enter transition only if hook says so and we're not already in transition
+    if (shouldShowTransition && testStage !== "transition") {
       setShowTransition(true);
       setTestStage("transition");
-    } else if (testData && testStage === "welcome") {
+      return;
+    }
+
+    // Exit transition when hook flag is cleared
+    if (!shouldShowTransition && testStage === "transition") {
+      setShowTransition(false);
+      setTestStage("question");
+      return;
+    }
+
+    // Initial move from welcome to question when data arrives
+    if (testData && testStage === "welcome") {
       setTestStage("question");
       setShowTransition(false);
     }
-  }, [testData, shouldShowTransition, testStage, showTransition, currentLevel]);
+  }, [testData, shouldShowTransition, testStage, currentLevel]);
 
   const handleStartTest = async (userInfo) => {
     try {
+      // Reset audio limits for a fresh attempt
+      clearAudioPlayCounters();
       await startTest(userInfo);
     } catch (error) {
       console.error("Failed to start test:", error);
@@ -71,7 +108,9 @@ const FreeTestContainer = () => {
 
   const handleContinueToNextLevel = () => {
     console.log("Continuing to next level");
-    // Clear the transition state and move to questions
+    // Clear hook transition flag first to prevent effect from re-triggering transition
+    continueToNextLevel();
+    // Clear local transition state and move to questions
     setShowTransition(false);
     setTestStage("question");
   };

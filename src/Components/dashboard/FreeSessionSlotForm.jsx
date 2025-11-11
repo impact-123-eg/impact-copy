@@ -8,6 +8,26 @@ const FreeSessionSlotForm = ({ date, onSubmit, onCancel }) => {
     maxGroups: 1,
     maxParticipantsPerGroup: 3,
   });
+  const teacherOptions = [
+    "Rania Jubarah",
+    "Omar Jubarah",
+    "Shaza Al muslhy",
+    "Ala’a Hamed",
+    "Ala’a Ashraf",
+    "Haneen Ashraf",
+    "Kholoud Salama",
+    "Fatma Hamed",
+    "Aya Al byar",
+    "Aya Ramadan",
+    "Mohamed Elkomy",
+    "Moaz Mohamed",
+    "Mohanad Mohamed",
+    "Enas",
+    "Dahlia Essam",
+    "Zeyad",
+    "Another Instructor",
+  ];
+  const [teachers, setTeachers] = useState([""]);
 
   const handleSubmit = (e) => {
     e.preventDefault();
@@ -34,6 +54,7 @@ const FreeSessionSlotForm = ({ date, onSubmit, onCancel }) => {
       ...formData,
       startTime: combinedStartTime,
       endTime: combinedEndTime,
+      teachers: teachers.slice(0, Number(formData.maxGroups)),
     };
 
     onSubmit(submissionData);
@@ -43,6 +64,26 @@ const FreeSessionSlotForm = ({ date, onSubmit, onCancel }) => {
     setFormData({
       ...formData,
       [e.target.name]: e.target.value,
+    });
+    if (e.target.name === "maxGroups") {
+      const count = Math.max(1, Number(e.target.value) || 1);
+      setTeachers((prev) => {
+        const next = [...prev];
+        if (next.length < count) {
+          while (next.length < count) next.push("");
+        } else if (next.length > count) {
+          next.length = count;
+        }
+        return next;
+      });
+    }
+  };
+
+  const handleTeacherChange = (index, value) => {
+    setTeachers((prev) => {
+      const next = [...prev];
+      next[index] = value;
+      return next;
     });
   };
 
@@ -99,6 +140,30 @@ const FreeSessionSlotForm = ({ date, onSubmit, onCancel }) => {
               required
               className="w-full p-2 border border-[var(--Input)] rounded-lg focus:ring-2 focus:ring-[var(--Yellow)]"
             />
+          </div>
+
+          {/* Teachers per Group */}
+          <div>
+            <label className="block text-sm font-medium text-[var(--SubText)] mb-2">
+              Assign Teacher for Each Group
+            </label>
+            <div className="space-y-2">
+              {Array.from({ length: Number(formData.maxGroups) || 1 }).map((_, i) => (
+                <div key={i} className="flex items-center gap-3">
+                  <span className="w-24 text-sm text-[var(--SubText)]">Group {i + 1}</span>
+                  <select
+                    value={teachers[i] || ""}
+                    onChange={(e) => handleTeacherChange(i, e.target.value)}
+                    className="flex-1 p-2 border border-[var(--Input)] rounded-lg focus:ring-2 focus:ring-[var(--Yellow)]"
+                  >
+                    <option value="">Select teacher</option>
+                    {teacherOptions.map((t) => (
+                      <option key={t} value={t}>{t}</option>
+                    ))}
+                  </select>
+                </div>
+              ))}
+            </div>
           </div>
 
           {/* Participants per Group */}

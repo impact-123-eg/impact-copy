@@ -218,7 +218,7 @@ const FreeSessionCalendar = ({ onSlotSelect }) => {
                   >
                     {formatTime(slot.startTime)} - {formatTime(slot.endTime)}
                   </div>
-                  {slot.availableGroupsCount && (
+                  {/* {slot.availableGroupsCount && (
                     <div
                       className={`text-sm text-[var(--SubText)] mt-1 ${textAlignment}`}
                     >
@@ -226,7 +226,7 @@ const FreeSessionCalendar = ({ onSlotSelect }) => {
                       {t("group", { count: slot.availableGroupsCount })}{" "}
                       {t("available")}
                     </div>
-                  )}
+                  )} */}
                 </div>
               ));
             })()}

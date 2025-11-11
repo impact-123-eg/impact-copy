@@ -4,6 +4,7 @@
   "AboutUs": "نبذة عنا",
   "AboutOur": "رحلتنا و مستقبلك",
   "BookFree": "احجز حصة تجريبية",
+  "BookFreeTest": "قم بتحديد مستواك",
   "English": "إنجليزية",
   "fluencyStartsHere1": "الطلاقة تبدأ بتعلم",
   "fluencyStartsHere2": "اللغة الإنجليزية",
@@ -339,7 +340,9 @@
       "finishLevel": "إنهاء المستوى",
       "submitting": "جاري الإرسال...",
       "listenCarefully": "استمع جيدًا للصوت",
-      "noAudioForThisQuestion": "لا يوجد صوت متاح لهذا السؤال"
+      "noAudioForThisQuestion": "لا يوجد صوت متاح لهذا السؤال",
+      "timeUp": "انتهى الوقت",
+      "timeLeft": "الوقت المتبقي: {{s}} ثانية"
     },
     "progress": {
       "currentLevel": "المستوى الحالي",
@@ -390,7 +393,9 @@
       "tryAgain": "حاول مرة أخرى",
       "noAudioAvailable": "لا يوجد صوت متاح",
       "replayAudio": "إعادة تشغيل الصوت",
-      "audioNotSupported": "متصفحك لا يدعم عنصر الصوت."
+      "audioNotSupported": "متصفحك لا يدعم عنصر الصوت.",
+      "playLimitNote": "يمكن تشغيل الصوت مرتين فقط. المتبقي: {{n}}",
+      "playLimitReached": "تم الوصول إلى الحد الأقصى للتشغيل (2/2)"
     },
     "errors": {
       "nameRequired": "الاسم مطلوب",

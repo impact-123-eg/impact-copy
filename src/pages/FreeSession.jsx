@@ -11,6 +11,7 @@ import { useCreateBooking } from "@/hooks/Actions/free-sessions/useFreeSessionBo
 const FreeSessionForm = () => {
   const { t, i18n } = useTranslation();
   const navigate = useNavigate();
+  const AR = i18n.language === "ar";
 
   const [selectedSlot, setSelectedSlot] = useState(null);
   const { mutate: createBooking, isPending: isBookingPending } =
@@ -21,13 +22,13 @@ const FreeSessionForm = () => {
     formik.setFieldValue("freeSessionSlotId", slot._id);
   };
 
-  const handleSubmit = (data) => {
-    createBooking(data, {
-      onSuccess: () => {
-        // navigate("/free-session/success");
-      },
-    });
-  };
+  // const handleSubmit = (data) => {
+  //   createBooking(data, {
+  //     onSuccess: () => {
+  //       // navigate("/free-session/success");
+  //     },
+  //   });
+  // };
 
   // Formik setup
   const formik = useFormik({
@@ -62,13 +63,23 @@ const FreeSessionForm = () => {
   const formatTimeSlot = (slot) => {
     const startDate = new Date(slot.startTime);
     const endDate = new Date(slot.endTime);
-    return `${formatDate(startDate)}   --   ${startDate.toLocaleTimeString([], {
+    const locale = AR ? "ar-EG" : undefined;
+    const dateLabel = AR
+      ? startDate.toLocaleDateString("ar-EG", {
+          year: "numeric",
+          month: "long",
+          day: "2-digit",
+        })
+      : formatDate(startDate);
+    const startTime = startDate.toLocaleTimeString(locale, {
       hour: "2-digit",
       minute: "2-digit",
-    })} - ${endDate.toLocaleTimeString([], {
+    });
+    const endTime = endDate.toLocaleTimeString(locale, {
       hour: "2-digit",
       minute: "2-digit",
-    })}`;
+    });
+    return `${dateLabel}   --  ( ${startTime} - ${endTime} )`;
   };
 
   return (

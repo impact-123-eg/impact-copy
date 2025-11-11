@@ -110,9 +110,16 @@ const FreeSessionGroupManager = ({ slot, onBookingMoved }) => {
                 >
                   {/* Group Header */}
                   <div className="flex justify-between items-center mb-3 pb-2 border-b">
-                    <h3 className="font-semibold text-gray-800">
-                      {group.name}
-                    </h3>
+                    <div>
+                      <h3 className="font-semibold text-gray-800">{group.name}</h3>
+                      <div className="text-xs text-gray-500 mt-0.5">
+                        Teacher: {group.teacher ? (
+                          <span className="font-medium text-gray-700">{group.teacher}</span>
+                        ) : (
+                          <span className="italic">Unassigned</span>
+                        )}
+                      </div>
+                    </div>
                     <span
                       className={`text-sm px-2 py-1 rounded-full ${
                         (bookingsByGroup[group._id]?.bookings.length || 0) >=

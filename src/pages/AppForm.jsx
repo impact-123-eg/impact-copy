@@ -6,6 +6,7 @@ import { useGetpackageById } from "@/hooks/Actions/packages/usePackageCruds";
 import Option from "@/Components/Option";
 import { useFormik } from "formik";
 import { bookingApplicationValidationSchema } from "@/Validation";
+import { useCreatePayment } from "@/hooks/Actions/payment/useCurdsPayment";
 
 const AppForm = () => {
   const { id: packageId, clientCurrency } = useParams();
@@ -15,36 +16,50 @@ const AppForm = () => {
   const { data: packData } = useGetpackageById({ id: packageId });
   const coursePackage = packData?.data || {};
 
+  const { mutate: createPayment, isPending: createPaymentPending } =
+    useCreatePayment();
+
   const formik = useFormik({
     initialValues: {
       name: "",
       email: "",
       phoneNumber: "",
       package: coursePackage?.category?._id || "",
+      country: "EG",
+      paymentMethod: "card",
       takenTest: false,
     },
     validationSchema: bookingApplicationValidationSchema(t),
     enableReinitiate: true,
     onSubmit: (values) => {
-      console.log("Form submitted with values:", values);
-      // Payment logic will be implemented here later
       const bookingData = {
         name: values.name,
         email: values.email,
         phoneNumber: values.phoneNumber,
-        package: coursePackage._id,
+        country: values.country || "EG",
+        packageId: coursePackage._id,
+        paymentMethod: values.paymentMethod || "card",
       };
-      handleInitiatePayment();
+      createPayment(
+        { data: bookingData },
+        {
+          onSuccess: (res) => {
+            const url = res?.data?.checkoutUrl;
+            if (url) window.location.href = url;
+          },
+        }
+      );
     },
   });
 
-  const handleInitiatePayment = () => {
-    // Payment initiation logic will go here
+  const handleCardPay = () => {
+    formik.setFieldValue("paymentMethod", "card");
   };
 
   const handleApplePay = async (e) => {
     e.preventDefault();
-    // Implement Apple Pay logic here
+    formik.setFieldValue("paymentMethod", "apple");
+    formik.handleSubmit();
   };
 
   return (
@@ -142,6 +157,23 @@ const AppForm = () => {
                     </div>
                   ) : null}
                 </div>
+
+                {/* Country Field */}
+                <div className="space-y-2">
+                  <label className="block text-base font-semibold text-gray-700">
+                    {t("country")} *
+                  </label>
+                  <input
+                    id="country"
+                    name="country"
+                    type="text"
+                    onChange={formik.handleChange}
+                    onBlur={formik.handleBlur}
+                    value={formik.values.country}
+                    className={`w-full px-4 py-3 bg-gray-50 border rounded-lg focus:outline-none focus:ring-2 focus:ring-[var(--Yellow)] transition-colors border-gray-200`}
+                    placeholder={t("enterCountry") || "Egypt"}
+                  />
+                </div>
               </div>
             </div>
 
@@ -178,7 +210,7 @@ const AppForm = () => {
                 <div className="flex gap-3 justify-center">
                   <button
                     type="button"
-                    disabled={!formik.isValid}
+                    disabled={!formik.isValid || createPaymentPending}
                     onClick={handleApplePay}
                     className="disabled:opacity-50 lg:hidden disabled:pointer-events-none p-3 rounded-xl bg-[var(--Yellow)] text-white hover:bg-yellow-600 transition-colors"
                   >
@@ -186,7 +218,8 @@ const AppForm = () => {
                   </button>
                   <button
                     type="submit"
-                    disabled={!formik.isValid}
+                    disabled={!formik.isValid || createPaymentPending}
+                    onClick={handleCardPay}
                     className="disabled:opacity-50 disabled:pointer-events-none px-6 py-3 rounded-xl bg-[var(--Yellow)] text-white font-medium hover:bg-yellow-600 transition-colors flex items-center gap-2"
                   >
                     <IoCardSharp size={20} />

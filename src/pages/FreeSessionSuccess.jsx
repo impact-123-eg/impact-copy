@@ -21,10 +21,10 @@ const FreeSessionSuccess = () => {
     navigate("/");
   };
 
-  const handleViewBookings = () => {
-    // Navigate to user's bookings page if you have one
-    navigate("/my-bookings");
-  };
+  // const handleViewBookings = () => {
+  //   // Navigate to user's bookings page if you have one
+  //   navigate("/my-bookings");
+  // };
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-[var(--Light)] to-white flex items-center justify-center px-4 py-8">
@@ -158,12 +158,12 @@ const FreeSessionSuccess = () => {
             {t("backToHome")}
           </button>
 
-          {/* <button
-            onClick={handleViewBookings}
+          <button
+            onClick={() => navigate("/free-test")}
             className="px-8 py-3 rounded-2xl bg-[var(--Yellow)] text-white hover:bg-opacity-90 transition-colors font-medium"
           >
-            {t("viewMyBookings")}
-          </button> */}
+            {t("BookFreeTest")}
+          </button>
         </div>
 
         {/* Support Contact */}

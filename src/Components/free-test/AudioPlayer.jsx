@@ -2,7 +2,7 @@
 import React, { useState, useRef, useEffect } from "react";
 import { useTranslation } from "react-i18next";
 
-const AudioPlayer = ({ src, className = "" }) => {
+const AudioPlayer = ({ src, className = "", storageKey, maxPlays = 2 }) => {
   const { t } = useTranslation();
 
   const audioRef = useRef(null);
@@ -11,6 +11,7 @@ const AudioPlayer = ({ src, className = "" }) => {
   const [error, setError] = useState(null);
   const [progress, setProgress] = useState(0);
   const [audioDuration, setAudioDuration] = useState(0);
+  const [playCount, setPlayCount] = useState(0);
 
   useEffect(() => {
     const audio = audioRef.current;
@@ -19,6 +20,11 @@ const AudioPlayer = ({ src, className = "" }) => {
       setIsLoading(false);
       return;
     }
+
+    // initialize localStorage counter
+    const key = storageKey || `audio:${src}`;
+    const stored = Number(localStorage.getItem(key)) || 0;
+    setPlayCount(stored);
 
     const handleLoadStart = () => {
       setIsLoading(true);
@@ -73,7 +79,17 @@ const AudioPlayer = ({ src, className = "" }) => {
       audio.pause();
       audio.src = "";
     };
-  }, [src, t]);
+  }, [src, t, storageKey]);
+
+  const canPlayMore = () => playCount < maxPlays;
+  const incrementPlay = () => {
+    const key = storageKey || `audio:${src}`;
+    const next = playCount + 1;
+    setPlayCount(next);
+    try {
+      localStorage.setItem(key, String(next));
+    } catch {}
+  };
 
   const togglePlay = async () => {
     if (!audioRef.current || error) return;
@@ -83,8 +99,13 @@ const AudioPlayer = ({ src, className = "" }) => {
         audioRef.current.pause();
         setIsPlaying(false);
       } else {
+        if (!canPlayMore()) {
+          setError(t("freeTest.audio.playLimitReached", "Play limit reached"));
+          return;
+        }
         await audioRef.current.play();
         setIsPlaying(true);
+        incrementPlay();
       }
     } catch (err) {
       setError("Failed to play audio");
@@ -95,10 +116,15 @@ const AudioPlayer = ({ src, className = "" }) => {
     if (!audioRef.current) return;
 
     try {
+      if (!canPlayMore()) {
+        setError(t("freeTest.audio.playLimitReached", "Play limit reached"));
+        return;
+      }
       audioRef.current.currentTime = 0;
       setProgress(0);
       await audioRef.current.play();
       setIsPlaying(true);
+      incrementPlay();
     } catch (err) {
       setError("Failed to replay audio");
     }
@@ -170,7 +196,7 @@ const AudioPlayer = ({ src, className = "" }) => {
         {/* Play/Pause Button */}
         <button
           onClick={togglePlay}
-          disabled={isLoading}
+          disabled={isLoading || !canPlayMore()}
           className="flex-shrink-0 w-12 h-12 bg-[var(--Yellow)] text-white rounded-full flex items-center justify-center hover:bg-opacity-90 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
         >
           {isLoading ? (
@@ -211,7 +237,7 @@ const AudioPlayer = ({ src, className = "" }) => {
         {/* Replay Button */}
         <button
           onClick={handleReplay}
-          disabled={isLoading}
+          disabled={isLoading || !canPlayMore()}
           className="flex-shrink-0 w-10 h-10 text-[var(--SubText)] hover:text-[var(--Main)] transition-colors disabled:opacity-50"
           title={t("freeTest.audio.replayAudio")}
         >
@@ -225,8 +251,8 @@ const AudioPlayer = ({ src, className = "" }) => {
         </button>
       </div>
 
-      {/* Status Text */}
-      <div className="text-center mt-2">
+      {/* Status Text and limits */}
+      <div className="text-center mt-2 space-y-1">
         <p className="text-sm text-[var(--SubText)]">
           {isLoading
             ? t("freeTest.audio.audioLoading")
@@ -234,6 +260,17 @@ const AudioPlayer = ({ src, className = "" }) => {
             ? t("freeTest.audio.playingAudio")
             : t("freeTest.audio.playAudio")}
         </p>
+        <p className="text-xs text-[var(--SubText)]">
+          {t("freeTest.audio.playLimitNote", {
+            defaultValue: "Audio can be played twice only.   Remaining: {{n}}",
+            n: Math.max(0, maxPlays - playCount),
+          })}
+        </p>
+        {!canPlayMore() && (
+          <p className="text-xs text-red-600">
+            {t("freeTest.audio.playLimitReached", "Play limit reached (2/2)")}
+          </p>
+        )}
       </div>
     </div>
   );
