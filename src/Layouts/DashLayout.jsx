@@ -41,7 +41,11 @@ const DashLayout = () => {
         {overlayProps && <div {...overlayProps} />}
 
         {/* Main content area */}
-        <div className="flex-1 flex flex-col overflow-hidden">
+        <div
+          className={`flex-1 flex flex-col overflow-hidden ${
+            isMobile ? "pt-10" : ""
+          }`}
+        >
           <div className="flex-1 overflow-auto p-6">
             <Outlet />
           </div>

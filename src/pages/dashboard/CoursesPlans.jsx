@@ -143,7 +143,7 @@ function CoursesPlans() {
                     Duration
                   </span>
                   <span className="block font-semibold">
-                    {formatDuration(level.duration, t)}
+                    {formatDuration(level.duration)}
                   </span>
                 </div>
                 <div className="bg-gray-50 p-3 rounded-lg">

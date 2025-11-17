@@ -8,11 +8,19 @@ const formatDuration = (weeks, t, ar = false) => {
   // If duration is divisible by 4, show in months
   if (weeksNum % 4 === 0) {
     const months = weeksNum / 4;
-    return `${months} ${months > (ar ? 2 : 1) ? t("months") : t("month")}`;
+    return `${months} ${
+      months > (ar ? 2 : 1)
+        ? (t && t("months")) || "Months"
+        : (t && t("month")) || "Month"
+    }`;
   }
 
   // Otherwise show in weeks
-  return `${weeksNum} ${weeksNum > (ar ? 2 : 1) ? t("weeks") : t("week")}`;
+  return `${weeksNum} ${
+    weeksNum > (ar ? 2 : 1)
+      ? (t && t("weeks")) || "Weeks"
+      : (t && t("week")) || "Week"
+  }`;
 };
 
 export default formatDuration;

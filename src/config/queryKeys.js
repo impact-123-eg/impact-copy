@@ -23,60 +23,29 @@ const queryKeys = {
   updateAvailability: "updateAvailability",
   deleteAvailability: "deleteAvailability",
 
-  // categories: "categories",
+  bookings: "bookings",
+  addBooking: "addBooking",
+  updateBooking: "updateBooking",
+  deleteBooking: "deleteBooking",
 
-  // addBlog: "addBlog",
-  // blogs: "blogs",
+  freeSessionSlots: "freeSessionSlots",
+  freeSessionSlotByDate: "freeSessionSlotByDate",
+  freeSessionAvailableDays: "freeSessionAvailableDays",
+  toggleFreeSessionSlotStatus: "toggleFreeSessionSlotStatus",
+  addFreeSessionSlot: "addFreeSessionSlot",
+  updateFreeSessionSlot: "updateFreeSessionSlot",
+  deleteFreeSessionSlot: "deleteFreeSessionSlot",
+  moveFreeSessionBooking: "moveFreeSessionBooking",
 
-  // doctors: "doctors",
-  // approvedDoctors: "approvedDoctors",
-  // pendingDoctors: "pendingDoctors",
-  // suspendedDoctors: "suspendedDoctors",
+  getFreeSessionSlots: "getFreeSessionSlots",
+  freeSessionBookings: "freeSessionBookings",
+  freeSessionBookingsById: "freeSessionBookingsById",
 
-  // users: "users",
-
-  // patients: "patients",
-
-  // posts: "posts",
-  // addPosts: "addPosts",
-  // togglePostLike: "togglePostLike",
-  // patchPost: "patchPost",
-
-  // comments: "comments",
-  // updateComment: "updateComment",
-  // deleteComment: "deleteComment",
-
-  // chargeWallet: "chargeWallet",
-  // userPayment: "userPayment",
-  // adminPayments: "adminPayments",
-  // payment: "payment",
-
-  // cancelSession: "cancelSession",
-
-  // completeSession: "completeSession",
-  // addavailability: "availability",
-  // availability: "availability",
-  // updateAvailability: "updateAvailability",
-  // deleteAvailability: "deleteAvailability",
-
-  // analysis: "Analysis",
-  // /* Booking */
-
-  // booking: "booking",
-  // addBooking: "addBooking",
-  // directPayment: "directPayment",
-  // userBooking: "userBooking",
-  // doctorBooking: "doctorBooking",
-  // bookingMeetLink: "bookingMeetLink",
-
-  // cancelBooking: "cancelBooking",
-  // confirmBooking: "confirmBooking",
-  // completeBooking: "completeBooking",
-
-  // reports: "reports",
-
-  // diagnosis: "diagnosis",
-  // ratings: "ratings",
+  startTest: "startTest",
+  submitTest: "submitTest",
+  getTest: "getTest",
+  dashboard: "dashboard",
+  createPayment: "createPayment",
 };
 
 export default queryKeys;

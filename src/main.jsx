@@ -7,6 +7,7 @@ import "aos/dist/aos.css";
 import GlobalState from "./context/GlobelContext";
 import TanstackProvider from "./providers/TanstackProvider.jsx";
 import AuthContextProvider from "./context/AuthContext";
+import { BrowserRouter as Router } from "react-router-dom";
 
 AOS.init({ once: true });
 
@@ -15,7 +16,9 @@ createRoot(document.getElementById("root")).render(
     <TanstackProvider>
       <GlobalState>
         <AuthContextProvider>
-          <App />
+          <Router>
+            <App />
+          </Router>
         </AuthContextProvider>
       </GlobalState>
     </TanstackProvider>

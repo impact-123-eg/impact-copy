@@ -9,8 +9,8 @@ import { MdOutlineLogout } from "react-icons/md";
 import { PiBooksBold } from "react-icons/pi";
 import { MdPersonOutline } from "react-icons/md";
 import { useAuth } from "@/context/AuthContext";
-import { set } from "date-fns";
 import ConfirmModal from "../ConfirmModal";
+import { FaFileInvoice } from "react-icons/fa";
 
 function Nav() {
   const location = useLocation();
@@ -25,23 +25,29 @@ function Nav() {
       path: "/dash/",
     },
     {
-      name: "Availabilities",
+      name: "Free Sessions",
       icon: <BiSolidTime size={24} />,
-      path: "/dash/availabilities",
+      path: "/dash/free-sessions",
+    },
+
+    isAdmin && {
+      name: "Courses & Plans",
+      icon: <PiBooksBold size={24} />,
+      path: "/dash/courses",
+    },
+    {
+      name: "Free Tests",
+      icon: <FaFileInvoice size={24} />,
+      path: "/dash/free-tests",
     },
     {
       name: "Student Booking",
       icon: <RxCalendar size={24} />,
       path: "/dash/booking",
     },
+    // { name: "Requests", icon: <GiPapers size={24} />, path: "/dash/requests" },
     isAdmin && {
-      name: "Courses & Plans",
-      icon: <PiBooksBold size={24} />,
-      path: "/dash/courses",
-    },
-    { name: "Requests", icon: <GiPapers size={24} />, path: "/dash/requests" },
-    isAdmin && {
-      name: "Payment",
+      name: "Bookings & Payments",
       icon: <GiWallet size={24} />,
       path: "/dash/payment",
     },

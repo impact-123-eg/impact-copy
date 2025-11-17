@@ -1,6 +1,4 @@
 import React, { useState } from "react";
-import { Modal } from "react-responsive-modal";
-import "react-responsive-modal/styles.css";
 import { useNavigate } from "react-router-dom";
 import ConfirmModal from "../ConfirmModal";
 import { useDeleteUser } from "@/hooks/Actions/users/useCurdsUsers";
@@ -22,34 +20,29 @@ const Employee = ({ employee, onDelete }) => {
   };
 
   return (
-    <article className="border-2 border-[var(--SubTextBorder)] grid grid-cols-4 p-4 rounded-2xl">
-      <div className="w-full space-y-2 flex-col items-center">
-        <h4 className="text-md text-[var(--SubText)]">Name</h4>
-        <p className="text-xl">{employee?.name}</p>
-      </div>
-      <div className="w-full space-y-2 flex-col items-center">
-        <h4 className="text-md text-[var(--SubText)]">Phone</h4>
-        <p className="text-xl">{employee?.phoneNumber}</p>
-      </div>
-      <div className="w-full space-y-2 flex-col items-center">
-        <h4 className="text-md text-[var(--SubText)]">Role</h4>
-        <p className="text-xl">{employee?.role}</p>
-      </div>
-      <div className="flex space-x-6 w-full">
-        <button
-          onClick={editAdminInfo}
-          className="px-8 rounded-xl border-2 border-[var(--Yellow)]"
-        >
-          Edit
-        </button>
-        <button
-          type="button"
-          onClick={() => setOpenModal(true)}
-          className="px-8 rounded-xl bg-[var(--Yellow)]"
-        >
-          Delete
-        </button>
-      </div>
+    <>
+      <tr className="border-b border-[var(--SubTextBorder)] hover:bg-gray-50">
+        <td className="px-4 py-3 text-sm text-gray-800 whitespace-nowrap max-w-[220px] overflow-hidden text-ellipsis">{employee?.name}</td>
+        <td className="px-4 py-3 text-sm text-gray-800 whitespace-nowrap max-w-[180px] overflow-hidden text-ellipsis">{employee?.phoneNumber}</td>
+        <td className="px-4 py-3 text-sm text-gray-800 whitespace-nowrap max-w-[160px] overflow-hidden text-ellipsis">{employee?.role}</td>
+        <td className="px-4 py-3 text-right align-middle">
+          <div className="flex flex-wrap gap-2">
+            <button
+              onClick={editAdminInfo}
+              className="px-4 py-2 rounded-xl border-2 border-[var(--Yellow)]"
+            >
+              Edit
+            </button>
+            <button
+              type="button"
+              onClick={() => setOpenModal(true)}
+              className="px-4 py-2 rounded-xl bg-[var(--Yellow)] text-white"
+            >
+              Delete
+            </button>
+          </div>
+        </td>
+      </tr>
 
       {/* Confirm Deletion Modal */}
       <ConfirmModal
@@ -60,7 +53,7 @@ const Employee = ({ employee, onDelete }) => {
         description="This action cannot be undone. Are you sure you want to delete?"
         confirmText="Delete"
       />
-    </article>
+    </>
   );
 };
 

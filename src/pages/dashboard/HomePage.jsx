@@ -10,8 +10,8 @@ import {
   Legend,
 } from "chart.js";
 import { Link, useLocation } from "react-router-dom";
-import { db, collection } from "../../data/firebaseConfig";
-import { query, getDocs, orderBy } from "firebase/firestore";
+import useDashboardStats from "@/hooks/Actions/dashboard/useDashboardStats";
+import { useGetAllFreeSessionBookings } from "@/hooks/Actions/free-sessions/useFreeSessionBookingCruds";
 
 ChartJS.register(
   CategoryScale,
@@ -23,53 +23,68 @@ ChartJS.register(
 );
 
 function HomePage() {
-  const [freeTest, setFreeTest] = useState([]);
-  const [freeSession, setFreeSession] = useState([]);
-  const [requests, setRequests] = useState([]);
-  const [paid, setPaid] = useState([]);
+  const { data: statsResp, isPending: statsLoading } = useDashboardStats();
+  const stats = statsResp?.data?.data || statsResp || null;
 
-  const fetchData = async (collectionName, setterFunction) => {
-    try {
-      // Check if collection is "Requests" and add orderBy
-      const q =
-        collectionName === "Requests"
-          ? query(collection(db, collectionName), orderBy("createdAt", "desc"))
-          : query(collection(db, collectionName));
+  // Load recent free session bookings for the Requests section
+  const { data: bookingsResp } = useGetAllFreeSessionBookings();
+  const bookings = (bookingsResp?.data || [])
+    .slice()
+    .sort((a, b) => new Date(b.createdAt) - new Date(a.createdAt))
+    .slice(0, 3);
 
-      const querySnapshot = await getDocs(q);
-      const data = querySnapshot.docs.map((doc) => ({
-        id: doc.id,
-        ...doc.data(),
-      }));
-      setterFunction(data);
-    } catch (e) {
-      console.error(`Error fetching data from ${collectionName}: `, e);
-    }
-  };
-  useEffect(() => {
-    fetchData("Free Test", setFreeTest);
-    fetchData("Free Session", setFreeSession);
-    fetchData("Requests", setRequests);
-    fetchData("payments", setPaid);
-  }, []);
+  const monthlyCounts = stats?.payments?.monthlyCounts || new Array(12).fill(0);
 
-  const totalMoney = paid
-    .filter((payment) => payment?.status === "success") // Only include successful payments
-    .reduce((sum, payment) => {
-      const moneyValue = Number(payment?.Money); // Ensure Money exists and is a number
-      return sum + (isNaN(moneyValue) ? 0 : moneyValue); // Add only valid numbers
-    }, 0);
-
-  const monthlyCounts = new Array(12).fill(0);
-  paid
-    .filter((paid) => paid?.status === "success")
-    .forEach((payment) => {
-      if (payment.Date) {
-        const date = payment.Date.toDate(); // Convert Firestore Timestamp to JavaScript Date
-        const month = date.getMonth(); // Get month (0-based index)
-        monthlyCounts[month] += 1; // Increment count for that month
+  const renderSlot = (b) => {
+    const slot = b?.freeSessionSlotId || b?.freeSessionSlot;
+    if (slot && typeof slot === "object") {
+      const hasISO =
+        typeof slot.startTime === "string" && typeof slot.endTime === "string";
+      if (hasISO) {
+        const start = new Date(slot.startTime);
+        const end = new Date(slot.endTime);
+        const dateStr = start.toLocaleDateString("en-UK", {
+          weekday: "short",
+          year: "numeric",
+          month: "short",
+          day: "numeric",
+        });
+        const startTimeStr = start.toLocaleTimeString("en-UK", {
+          hour: "2-digit",
+          minute: "2-digit",
+        });
+        const endTimeStr = end.toLocaleTimeString("en-UK", {
+          hour: "2-digit",
+          minute: "2-digit",
+        });
+        return (
+          <>
+            <div className="text-sm">{dateStr}</div>
+            <div className="text-xs text-[var(--SubText)]">
+              {startTimeStr} - {endTimeStr}
+            </div>
+          </>
+        );
       }
-    });
+      const dateStr = slot.date
+        ? new Date(slot.date).toLocaleDateString("en-UK")
+        : "N/A";
+      const timeStr =
+        slot.startTime && slot.endTime
+          ? `${slot.startTime} - ${slot.endTime}`
+          : "";
+      return (
+        <>
+          <div className="text-sm">{dateStr}</div>
+          <div className="text-xs text-[var(--SubText)]">{timeStr}</div>
+        </>
+      );
+    }
+    if (typeof slot === "string") {
+      return <div className="text-sm">Slot #{slot.slice(-6)}</div>;
+    }
+    return <div className="text-sm">N/A</div>;
+  };
 
   const dataChart = {
     labels: ["1", "2", "3", "4", "5", "6", "7", "8", "9", "10", "11", "12"],
@@ -97,16 +112,16 @@ function HomePage() {
     },
   };
   const details = [
-    { number: freeTest.length, description: "Free Test" },
-    { number: freeSession.length, description: "Free Session" },
+    { number: stats?.freeTests ?? 0, description: "Free Test" },
+    { number: stats?.freeSessions ?? 0, description: "Free Session" },
     {
-      number:
-        freeTest.length +
-        freeSession.length +
-        paid.filter((item) => item.status === "success").length,
-      description: "Total Student",
+      number: stats?.payments?.count ?? 0,
+      description: "Enrolled Students",
     },
-    { number: totalMoney + "$", description: "Paid Courses" },
+    {
+      number: (stats?.payments?.totalAmount ?? 0) + "$",
+      description: "Paid Courses",
+    },
   ];
 
   const date = new Date();
@@ -153,8 +168,7 @@ function HomePage() {
 
           <div className="mt-auto justify-self-end space-y-2">
             <h1 className="text-2xl sm:text-3xl text-[var(--Yellow)] font-bold">
-              {paid.filter((payment) => payment.status === "success").length}{" "}
-              Students
+              {stats?.payments?.count ?? 0} Students
             </h1>
             <p>{year}</p>
           </div>
@@ -169,57 +183,62 @@ function HomePage() {
 
       {/* Recent Students Requests Section */}
       <section className="space-y-6 sm:space-y-10">
-        <h1 className="text-xl sm:text-2xl font-bold">
-          Recent Students Requests
-        </h1>
-
-        <div className="overflow-x-auto border-2 border-[#347792] rounded-xl">
-          <table className="w-full text-center table-auto min-w-[800px]">
-            <thead className="bg-[var(--Light)] text-[var(--SubText)] text-lg sm:text-xl">
-              <tr>
-                <th className="p-3 sm:p-4">Name</th>
-                <th className="p-3 sm:p-4">Email</th>
-                <th className="p-3 sm:p-4">Phone</th>
-                <th className="p-3 sm:p-4">Country</th>
-                <th className="p-3 sm:p-4">Option</th>
-                <th className="p-3 sm:p-4">Response</th>
-              </tr>
-            </thead>
-
-            <tbody>
-              {requests
-                .filter((e) => e.status === "success")
-                .slice(0, 3)
-                .map((req) => (
-                  <tr key={req.id} className="hover:bg-gray-100">
-                    <td className="p-4">{req.name || req.Name}</td>
-                    <td className="p-4">{req.email || req.Email}</td>
-                    <td className="p-4">{req.phoneNumber || req.phone}</td>
-                    <td className="p-4">{req.country}</td>
-                    <td className="p-4">{req.option}</td>
+        <div className="flex items-center justify-between">
+          <h1 className="text-xl sm:text-2xl font-bold">
+            Recent Student Bookings
+          </h1>
+          <Link
+            to="/dash/booking"
+            aria-label="See more free session bookings"
+            className="inline-flex items-center gap-2 px-4 py-2 rounded-lg bg-[var(--Yellow)] text-black font-medium hover:opacity-90 transition"
+          >
+            See more <span aria-hidden>→</span>
+          </Link>
+        </div>
+        <section className="bg-white rounded-2xl shadow overflow-hidden">
+          <div className="overflow-x-auto">
+            <table className="w-full">
+              <thead className="bg-[var(--Light)]">
+                <tr className="text-left text-[var(--SubText)]">
+                  <th className="p-4 font-medium">Customer</th>
+                  <th className="p-4 font-medium">Contact</th>
+                  <th className="p-4 font-medium">Country</th>
+                  <th className="p-4 font-medium">Age</th>
+                  <th className="p-4 font-medium w-56">Slot</th>
+                  <th className="p-4 font-medium">Status</th>
+                </tr>
+              </thead>
+              <tbody className="divide-y divide-[var(--Light)]">
+                {bookings.map((b) => (
+                  <tr key={b._id} className="hover:bg-[var(--Light)]/40">
                     <td className="p-4">
-                      <Link
-                        className="underline text-[var(--Yellow)]"
-                        to="/dash/requests"
-                        onClick={() => window.scroll(0, 0)}
-                      >
-                        select date
-                      </Link>
+                      <div className="font-semibold text-[var(--Main)]">
+                        <Link
+                          to={`/dash/booking/${b._id}`}
+                          className="hover:underline"
+                        >
+                          {b?.name || "N/A"}
+                        </Link>
+                      </div>
+                    </td>
+                    <td className="p-4">
+                      <div className="text-sm">{b?.email || "N/A"}</div>
+                      <div className="text-sm">{b?.phoneNumber || "N/A"}</div>
+                    </td>
+                    <td className="p-4">{b?.country || "N/A"}</td>
+                    <td className="p-4">{b?.age || "N/A"}</td>
+                    <td className="p-4 min-w-[14rem]">{renderSlot(b)}</td>
+                    <td className="p-4">
+                      <span className="inline-flex items-center px-2.5 py-1 rounded-full text-xs font-medium bg-[var(--Input)]">
+                        {b?.status || "Pending"}
+                      </span>
                     </td>
                   </tr>
                 ))}
-            </tbody>
-          </table>
-        </div>
-        <div className="flex px-3 sm:px-6 py-0.5 justify-end">
-          <Link
-            to="/dash/requests"
-            onClick={() => window.scroll(0, 0)}
-            className="underline"
-          >
-            See more
-          </Link>
-        </div>
+              </tbody>
+            </table>
+          </div>
+        </section>
       </section>
     </main>
   );

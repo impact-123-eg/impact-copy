@@ -16,6 +16,11 @@
   --Yellow: #f5d019;
   --SubText: #031323a6;
   --SubTextBorder: #68686880;
+  --YellowDark: #ed8936; /* Darker yellow for hover */
+  --Green: #48bb78; /* Green for positive actions */
+  --GreenDark: #38a169; /* Darker green for hover */
+  --Red: #f56565; /* Red for negative actions */
+  --RedDark: #e53e3e; /* Darker red for hover */
 
   /* clock colors */
   --top-selected-color: var(--Yellow);
@@ -47,4 +52,51 @@ Link {
 
 hr {
   color: var(--SubTextBorder);
+}
+
+input[type="time"] {
+  padding: 0.75rem;
+  border: 1.5px solid var(--SubTextBorder);
+  border-radius: 0.5rem;
+  font-size: 1rem;
+  font-weight: 500;
+  color: var(--LightTxt);
+  background-color: white;
+  width: 100%;
+  transition: all 0.2s ease-in-out;
+  appearance: none;
+  cursor: pointer;
+}
+
+input[type="time"]::-webkit-calendar-picker-indicator {
+  background: none;
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='16' height='16' fill='%23031323a6' viewBox='0 0 16 16'%3E%3Cpath d='M8 3.5a.5.5 0 0 0-1 0V9a.5.5 0 0 0 .252.434l3.5 2a.5.5 0 0 0 .496-.868L8 8.71V3.5z'/%3E%3Cpath d='M8 16A8 8 0 1 0 8 0a8 8 0 0 0 0 16zm7-8A7 7 0 1 1 1 8a7 7 0 0 1 14 0z'/%3E%3C/svg%3E");
+  padding: 8px;
+  cursor: pointer;
+}
+
+input[type="time"]:focus {
+  outline: none;
+  border-color: var(--Yellow);
+  box-shadow: 0 0 0 3px rgba(245, 208, 25, 0.2);
+}
+
+input[type="time"]:hover {
+  border-color: var(--Yellow);
+}
+
+/* Remove spinner arrows for Firefox */
+input[type="time"]::-webkit-inner-spin-button,
+input[type="time"]::-webkit-outer-spin-button {
+  -webkit-appearance: none;
+  margin: 0;
+}
+
+/* For Firefox */
+input[type="time"] {
+  -moz-appearance: textfield;
+}
+
+* body:focus {
+  outline: none;
 }

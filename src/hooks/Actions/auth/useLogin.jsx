@@ -24,7 +24,7 @@ const useLogin = () => {
           navigate("/");
           break;
         default:
-          navigate("/dash");
+          navigate("/dash/");
       }
     }
   }, [data, isSuccess, isError, error, navigate, setToken]);

@@ -14,55 +14,24 @@ const endPoints = {
   packagesByCategory: "/packages/category/",
   categories: "/categories/",
   availabilities: "/availability/",
+  bookings: "/bookings/",
+  //Admin
+  freeSessionSlots: "/free-session-slots/",
+  freeSessionSlotByDate: "/free-session-slots/by-date/",
+  freeSessionSlotByDateForAdmin: "/free-session-slots/admin/by-date/",
+  freeSessionAvailableDays: "/free-session-slots/available-days/",
+  moveFreeSessionBooking: "/free-session-groups/move-booking/",
+  dashboard: "/dashboard/",
 
-  // categories: "/categories/",
-  // deleteCategory: "/categories",
+  //User
+  getFreeSessionSlots: "/free-session-slots/upcoming?days=14",
+  freeSessionBookings: "/free-session-bookings/",
+  createPayment: "/payments/create-booking",
+  paymentStatus: "/payments/status/",
 
-  // addBlog: "/blog/posts/",
-  // blogs: "/blog/posts",
-  // uploadFIles: "upload/proxy",
-
-  // updateUser: "/users/patients",
-
-  // doctors: "/users/doctors/",
-  // deleteDoctor: "/users/doctors",
-  // approvedDoctors: "/users/doctors?currentStatus=approved",
-  // pendingDoctors: "/users/doctors?currentStatus=pending",
-  // suspendedDoctors: "/users/doctors?currentStatus=suspended",
-
-  // patients: "/users/patients/",
-
-  // posts: "community/posts",
-
-  // addComment: "comments/post",
-  // updateComment: "comments",
-  // deleteComment: "comments",
-
-  // chargeWallet: "payment/charge",
-
-  // userPayment: "payment/my",
-  // adminPayments: "payment/all",
-
-  // cancelSession: "payment/expire",
-
-  // completeSession: "payment/session",
-
-  // availability: "availability",
-  // availabilityDoctor: "availability/doctor",
-  // Analysis: "/ai/analysis/analysis-tool",
-
-  // /* Booking */
-
-  // booking: "booking",
-  // directPayment: "booking/direct",
-  // userBooking: "booking/patient/my",
-  // doctorBooking: "booking/doctor/my",
-
-  // reports: "reports/",
-
-  // diagnosis: "diagnosis",
-  // getDoctorDiagnosis: "diagnosis/my?bookingId=",
-  // createRating: "ratings",
+  startTest: "freetests/start/",
+  submitTest: "freetests/submit/",
+  getTest: "freetests/",
 };
 
 export default endPoints;
