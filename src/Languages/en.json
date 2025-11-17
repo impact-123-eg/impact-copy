@@ -423,5 +423,17 @@
       "country": "Country",
       "chooseCountry": "Choose your country"
     }
+  },
+  "paymentResult": {
+    "processingPayment": "Processing your payment...",
+    "unableToConfirmPayment": "Unable to confirm payment",
+    "paymentSuccessful": "Payment successful",
+    "paymentFailed": "Payment failed",
+    "paymentPending": "Payment pending",
+    "home": "Home",
+    "amount": "Amount",
+    "bookingId": "Booking Id",
+    "status": "Status",
+    "payment": "Payment"
   }
 }

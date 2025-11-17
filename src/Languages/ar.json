@@ -418,5 +418,17 @@
       "country": "البلد",
       "chooseCountry": "اختر بلدك"
     }
+  },
+  "paymentResult": {
+    "processingPayment": "جاري تأكيد الدفع...",
+    "unableToConfirmPayment": "لا يمكن تأكيد الدفع",
+    "paymentSuccessful": "تم الدفع بنجاح",
+    "paymentFailed": "فشل الدفع",
+    "paymentPending": "الدفع قيد التنفيذ",
+    "home": "الرئيسية",
+    "amount": "المبلغ",
+    "bookingId": "رقم الحجز",
+    "status": "الحالة",
+    "payment": "الدفع"
   }
 }

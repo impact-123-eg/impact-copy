@@ -1,6 +1,7 @@
 import { useMemo } from "react";
 import { useLocation, Link } from "react-router-dom";
 import { useGetPaymentStatus } from "@/hooks/Actions/payment/useCurdsPayment";
+import { useTranslation } from "react-i18next";
 
 function useQuery() {
   const { search } = useLocation();
@@ -17,20 +18,22 @@ const PaymentResult = () => {
       refetchInterval: 3000,
     });
 
+  const { t, i18n } = useTranslation();
+
   const booking = data?.data?.booking;
   console.log(booking);
   const loading = isPending || isFetching;
   const errMsg = !bookingId ? "Missing bookingId" : error?.message || null;
 
   const title = loading
-    ? "Processing your payment..."
+    ? t("paymentResult.processingPayment")
     : errMsg
-    ? "Unable to confirm payment"
+    ? t("paymentResult.unableToConfirmPayment")
     : booking?.paymentStatus === "paid"
-    ? "Payment successful"
+    ? t("paymentResult.paymentSuccessful")
     : booking?.paymentStatus === "failed" || booking?.status === "cancelled"
-    ? "Payment failed"
-    : "Payment pending";
+    ? t("paymentResult.paymentFailed")
+    : t("paymentResult.paymentPending");
 
   return (
     <main className="max-w-2xl mx-auto p-6 space-y-6">
@@ -38,34 +41,42 @@ const PaymentResult = () => {
 
       {loading && (
         <p className="text-[var(--SubText)]">
-          Please wait while we confirm your payment...
+          {t("paymentResult.processingPayment")}
         </p>
       )}
 
       {errMsg && (
-        <div className="text-red-600 bg-red-50 p-4 rounded-xl">{errMsg}</div>
+        <div className="text-red-600 bg-red-50 p-4 rounded-xl">{t(errMsg)}</div>
       )}
 
       {!loading && !errMsg && booking && (
         <div className="bg-white rounded-xl shadow p-4 space-y-2">
           <div className="flex justify-between">
-            <span className="text-[var(--SubText)]">Booking</span>
-            <span className="font-semibold">{booking.id}</span>
-          </div>
-          <div className="flex justify-between">
-            <span className="text-[var(--SubText)]">Status</span>
-            <span className="font-semibold capitalize">{booking.status}</span>
-          </div>
-          <div className="flex justify-between">
-            <span className="text-[var(--SubText)]">Payment</span>
-            <span className="font-semibold capitalize">
-              {booking.paymentStatus}
+            <span className="text-[var(--SubText)]">
+              {t("paymentResult.amount")}
+            </span>
+            <span className="font-semibold" dir="ltr">
+              {booking.amount} {booking.currency || "EGP"}
             </span>
           </div>
           <div className="flex justify-between">
-            <span className="text-[var(--SubText)]">Amount</span>
-            <span className="font-semibold">
-              {booking.amount} {booking.currency || "EGP"}
+            <span className="text-[var(--SubText)]">
+              {t("paymentResult.bookingId")}
+            </span>
+            <span className="font-semibold">{booking.id}</span>
+          </div>
+          <div className="flex justify-between">
+            <span className="text-[var(--SubText)]">
+              {t("paymentResult.status")}
+            </span>
+            <span className="font-semibold capitalize">{booking.status}</span>
+          </div>
+          <div className="flex justify-between">
+            <span className="text-[var(--SubText)]">
+              {t("paymentResult.payment")}
+            </span>
+            <span className="font-semibold capitalize">
+              {booking.paymentStatus}
             </span>
           </div>
         </div>
@@ -76,7 +87,7 @@ const PaymentResult = () => {
           to="/"
           className="px-4 py-2 rounded-xl bg-[var(--Yellow)] text-white"
         >
-          Home
+          {t("paymentResult.home")}
         </Link>
       </div>
     </main>

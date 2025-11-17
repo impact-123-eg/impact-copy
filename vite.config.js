@@ -10,6 +10,11 @@ export default defineConfig({
     },
   },
   server: {
+    allowedHosts: [
+      "nongenerating-ugly-jennie.ngrok-free.dev",
+      "localhost",
+      "127.0.0.1",
+    ],
     historyApiFallback: true, // Ensures React Router handles routing
   },
   base: "/",
