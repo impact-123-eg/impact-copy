@@ -2,7 +2,6 @@ import { useEffect, useState } from "react";
 import { db, collection, doc, addDoc, deleteDoc } from "../data/firebaseConfig";
 import { query, getDocs, where, orderBy } from "firebase/firestore";
 import { Modal } from "react-responsive-modal";
-import TimeKeeper from "react-timekeeper";
 import { Datepicker } from "flowbite-react";
 import { HiMiniAdjustmentsHorizontal } from "react-icons/hi2";
 import { useGetAllBookings } from "@/hooks/Actions/booking/useBookingCruds";
@@ -236,11 +235,12 @@ function Payment() {
             />
           </div>
 
-          <div className="p-4 drop-shadow-lg">
-            <TimeKeeper
-              time={time}
-              onChange={(newTime) => setTime(newTime.formatted24)}
-              switchToMinuteOnHourSelect={true}
+          <div className="p-4 drop-shadow-lg flex items-center justify-center">
+            <input
+              type="time"
+              className="border rounded-lg p-3 w-full max-w-xs focus:outline-none focus:ring-2 focus:ring-[var(--Main)]"
+              value={time}
+              onChange={(e) => setTime(e.target.value)}
             />
           </div>
         </div>

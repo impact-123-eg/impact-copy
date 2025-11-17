@@ -12,7 +12,6 @@ import {
 } from "../../data/firebaseConfig";
 import { query, getDocs, orderBy, where } from "firebase/firestore";
 import { Modal } from "react-responsive-modal";
-import TimeKeeper from "react-timekeeper";
 import { Datepicker } from "flowbite-react";
 
 function Requests() {
@@ -58,18 +57,18 @@ function Requests() {
       (req.name
         ? req.name.toLowerCase().includes(searchQuery.toLowerCase())
         : req.Name
-          ? req.Name.toLowerCase().includes(searchQuery.toLowerCase())
-          : false) ||
+        ? req.Name.toLowerCase().includes(searchQuery.toLowerCase())
+        : false) ||
       (req.phoneNumber
         ? req.phoneNumber.includes(searchQuery)
         : req.phone
-          ? req.phone.includes(searchQuery)
-          : false) ||
+        ? req.phone.includes(searchQuery)
+        : false) ||
       (req.email
         ? req.email.toLowerCase().includes(searchQuery.toLowerCase())
         : req.Email
-          ? req.Email.toLowerCase().includes(searchQuery.toLowerCase())
-          : false);
+        ? req.Email.toLowerCase().includes(searchQuery.toLowerCase())
+        : false);
 
     const matchesFilter = filterOption ? req.option === filterOption : true;
 
@@ -82,15 +81,19 @@ function Requests() {
     }
 
     try {
-      const selectedRequest = requests.find((req) => req.id === selectedRequestId);
-      (selectedRequest)
+      const selectedRequest = requests.find(
+        (req) => req.id === selectedRequestId
+      );
+      selectedRequest;
       if (!selectedRequest) {
         alert("Invalid request selected.");
         return;
       }
 
       // Format Date
-      const formattedDate = `${date.getDate()}/${date.getMonth() + 1}/${date.getFullYear()}`;
+      const formattedDate = `${date.getDate()}/${
+        date.getMonth() + 1
+      }/${date.getFullYear()}`;
       // Prepare requestData based on option
       let requestData = {
         date: formattedDate,
@@ -102,8 +105,8 @@ function Requests() {
         option: selectedRequest.option,
         type: selectedRequest.type || "Unknown",
         status: selectedRequest.status === "success" ? true : false,
-        test: selectedRequest.test || "N/A"
-      }
+        test: selectedRequest.test || "N/A",
+      };
       if (selectedRequest.option === "course request") {
         requestData = {
           ...requestData,
@@ -126,7 +129,10 @@ function Requests() {
         title: "impact",
         time: requestData.time,
         name: "Impact",
-        email: selectedRequest.option === "course request" ? selectedRequest.Email : selectedRequest.email, // Ensure email is defined
+        email:
+          selectedRequest.option === "course request"
+            ? selectedRequest.Email
+            : selectedRequest.email, // Ensure email is defined
         message: `مرحبًا،
 
 شكرًا لك على حجز الحصة التجريبية في Impact.
@@ -137,8 +143,7 @@ function Requests() {
 الوقت: ${requestData.time}
 نرجو الالتزام بالموعد المحدد، وإذا كانت لديك أي استفسارات أو رغبت في تعديل الموعد، لا تتردد في التواصل معنا.
 
-مع تحيات فريق Impact` ,
-
+مع تحيات فريق Impact`,
       };
 
       // Add to Firestore
@@ -153,7 +158,9 @@ function Requests() {
       await deleteDoc(requestRef);
 
       // Update UI
-      const updatedRequests = requests.filter((req) => req.id !== selectedRequestId);
+      const updatedRequests = requests.filter(
+        (req) => req.id !== selectedRequestId
+      );
       setRequests(updatedRequests);
 
       // Send Email
@@ -166,7 +173,7 @@ function Requests() {
         )
         .then(
           (response) => {
-            ("Email sent!", response);
+            "Email sent!", response;
             Swal.fire({
               icon: "success",
               title: "Success",
@@ -274,7 +281,8 @@ function Requests() {
                     <td className="p-4">{req.country}</td>
                     <td className="p-4">{req.option}</td>
                     <td className="p-4">
-                      {req.option === "Free Test" || req.option === "Free Session"
+                      {req.option === "Free Test" ||
+                      req.option === "Free Session"
                         ? "not paid"
                         : req.status}
                     </td>
@@ -338,11 +346,12 @@ function Requests() {
             />
           </div>
 
-          <div className="p-4 drop-shadow-lg">
-            <TimeKeeper
-              time={time}
-              onChange={(newTime) => setTime(newTime.formatted24)}
-              switchToMinuteOnHourSelect={true}
+          <div className="p-4 drop-shadow-lg flex items-center justify-center">
+            <input
+              type="time"
+              className="border rounded-lg p-3 w-full max-w-xs focus:outline-none focus:ring-2 focus:ring-[var(--Main)]"
+              value={time}
+              onChange={(e) => setTime(e.target.value)}
             />
           </div>
         </div>
