@@ -1,13 +1,18 @@
 {
+  "version": 2,
+  "builds": [
+    {
+      "src": "package.json",
+      "use": "@vercel/static-build",
+      "config": {
+        "distDir": "dist"
+      }
+    }
+  ],
   "rewrites": [
-    { "source": "/dash/(.*)", "destination": "/index.html" },
-    { "source": "/free-session/(.*)", "destination": "/index.html" },
-    { "source": "/free-test", "destination": "/index.html" },
-    { "source": "/checkout", "destination": "/index.html" },
-    { "source": "/payment/result", "destination": "/index.html" },
-    { "source": "/terms-of-use", "destination": "/index.html" },
-    { "source": "/privacy-policy", "destination": "/index.html" },
-    { "source": "/refund-policy", "destination": "/index.html" },
-    { "source": "/ApplicationForm/(.*)", "destination": "/index.html" }
+    {
+      "source": "/(.*)",
+      "destination": "/index.html"
+    }
   ]
 }
