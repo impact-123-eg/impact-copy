@@ -92,7 +92,7 @@ function Navbar() {
 
           <div className="flex gap-2 items-center space-x-4 lg:space-x-6 ms-7 lg:ms-20 whitespace-nowrap">
             <button
-              onClick={() => handleNavigate("/free-session")}
+              onClick={() => handleNavigate("/free-test")}
               className={`border border-white text-white px-4 py-2 rounded-3xl hover:brightness-95 transition`}
             >
               {t("BookFreeTest")}
@@ -207,7 +207,7 @@ function Navbar() {
                 {t("AboutUs")}
               </NavLink>
               <button
-                onClick={() => handleNavigate("/free-session")}
+                onClick={() => handleNavigate("/free-test")}
                 className="w-full bg-[var(--Yellow)] text-[var(--Main)] py-3 px-4 rounded-2xl font-semibold hover:brightness-95"
               >
                 {t("FreeTest")}
