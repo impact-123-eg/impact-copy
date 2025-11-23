@@ -84,10 +84,15 @@ function BookingDetails() {
   const leadOptions = [
     "New",
     "Contacted",
+    "Interested",
+    "Following_up",
+    "Confirmed",
+    "2nd_Confirm",
+    "3rd_Confirm",
     "Test_Completed",
-    "Session_Attended",
-    "Proposal_Sent",
-    "Converted",
+    "Attended",
+    "Subscribed",
+    "Cancelled",
     "Not_Interested",
   ];
   const levelOptions = [

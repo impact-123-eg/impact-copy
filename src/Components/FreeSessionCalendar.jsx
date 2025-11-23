@@ -16,14 +16,15 @@ const FreeSessionCalendar = ({ onSlotSelect }) => {
 
   const upcomingSlots = upcomingSlotsRes?.data?.data || [];
 
-  // Generate dates for the next 14 days
+  // Generate dates for the next 14 days, starting 2 days from today
   const generateDates = () => {
     const dates = [];
-    const today = new Date();
+    const base = new Date();
+    base.setDate(base.getDate() + 2); // skip today and tomorrow
 
     for (let i = 0; i < 14; i++) {
-      const date = new Date(today);
-      date.setDate(today.getDate() + i);
+      const date = new Date(base);
+      date.setDate(base.getDate() + i);
       dates.push(date);
     }
 
@@ -31,6 +32,16 @@ const FreeSessionCalendar = ({ onSlotSelect }) => {
   };
 
   const dates = generateDates();
+
+  // Format a date as YYYY-MM-DD in LOCAL time (avoid UTC shifts)
+  const formatLocalYMD = (date) => {
+    const d = new Date(date);
+    d.setHours(0, 0, 0, 0);
+    const y = d.getFullYear();
+    const m = String(d.getMonth() + 1).padStart(2, "0");
+    const day = String(d.getDate()).padStart(2, "0");
+    return `${y}-${m}-${day}`;
+  };
 
   const getSlotsForDate = (date) => {
     if (!upcomingSlots) return [];
@@ -109,7 +120,7 @@ const FreeSessionCalendar = ({ onSlotSelect }) => {
       {/* Calendar Grid */}
       <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-7 gap-3 sm:gap-4">
         {dates.map((date, index) => {
-          const dateString = date.toISOString().split("T")[0];
+          const dateString = formatLocalYMD(date);
           const slots = getSlotsForDate(date);
           const isToday = date.toDateString() === new Date().toDateString();
           const isSelected = selectedDate === dateString;
