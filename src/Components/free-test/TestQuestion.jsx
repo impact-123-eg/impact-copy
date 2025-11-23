@@ -155,6 +155,7 @@ const TestQuestion = ({
           {question?.options?.map((option, index) => (
             <button
               key={index}
+              dir="ltr"
               onClick={() => handleAnswerSelect(index)}
               disabled={isLoading}
               className={`w-full p-4 text-left rounded-xl border-2 transition-all duration-200 ${
@@ -165,7 +166,7 @@ const TestQuestion = ({
                 isLoading ? "opacity-50 cursor-not-allowed" : "cursor-pointer"
               }`}
             >
-              <div className="flex items-center space-x-4 rtl:space-x-reverse">
+              <div className="flex items-center gap-2 space-x-4 rtl:space-x-reverse">
                 <div
                   className={`flex-shrink-0 w-8 h-8 rounded-full flex items-center justify-center font-semibold ${
                     selectedAnswer === index

@@ -30,6 +30,9 @@ export default [
       ...reactHooks.configs.recommended.rules,
       "no-unused-vars": "warn",
       "react/jsx-no-target-blank": "off",
+      // Disable prop validation rules
+      "react/prop-types": "off",
+      "react/require-default-props": "off",
       "react-refresh/only-export-components": [
         "warn",
         { allowConstantExport: true },

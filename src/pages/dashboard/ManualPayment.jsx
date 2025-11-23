@@ -17,11 +17,10 @@ const validationSchema = Yup.object({
     .typeError("Amount must be a number")
     .required("Amount is required")
     .min(0, "Amount cannot be negative"),
-  currency: Yup.string().trim().required("Currency is required"),
   paidAt: Yup.date().nullable(),
   manualReference: Yup.string().trim().optional(),
   recordedBy: Yup.string().trim().optional(),
-  notes: Yup.string().trim().optional(),
+  method: Yup.string().trim().optional(),
 });
 
 export default function ManualPayment() {
@@ -47,11 +46,10 @@ export default function ManualPayment() {
       country: "",
       packageId: "",
       amount: "",
-      currency: "EGP",
       paidAt: "",
       manualReference: "",
       recordedBy: "",
-      notes: "",
+      method: "",
     },
     validationSchema,
     onSubmit: (values) => {
@@ -62,13 +60,12 @@ export default function ManualPayment() {
         country: values.country.trim(),
         packageId: values.packageId,
         amount: Number(values.amount),
-        currency: values.currency || "EGP",
         paidAt: values.paidAt
           ? new Date(values.paidAt).toISOString()
           : undefined,
         manualReference: values.manualReference || undefined,
         recordedBy: values.recordedBy || undefined,
-        notes: values.notes || undefined,
+        method: values.method || undefined,
       };
 
       mutate(
@@ -221,8 +218,8 @@ export default function ManualPayment() {
               <option value="">Select a package</option>
               {packages?.map((pkg) => (
                 <option key={pkg._id} value={pkg._id}>
-                  {`${pkg.category.name} — ${pkg.levelno} Level`} —{" "}
-                  {pkg.priceAfter} {pkg.currency || "EGP"}
+                  {`${pkg.category?.name} — ${pkg.levelno} Level`} —{" "}
+                  {pkg.priceAfter} USD
                 </option>
               ))}
             </select>
@@ -253,30 +250,6 @@ export default function ManualPayment() {
             {formik.touched.amount && formik.errors.amount && (
               <div className="text-red-500 text-sm mt-1">
                 {formik.errors.amount}
-              </div>
-            )}
-          </div>
-
-          <div>
-            <label className="block text-sm font-medium text-[var(--Main)] mb-2">
-              Currency
-            </label>
-            <input
-              type="text"
-              name="currency"
-              value={formik.values.currency}
-              onChange={formik.handleChange}
-              onBlur={formik.handleBlur}
-              className={`w-full bg-[var(--Input)] py-3 px-4 rounded-xl border ${
-                formik.touched.currency && formik.errors.currency
-                  ? "border-red-500"
-                  : "border-transparent"
-              }`}
-              placeholder="EGP"
-            />
-            {formik.touched.currency && formik.errors.currency && (
-              <div className="text-red-500 text-sm mt-1">
-                {formik.errors.currency}
               </div>
             )}
           </div>
@@ -325,19 +298,24 @@ export default function ManualPayment() {
             />
           </div>
 
-          <div className="md:col-span-2">
+          <div className="md:col-span-1">
             <label className="block text-sm font-medium text-[var(--Main)] mb-2">
-              Notes (optional)
+              Payment Method
             </label>
-            <textarea
-              name="notes"
-              value={formik.values.notes}
+            <select
+              name="method"
+              value={formik.values.method}
               onChange={formik.handleChange}
               onBlur={formik.handleBlur}
               className="w-full bg-[var(--Input)] py-3 px-4 rounded-xl border border-transparent"
-              rows={3}
-              placeholder="Additional details"
-            />
+            >
+              <option value="">Select method</option>
+              <option value="Taptap Send">Taptap Send</option>
+              <option value="Bank Account">Bank Account</option>
+              <option value="Instapay">Instapay</option>
+              <option value="Vodafone Cash">Vodafone Cash</option>
+              <option value="Western">Western</option>
+            </select>
           </div>
         </div>
 

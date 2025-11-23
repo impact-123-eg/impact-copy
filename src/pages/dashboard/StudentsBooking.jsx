@@ -1,8 +1,7 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { Link } from "react-router-dom";
 import {
   useGetAllFreeSessionBookings,
-  useAddNoteToFreeSessionBooking,
   useUpdateLeadStatusForFreeSessionBooking,
   useUpdateLevelForFreeSessionBooking,
 } from "@/hooks/Actions/free-sessions/useFreeSessionBookingCruds";
@@ -17,8 +16,6 @@ function StudentsBooking() {
     isPending,
     isLoading,
   } = useGetAllFreeSessionBookings();
-  // const { mutate: addNote, isPending: isAddingNote } =
-  //   useAddNoteToFreeSessionBooking();
   const { mutate: updateLeadStatus, isPending: isUpdatingLead } =
     useUpdateLeadStatusForFreeSessionBooking();
   const { mutate: updateLevel, isPending: isUpdatingLevel } =
@@ -71,14 +68,27 @@ function StudentsBooking() {
   const [noteById, setNoteById] = useState({});
   const [leadById, setLeadById] = useState({});
   const [levelById, setLevelById] = useState({});
+  const [updatingLevelId, setUpdatingLevelId] = useState(null);
+  const [updatingLeadId, setUpdatingLeadId] = useState(null);
+  useEffect(() => {
+    if (!isUpdatingLevel) setUpdatingLevelId(null);
+  }, [isUpdatingLevel]);
+  useEffect(() => {
+    if (!isUpdatingLead) setUpdatingLeadId(null);
+  }, [isUpdatingLead]);
 
   const leadOptions = [
     "New",
     "Contacted",
+    "Interested",
+    "Following_up",
+    "Confirmed",
+    "2nd_Confirm",
+    "3rd_Confirm",
     "Test_Completed",
-    "Session_Attended",
-    "Proposal_Sent",
-    "Converted",
+    "Attended",
+    "Subscribed",
+    "Cancelled",
     "Not_Interested",
   ];
 
@@ -104,6 +114,9 @@ function StudentsBooking() {
 
   const renderSlot = (b) => {
     const slot = b?.freeSessionSlotId || b?.freeSessionSlot;
+    const teacherRaw = b?.freeSessionGroupId?.teacher;
+    const teacher =
+      typeof teacherRaw === "object" ? teacherRaw?.name : teacherRaw;
     if (slot && typeof slot === "object") {
       const hasISO =
         typeof slot.startTime === "string" && typeof slot.endTime === "string";
@@ -130,6 +143,11 @@ function StudentsBooking() {
             <div className="text-xs text-[var(--SubText)]">
               {startTimeStr} - {endTimeStr}
             </div>
+            {teacher ? (
+              <div className="text-xs text-[var(--SubText)]">
+                Teacher: {teacher}
+              </div>
+            ) : null}
           </>
         );
       }
@@ -144,13 +162,36 @@ function StudentsBooking() {
         <>
           <div className="text-sm">{dateStr}</div>
           <div className="text-xs text-[var(--SubText)]">{timeStr}</div>
+          {teacher ? (
+            <div className="text-xs text-[var(--SubText)]">
+              Teacher: {teacher}
+            </div>
+          ) : null}
         </>
       );
     }
     if (typeof slot === "string") {
-      return <div className="text-sm">Slot #{slot.slice(-6)}</div>;
+      return (
+        <>
+          <div className="text-sm">Slot #{slot.slice(-6)}</div>
+          {teacher ? (
+            <div className="text-xs text-[var(--SubText)]">
+              Teacher: {teacher}
+            </div>
+          ) : null}
+        </>
+      );
     }
-    return <div className="text-sm">N/A</div>;
+    return (
+      <>
+        <div className="text-sm">N/A</div>
+        {teacher ? (
+          <div className="text-xs text-[var(--SubText)]">
+            Teacher: {teacher}
+          </div>
+        ) : null}
+      </>
+    );
   };
 
   return (
@@ -333,18 +374,21 @@ function StudentsBooking() {
                         </select>
                         <button
                           disabled={
-                            isUpdatingLevel ||
+                            (updatingLevelId === b._id && isUpdatingLevel) ||
                             (levelById?.[b._id] ?? b.level) === b.level
                           }
-                          onClick={() =>
+                          onClick={() => {
+                            setUpdatingLevelId(b._id);
                             updateLevel({
                               id: b._id,
                               level: levelById?.[b._id] ?? b.level,
-                            })
-                          }
+                            });
+                          }}
                           className="text-sm px-3 py-1 rounded bg-[var(--Yellow)] text-black disabled:opacity-50"
                         >
-                          {isUpdatingLevel ? "Saving..." : "Update"}
+                          {updatingLevelId === b._id && isUpdatingLevel
+                            ? "Saving..."
+                            : "Update"}
                         </button>
                       </div>
                     </td>
@@ -368,18 +412,21 @@ function StudentsBooking() {
                         </select>
                         <button
                           disabled={
-                            isUpdatingLead ||
+                            (updatingLeadId === b._id && isUpdatingLead) ||
                             (leadById[b._id] ?? b.leadStatus) === b.leadStatus
                           }
-                          onClick={() =>
+                          onClick={() => {
+                            setUpdatingLeadId(b._id);
                             updateLeadStatus({
                               id: b._id,
                               leadStatus: leadById[b._id] ?? b.leadStatus,
-                            })
-                          }
+                            });
+                          }}
                           className="text-sm px-3 py-1 rounded bg-[var(--Yellow)] text-black disabled:opacity-50"
                         >
-                          {isUpdatingLead ? "Saving..." : "Update"}
+                          {updatingLeadId === b._id && isUpdatingLead
+                            ? "Saving..."
+                            : "Update"}
                         </button>
                       </div>
                     </td>

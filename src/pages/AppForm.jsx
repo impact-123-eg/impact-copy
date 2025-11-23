@@ -7,14 +7,19 @@ import Option from "@/Components/Option";
 import { useFormik } from "formik";
 import { bookingApplicationValidationSchema } from "@/Validation";
 import { useCreatePayment } from "@/hooks/Actions/payment/useCurdsPayment";
+import useCurrencyExchange from "@/hooks/useCurrencyExchange";
 
 const AppForm = () => {
   const { id: packageId, clientCurrency } = useParams();
   const { t, i18n } = useTranslation();
   const EN = i18n.language === "en";
 
+  const { convert } = useCurrencyExchange();
+
   const { data: packData } = useGetpackageById({ id: packageId });
   const coursePackage = packData?.data || {};
+  const priceUSD = coursePackage?.priceAfter;
+  const priceEGP = convert(priceUSD, "egp");
 
   const { mutate: createPayment, isPending: createPaymentPending } =
     useCreatePayment();
@@ -39,6 +44,7 @@ const AppForm = () => {
         country: values.country || "EG",
         packageId: coursePackage._id,
         paymentMethod: values.paymentMethod || "card",
+        priceEGP: priceEGP,
       };
       createPayment(
         { data: bookingData },

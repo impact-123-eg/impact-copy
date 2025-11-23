@@ -1,6 +1,9 @@
-import { useMemo, useState } from "react";
+import { useMemo, useState, useEffect } from "react";
 import { Link } from "react-router-dom";
-import { useGetAllFreeTests } from "@/hooks/Actions/free-tests/useFreeTestsCruds";
+import {
+  useGetAllFreeTests,
+  useUpdateLevelForFreeTest,
+} from "@/hooks/Actions/free-tests/useFreeTestsCruds";
 
 function StudentsFreeTests() {
   const [searchQuery, setSearchQuery] = useState("");
@@ -11,6 +14,29 @@ function StudentsFreeTests() {
 
   const { data: testsResponse, isPending } = useGetAllFreeTests();
   const tests = testsResponse?.data?.data || testsResponse || [];
+
+  const { mutate: updateLevel, isPending: isUpdatingLevel } =
+    useUpdateLevelForFreeTest();
+
+  const [levelById, setLevelById] = useState({});
+  const [updatingId, setUpdatingId] = useState(null);
+  useEffect(() => {
+    if (!isUpdatingLevel) setUpdatingId(null);
+  }, [isUpdatingLevel]);
+  const levelOptions = [
+    "Starter",
+    "Basic 1",
+    "Basic 2",
+    "Level 1",
+    "Level 2",
+    "Level 3",
+    "Level 4",
+    "Level 5",
+    "Level 6",
+    "Level 7",
+    "Level 8",
+    "Level 9",
+  ];
 
   const handleSearchChange = (e) =>
     setSearchQuery(e.target.value.toLowerCase());
@@ -176,7 +202,55 @@ function StudentsFreeTests() {
                     </td>
                     <td className="p-4">{t?.country || "N/A"}</td>
                     <td className="p-4">
-                      {t?.level || t?.currentLevel || "-"}
+                      <div className="flex items-center gap-2">
+                        <select
+                          className="bg-[var(--Input)] px-2 py-1 rounded"
+                          value={
+                            levelById?.[t._id] ??
+                            t?.level ??
+                            t?.currentLevel ??
+                            "Starter"
+                          }
+                          onChange={(e) =>
+                            setLevelById((prev) => ({
+                              ...prev,
+                              [t._id]: e.target.value,
+                            }))
+                          }
+                        >
+                          {levelOptions.map((opt) => (
+                            <option key={opt} value={opt}>
+                              {opt}
+                            </option>
+                          ))}
+                        </select>
+                        <button
+                          disabled={
+                            (updatingId === t._id && isUpdatingLevel) ||
+                            (levelById?.[t._id] ??
+                              t?.level ??
+                              t?.currentLevel ??
+                              "Starter") ===
+                              (t?.level ?? t?.currentLevel ?? "Starter")
+                          }
+                          onClick={() => {
+                            setUpdatingId(t._id);
+                            updateLevel({
+                              id: t._id,
+                              level:
+                                levelById?.[t._id] ??
+                                t?.level ??
+                                t?.currentLevel ??
+                                "Starter",
+                            });
+                          }}
+                          className="text-sm px-3 py-1 rounded bg-[var(--Yellow)] text-black disabled:opacity-50"
+                        >
+                          {updatingId === t._id && isUpdatingLevel
+                            ? "Saving..."
+                            : "Update"}
+                        </button>
+                      </div>
                     </td>
                     <td className="p-4">
                       {typeof t?.score === "number" ? t.score : "-"}

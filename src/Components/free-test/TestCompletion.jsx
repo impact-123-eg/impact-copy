@@ -33,7 +33,7 @@ const TestCompletion = ({ results }) => {
     return levelMap[level] || level;
   };
 
-  const getScoreMessage = (score, total = 10) => {
+  const getScoreMessage = (score, total = 50) => {
     const percentage = (score / total) * 100;
 
     if (percentage >= 90) return t("freeTest.completion.perfectScore");
@@ -118,7 +118,7 @@ const TestCompletion = ({ results }) => {
         <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mb-8">
           <div className="bg-gray-50 rounded-2xl p-6 text-center">
             <div className="text-3xl font-bold text-[var(--Main)] mb-2">
-              {results.score}/10
+              {results.score}
             </div>
             <div className="text-sm text-[var(--SubText)]">
               {t("freeTest.completion.correctAnswers")}

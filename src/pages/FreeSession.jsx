@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import { useState } from "react";
 import { useFormik } from "formik";
 import { useTranslation } from "react-i18next";
 import { useNavigate } from "react-router-dom";
@@ -14,21 +14,12 @@ const FreeSessionForm = () => {
   const AR = i18n.language === "ar";
 
   const [selectedSlot, setSelectedSlot] = useState(null);
-  const { mutate: createBooking, isPending: isBookingPending } =
-    useCreateBooking();
+  const { mutate: createBooking } = useCreateBooking();
 
   const handleSlotSelect = (slot) => {
     setSelectedSlot(slot);
     formik.setFieldValue("freeSessionSlotId", slot._id);
   };
-
-  // const handleSubmit = (data) => {
-  //   createBooking(data, {
-  //     onSuccess: () => {
-  //       // navigate("/free-session/success");
-  //     },
-  //   });
-  // };
 
   // Formik setup
   const formik = useFormik({
