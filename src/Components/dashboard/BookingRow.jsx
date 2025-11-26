@@ -100,7 +100,7 @@ function BookingRow({ booking }) {
       {/* Package Info - This would need to be populated from the referenced Package */}
       <td className="p-4 text-[var(--SubText)]">
         {`${pkg.category.name} — ${pkg.levelno} Level`} — {pkg.priceAfter}{" "}
-        {pkg.currency || "EGP"}
+        {"USD"}
       </td>
 
       {/* Amount */}
