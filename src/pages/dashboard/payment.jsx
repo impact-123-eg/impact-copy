@@ -167,10 +167,12 @@ function Payment() {
           </div>
           <div className="bg-white p-4 rounded-xl shadow text-center">
             <div className="text-2xl font-bold text-[var(--Yellow)]">
-              {bookings.reduce(
-                (sum, booking) => sum + (booking.amount || 0),
-                0
-              )}{" "}
+              {Number(
+                bookings.reduce(
+                  (sum, booking) => sum + (booking.amount || 0),
+                  0
+                )
+              ).toFixed(2)}{" "}
               EGP
             </div>
             <div className="text-sm text-[var(--SubText)]">Total Revenue</div>

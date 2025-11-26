@@ -310,11 +310,11 @@ export default function ManualPayment() {
               className="w-full bg-[var(--Input)] py-3 px-4 rounded-xl border border-transparent"
             >
               <option value="">Select method</option>
-              <option value="Taptap Send">Taptap Send</option>
-              <option value="Bank Account">Bank Account</option>
-              <option value="Instapay">Instapay</option>
-              <option value="Vodafone Cash">Vodafone Cash</option>
-              <option value="Western">Western</option>
+              <option value="taptap_send">Taptap Send</option>
+              <option value="bank_account">Bank Account</option>
+              <option value="instapay">Instapay</option>
+              <option value="vodafone_cash">Vodafone Cash</option>
+              <option value="western">Western</option>
             </select>
           </div>
         </div>

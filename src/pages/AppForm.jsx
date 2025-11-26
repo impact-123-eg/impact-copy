@@ -32,10 +32,11 @@ const AppForm = () => {
       package: coursePackage?.category?._id || "",
       country: "EG",
       paymentMethod: "card",
-      takenTest: false,
+      // takenTest: false,
     },
     validationSchema: bookingApplicationValidationSchema(t),
-    enableReinitiate: true,
+    enableReinitialize: true,
+    validateOnMount: true,
     onSubmit: (values) => {
       const bookingData = {
         name: values.name,
@@ -94,13 +95,15 @@ const AppForm = () => {
                     onBlur={formik.handleBlur}
                     value={formik.values.name}
                     className={`w-full px-4 py-3 bg-gray-50 border rounded-lg focus:outline-none focus:ring-2 focus:ring-[var(--Yellow)] transition-colors ${
-                      formik.touched.name && formik.errors.name
+                      (formik.touched.name || formik.submitCount > 0) &&
+                      formik.errors.name
                         ? "border-red-500"
                         : "border-gray-200"
                     }`}
                     placeholder={t("enterName") || "Enter your name"}
                   />
-                  {formik.touched.name && formik.errors.name ? (
+                  {(formik.touched.name || formik.submitCount > 0) &&
+                  formik.errors.name ? (
                     <div className="text-red-500 text-sm">
                       {formik.errors.name}
                     </div>
@@ -120,13 +123,15 @@ const AppForm = () => {
                     onBlur={formik.handleBlur}
                     value={formik.values.email}
                     className={`w-full px-4 py-3 bg-gray-50 border rounded-lg focus:outline-none focus:ring-2 focus:ring-[var(--Yellow)] transition-colors ${
-                      formik.touched.email && formik.errors.email
+                      (formik.touched.email || formik.submitCount > 0) &&
+                      formik.errors.email
                         ? "border-red-500"
                         : "border-gray-200"
                     }`}
                     placeholder={t("enterEmail") || "Enter your email"}
                   />
-                  {formik.touched.email && formik.errors.email ? (
+                  {(formik.touched.email || formik.submitCount > 0) &&
+                  formik.errors.email ? (
                     <div className="text-red-500 text-sm">
                       {formik.errors.email}
                     </div>
@@ -149,7 +154,8 @@ const AppForm = () => {
                     onBlur={formik.handleBlur}
                     value={formik.values.phoneNumber}
                     className={`w-full px-4 py-3 bg-gray-50 border rounded-lg focus:outline-none focus:ring-2 focus:ring-[var(--Yellow)] transition-colors ${
-                      formik.touched.phoneNumber && formik.errors.phoneNumber
+                      (formik.touched.phoneNumber || formik.submitCount > 0) &&
+                      formik.errors.phoneNumber
                         ? "border-red-500"
                         : "border-gray-200"
                     }`}
@@ -157,7 +163,8 @@ const AppForm = () => {
                       t("enterPhoneNumber") || "Enter your phone number"
                     }
                   />
-                  {formik.touched.phoneNumber && formik.errors.phoneNumber ? (
+                  {(formik.touched.phoneNumber || formik.submitCount > 0) &&
+                  formik.errors.phoneNumber ? (
                     <div className="text-red-500 text-sm">
                       {formik.errors.phoneNumber}
                     </div>
@@ -184,7 +191,7 @@ const AppForm = () => {
             </div>
 
             {/* Checkbox Section */}
-            <div className="flex items-start gap-3 pt-4">
+            {/* <div className="flex items-start gap-3 pt-4">
               <input
                 type="checkbox"
                 id="takenTest"
@@ -197,7 +204,7 @@ const AppForm = () => {
               <label htmlFor="takenTest" className="text-gray-700 text-base">
                 {t("takenTest") || "I have taken the test"}
               </label>
-            </div>
+            </div> */}
 
             {/* Button Section */}
             <div className="flex flex-col-reverse md:flex-row justify-between items-center gap-6 pt-8 border-t border-gray-200">
@@ -216,7 +223,9 @@ const AppForm = () => {
                 <div className="flex gap-3 justify-center">
                   <button
                     type="button"
-                    disabled={!formik.isValid || createPaymentPending}
+                    disabled={
+                      !formik.isValid || !formik.dirty || createPaymentPending
+                    }
                     onClick={handleApplePay}
                     className="disabled:opacity-50 lg:hidden disabled:pointer-events-none p-3 rounded-xl bg-[var(--Yellow)] text-white hover:bg-yellow-600 transition-colors"
                   >
@@ -224,7 +233,9 @@ const AppForm = () => {
                   </button>
                   <button
                     type="submit"
-                    disabled={!formik.isValid || createPaymentPending}
+                    disabled={
+                      !formik.isValid || !formik.dirty || createPaymentPending
+                    }
                     onClick={handleCardPay}
                     className="disabled:opacity-50 disabled:pointer-events-none px-6 py-3 rounded-xl bg-[var(--Yellow)] text-white font-medium hover:bg-yellow-600 transition-colors flex items-center gap-2"
                   >
