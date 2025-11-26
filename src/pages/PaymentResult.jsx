@@ -56,7 +56,7 @@ const PaymentResult = () => {
               {t("paymentResult.amount")}
             </span>
             <span className="font-semibold" dir="ltr">
-              {booking.amount} {booking.currency || "EGP"}
+              {Number(booking.amount).toFixed(2)} {booking.currency || "EGP"}
             </span>
           </div>
           <div className="flex justify-between">
