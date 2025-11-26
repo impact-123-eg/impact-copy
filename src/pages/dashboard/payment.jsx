@@ -7,6 +7,8 @@ function Payment() {
   const [searchQuery, setSearchQuery] = useState("");
   const [statusFilter, setStatusFilter] = useState("");
   const [paymentStatusFilter, setPaymentStatusFilter] = useState("");
+  const [startDate, setStartDate] = useState("");
+  const [endDate, setEndDate] = useState("");
 
   const { data: bookingData, isPending } = useGetAllBookings();
   const bookings = bookingData?.data || [];
@@ -27,7 +29,24 @@ function Payment() {
       ? booking?.paymentStatus === paymentStatusFilter
       : true;
 
-    return matchesSearch && matchesStatus && matchesPaymentStatus;
+    const createdAt = booking?.createdAt ? new Date(booking.createdAt) : null;
+    const inDateRange = (() => {
+      if (!startDate && !endDate) return true;
+      if (!createdAt) return false;
+      const start = startDate ? new Date(startDate) : null;
+      const end = endDate ? new Date(endDate) : null;
+      if (start && createdAt < start) return false;
+      if (end) {
+        const endOfDay = new Date(end);
+        endOfDay.setHours(23, 59, 59, 999);
+        if (createdAt > endOfDay) return false;
+      }
+      return true;
+    })();
+
+    return (
+      matchesSearch && matchesStatus && matchesPaymentStatus && inDateRange
+    );
   });
 
   // Get counts for filter badges
@@ -140,6 +159,32 @@ function Payment() {
               <option value="apple">Apple Pay</option>
               <option value="wallet">Wallet</option>
             </select>
+          </div>
+
+          {/* Start Date Filter */}
+          <div>
+            <label className="block text-sm font-medium text-[var(--Main)] mb-2">
+              Start Date (Created At)
+            </label>
+            <input
+              type="date"
+              value={startDate}
+              onChange={(e) => setStartDate(e.target.value)}
+              className="w-full bg-[var(--Input)] py-3 px-4 rounded-xl border border-transparent focus:outline-none focus:ring-2 focus:ring-[var(--Yellow)]"
+            />
+          </div>
+
+          {/* End Date Filter */}
+          <div>
+            <label className="block text-sm font-medium text-[var(--Main)] mb-2">
+              End Date (Created At)
+            </label>
+            <input
+              type="date"
+              value={endDate}
+              onChange={(e) => setEndDate(e.target.value)}
+              className="w-full bg-[var(--Input)] py-3 px-4 rounded-xl border border-transparent focus:outline-none focus:ring-2 focus:ring-[var(--Yellow)]"
+            />
           </div>
         </div>
       </section>
