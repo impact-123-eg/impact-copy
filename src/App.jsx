@@ -52,30 +52,30 @@ const pixelId = import.meta.env.VITE_PIXEL_ID;
 
 const options = {
   autoConfig: true, // auto load the pixel script
-  debug: true, // set true to log events in console
+  debug: false, // set true to log events in console
 };
 
 function App() {
   // const { t, i18n, changeLanguage } = useTranslationContext();
 
-  // const location = useLocation();
+  const location = useLocation();
 
-  // const [pixelReady, setPixelReady] = useState(false);
+  const [pixelReady, setPixelReady] = useState(false);
 
-  // useEffect(() => {
-  //   if (!pixelId) return;
-  //   ReactPixel.init(pixelId, {}, options);
-  //   ReactPixel.pageView();
-  //   setPixelReady(true);
-  // }, []);
+  useEffect(() => {
+    if (!pixelId) return;
+    ReactPixel.init(pixelId, {}, options);
+    ReactPixel.pageView();
+    setPixelReady(true);
+  }, []);
 
-  // useEffect(() => {
-  //   if (!pixelReady) return;
-  //   ReactPixel.trackCustom("RouteChange", {
-  //     path: location.pathname,
-  //     // test_event_code: import.meta.env.VITE_FB_TEST_CODE, // optional
-  //   });
-  // }, [pixelReady, location.pathname]);
+  useEffect(() => {
+    if (!pixelReady) return;
+    ReactPixel.trackCustom("RouteChange", {
+      path: location.pathname,
+      // test_event_code: import.meta.env.VITE_FB_TEST_CODE, // optional
+    });
+  }, [pixelReady, location.pathname]);
 
   return (
     <>
