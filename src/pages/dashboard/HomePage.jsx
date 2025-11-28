@@ -119,7 +119,7 @@ function HomePage() {
       description: "Enrolled Students",
     },
     {
-      number: (stats?.payments?.totalAmount ?? 0) + "$",
+      number: (stats?.payments?.totalAmount ?? 0).toFixed(2) + " £",
       description: "Paid Courses",
     },
   ];

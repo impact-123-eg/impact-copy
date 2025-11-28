@@ -213,10 +213,9 @@ function Payment() {
           <div className="bg-white p-4 rounded-xl shadow text-center">
             <div className="text-2xl font-bold text-[var(--Yellow)]">
               {Number(
-                bookings.reduce(
-                  (sum, booking) => sum + (booking.amount || 0),
-                  0
-                )
+                bookings
+                  .filter((booking) => booking.status === "confirmed")
+                  .reduce((sum, booking) => sum + (booking.amount || 0), 0)
               ).toFixed(2)}{" "}
               EGP
             </div>
