@@ -241,6 +241,7 @@
   "timeSlot": "Session Time",
   "chooseTimeSlot": "Choose your preferred time",
   "bookFreeSession": "Book a Free Session",
+  "bookFreeSessionDesc": "Enter your details to book a free session, explore our teaching system, experience the teaching style, and determine the right level for you before you start learning.",
   "booking": "Booking...",
   "bookSession": "Book Session",
   "selectDateAndTime": "Select Date & Time",

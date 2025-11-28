@@ -70,16 +70,18 @@ function Option({ option, isBooking = false }) {
                   {loading
                     ? "Loading..."
                     : Number(option.priceBefore) > 0
-                    ? `${convertedPriceBefore} ${targetCurrency.toUpperCase()}` ||
-                      `${option.priceBefore} USD`
+                    ? convertedPriceBefore != null
+                      ? `${convertedPriceBefore} ${targetCurrency.toUpperCase()}`
+                      : `${option.priceBefore} USD`
                     : null}
                 </h3>
               )}
               <h3 className="text-4xl md:text-4xl font-bold">
                 {loading
                   ? "Loading..."
-                  : `${convertedPriceAfter} ${targetCurrency.toUpperCase()}` ||
-                    `${option.priceAfter} USD`}
+                  : convertedPriceAfter != null
+                  ? `${convertedPriceAfter} ${targetCurrency.toUpperCase()}`
+                  : `${option.priceAfter} USD`}
               </h3>
             </div>
 
@@ -93,7 +95,7 @@ function Option({ option, isBooking = false }) {
                     : "sessions"
                 )}
               </h1>
-              <p>{formatDuration(option?.duration, t, AR)}</p>
+              <p>{formatDuration(option?.totalTimeInWeeks, t, AR)}</p>
               <p>
                 {option?.sessionPerWeek}{" "}
                 {t(

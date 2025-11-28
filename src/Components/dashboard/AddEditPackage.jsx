@@ -26,17 +26,35 @@ function AddEditPackage() {
     enabled: !!packageId,
   });
   const packDetails = packData?.data || {};
+  console.log(packDetails);
+
+  // Calculate duration and unit from totalTimeInWeeks
+  const calculateDurationAndUnit = (totalWeeks) => {
+    // If totalWeeks is not a number or is 0, return default values
+    if (!totalWeeks) return { duration: "", durationUnit: 1 };
+
+    // If totalWeeks is divisible by 4, show as months (1 month = 4 weeks)
+    if (totalWeeks % 4 === 0) {
+      return { duration: (totalWeeks / 4).toString(), durationUnit: 4 };
+    }
+    // Otherwise show as weeks
+    return { duration: totalWeeks.toString(), durationUnit: 1 };
+  };
 
   // Determine initial values based on mode
   const getInitialValues = () => {
     if (mode === "edit" && packDetails) {
+      const { duration, durationUnit } = calculateDurationAndUnit(
+        packDetails.totalTimeInWeeks
+      );
+
       return {
         category: packDetails.category?._id || "",
         levelno: packDetails.levelno || "",
         priceBefore: packDetails.priceBefore || "",
         priceAfter: packDetails.priceAfter || "",
-        duration: packDetails.duration || "",
-        durationUnit: packDetails.durationUnit || "1",
+        duration: duration,
+        durationUnit: durationUnit,
         sessionNo: packDetails.sessionNo || "",
         sessionPerWeek: packDetails.sessionPerWeek || "",
         hours: packDetails.hours || "",
@@ -75,14 +93,17 @@ function AddEditPackage() {
   });
 
   const handleAddPackage = async (values) => {
+    const duration = parseInt(values.duration, 10) || 0;
+    const durationUnit = parseInt(values.durationUnit, 10) || 1;
+
     const packageObject = {
       category: values.category, // REQUIRED: Category ID
-      levelno: parseInt(values.levelno),
+      levelno: parseInt(values.levelno, 10),
       priceBefore: parseFloat(values.priceBefore),
       priceAfter: parseFloat(values.priceAfter),
-      duration: parseInt(values.duration),
-      totalTimeInWeeks: values.duration * values.durationUnit, // Convert to weeks
-      sessionNo: parseInt(values.sessionNo),
+      duration: duration, // Include duration as entered by user
+      totalTimeInWeeks: duration * durationUnit, // Calculate total weeks
+      sessionNo: parseInt(values.sessionNo, 10),
       sessionPerWeek: values.sessionPerWeek,
       hours: parseFloat(values.hours),
       scheduleType: values.scheduleType,
@@ -103,14 +124,17 @@ function AddEditPackage() {
   };
 
   const handleUpdatePackage = async (values) => {
+    const duration = parseInt(values.duration, 10) || 0;
+    const durationUnit = parseInt(values.durationUnit, 10) || 1;
+
     const packageObject = {
       category: values.category,
-      levelno: parseInt(values.levelno),
+      levelno: parseInt(values.levelno, 10),
       priceBefore: parseFloat(values.priceBefore),
       priceAfter: parseFloat(values.priceAfter),
-      duration: parseInt(values.duration),
-      totalTimeInWeeks: values.duration * values.durationUnit, // Convert to weeks
-      sessionNo: parseInt(values.sessionNo),
+      duration: duration, // Include duration as entered by user
+      totalTimeInWeeks: duration * durationUnit, // Calculate total weeks
+      sessionNo: parseInt(values.sessionNo, 10),
       sessionPerWeek: values.sessionPerWeek,
       hours: parseFloat(values.hours),
       scheduleType: values.scheduleType,

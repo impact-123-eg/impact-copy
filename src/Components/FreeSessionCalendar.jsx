@@ -61,9 +61,11 @@ const FreeSessionCalendar = ({ onSlotSelect }) => {
     return upcomingSlots?.find((day) => day.date === dateString)?.slots || [];
   };
 
+  const localeWithLatn = i18n.language === "ar" ? "ar-EG-u-nu-latn" : "en-US";
+
   const formatTime = (dateString) => {
     const date = new Date(dateString);
-    return date.toLocaleTimeString(i18n.language === "ar" ? "ar-EG" : "en-US", {
+    return date.toLocaleTimeString(localeWithLatn, {
       hour: "2-digit",
       minute: "2-digit",
     });
@@ -71,7 +73,7 @@ const FreeSessionCalendar = ({ onSlotSelect }) => {
 
   // Format date for display
   const formatDisplayDate = (date) => {
-    return date.toLocaleDateString(i18n.language === "ar" ? "ar-EG" : "en-US", {
+    return date.toLocaleDateString(localeWithLatn, {
       weekday: "long",
       year: "numeric",
       month: "long",
@@ -81,14 +83,14 @@ const FreeSessionCalendar = ({ onSlotSelect }) => {
 
   // Get short weekday names based on language
   const getShortWeekday = (date) => {
-    return date.toLocaleDateString(i18n.language === "ar" ? "ar-EG" : "en-US", {
+    return date.toLocaleDateString(localeWithLatn, {
       weekday: "short",
     });
   };
 
   // Get short month names based on language
   const getShortMonth = (date) => {
-    return date.toLocaleDateString(i18n.language === "ar" ? "ar-EG" : "en-US", {
+    return date.toLocaleDateString(localeWithLatn, {
       month: "short",
     });
   };
@@ -149,7 +151,7 @@ const FreeSessionCalendar = ({ onSlotSelect }) => {
                   {getShortWeekday(date)}
                 </div>
                 <div className="text-base sm:text-lg font-bold text-[var(--Main)]">
-                  {date.getDate()}
+                  {date.getDate().toLocaleString("en-US")}
                 </div>
                 <div className="text-xs text-[var(--SubText)]">
                   {getShortMonth(date)}
@@ -160,7 +162,7 @@ const FreeSessionCalendar = ({ onSlotSelect }) => {
               {slots.length > 0 && (
                 <div className={`text-center ${textAlignment}`}>
                   <div className="text-xs text-[var(--SubText)]">
-                    {slots.length}{" "}
+                    {slots.length.toLocaleString("en-US")}{" "}
                     {t("timeSlotForm.one", { count: slots.length })}
                   </div>
                   <div className="text-xs text-green-600 font-medium">

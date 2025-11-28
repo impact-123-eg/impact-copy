@@ -75,9 +75,10 @@ const FreeSessionForm = () => {
 
   return (
     <section className="md:px-40 px-4 py-8">
-      <h2 className="text-3xl font-bold mb-8 text-[var(--Main)]">
+      <h2 className="text-3xl font-bold mb-2  text-[var(--Main)]">
         {t("bookFreeSession")}
       </h2>
+      <p className="mb-8">{t("bookFreeSessionDesc")}</p>
 
       {/* Step 1: Calendar View */}
       {!selectedSlot && (

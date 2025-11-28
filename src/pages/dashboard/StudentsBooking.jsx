@@ -5,6 +5,7 @@ import {
   useUpdateLeadStatusForFreeSessionBooking,
   useUpdateLevelForFreeSessionBooking,
 } from "@/hooks/Actions/free-sessions/useFreeSessionBookingCruds";
+import { to12h } from "@/utilities/formatTime";
 
 function StudentsBooking() {
   const [searchQuery, setSearchQuery] = useState("");
@@ -123,19 +124,21 @@ function StudentsBooking() {
       if (hasISO) {
         const start = new Date(slot.startTime);
         const end = new Date(slot.endTime);
-        const dateStr = start.toLocaleDateString("en-UK", {
+        const dateStr = start.toLocaleDateString("en-US", {
           weekday: "short",
           year: "numeric",
           month: "short",
           day: "numeric",
         });
-        const startTimeStr = start.toLocaleTimeString("en-UK", {
+        const startTimeStr = start.toLocaleTimeString("en-US", {
           hour: "2-digit",
           minute: "2-digit",
+          hour12: true,
         });
-        const endTimeStr = end.toLocaleTimeString("en-UK", {
+        const endTimeStr = end.toLocaleTimeString("en-US", {
           hour: "2-digit",
           minute: "2-digit",
+          hour12: true,
         });
         return (
           <>
@@ -152,11 +155,11 @@ function StudentsBooking() {
         );
       }
       const dateStr = slot.date
-        ? new Date(slot.date).toLocaleDateString("en-UK")
+        ? new Date(slot.date).toLocaleDateString("en-US")
         : "N/A";
       const timeStr =
         slot.startTime && slot.endTime
-          ? `${slot.startTime} - ${slot.endTime}`
+          ? `${to12h(slot.startTime)} - ${to12h(slot.endTime)}`
           : "";
       return (
         <>
