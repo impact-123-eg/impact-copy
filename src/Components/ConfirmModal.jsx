@@ -136,14 +136,24 @@ const ConfirmModal = ({
       {/* Action Buttons */}
       <div className="flex justify-center space-x-4">
         <button
+          type="button"
           className="px-6 py-3 rounded-xl border-2 border-[var(--Yellow)] text-gray-700 hover:bg-gray-50 transition-colors duration-200 font-medium"
-          onClick={onClose}
+          onClick={(e) => {
+            e.preventDefault();
+            e.stopPropagation();
+            onClose?.();
+          }}
         >
           {cancelText}
         </button>
         <button
+          type="button"
           className={`px-6 py-3 rounded-xl transition-colors duration-200 font-medium ${getConfirmButtonClass()}`}
-          onClick={onConfirm}
+          onClick={(e) => {
+            e.preventDefault();
+            e.stopPropagation();
+            onConfirm?.();
+          }}
         >
           {confirmText}
         </button>

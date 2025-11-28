@@ -7,35 +7,40 @@ import {
 import ConfirmModal from "@/Components/ConfirmModal";
 import { useGetAllcategories } from "@/hooks/Actions/categories/useCategoryCruds";
 import formatDuration from "@/utilities/formatDuration";
-import { t } from "i18next";
 
 function CoursesPlans() {
   const navigate = useNavigate();
-  const [activeTab, setActiveTab] = useState("Group");
   const [openModal, setOpenModal] = useState(false);
   const [levelToDelete, setLevelToDelete] = useState(null);
 
   const { data: coursesRes } = useGetAllpackages();
   const courses = coursesRes?.data || [];
-  const tabCourses = courses.filter(
-    (course) => course?.category?.name === activeTab
-  );
   const { mutate: mutateDeleteCourse } = useDeletepackage();
   const { data: catData } = useGetAllcategories();
   const categories = catData?.data || [];
+
   const tabs = categories.map((cat) => cat.name) || [];
+  const [activeTab, setActiveTab] = useState(tabs[0]);
+  const tabCourses = courses.filter(
+    (course) => course?.category?.name === activeTab
+  );
 
   const handleDelete = (id) => {
+    console.log(levelToDelete);
+
     if (!id) {
       console.error("id is undefined or null");
       return;
     }
-    mutateDeleteCourse(id, {
-      onSuccess: () => {
-        setOpenModal(false);
-        setLevelToDelete(null);
-      },
-    });
+    mutateDeleteCourse(
+      { id },
+      {
+        onSuccess: () => {
+          setOpenModal(false);
+          setLevelToDelete(null);
+        },
+      }
+    );
   };
 
   return (
@@ -143,7 +148,7 @@ function CoursesPlans() {
                     Duration
                   </span>
                   <span className="block font-semibold">
-                    {formatDuration(level.duration)}
+                    {formatDuration(level.totalTimeInWeeks)}
                   </span>
                 </div>
                 <div className="bg-gray-50 p-3 rounded-lg">
@@ -178,6 +183,7 @@ function CoursesPlans() {
               <button
                 onClick={() => {
                   setLevelToDelete(level._id);
+                  console.log(levelToDelete);
                   setOpenModal(true);
                 }}
                 className="px-4 py-2 rounded-lg border border-red-300 text-red-600 hover:bg-red-50 transition-colors"
