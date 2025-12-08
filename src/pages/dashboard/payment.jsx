@@ -7,14 +7,43 @@ function Payment() {
   const [searchQuery, setSearchQuery] = useState("");
   const [statusFilter, setStatusFilter] = useState("");
   const [paymentStatusFilter, setPaymentStatusFilter] = useState("");
+  const [paymentMethodFilter, setPaymentMethodFilter] = useState("");
   const [startDate, setStartDate] = useState("");
   const [endDate, setEndDate] = useState("");
 
   const { data: bookingData, isPending } = useGetAllBookings();
   const bookings = bookingData?.data || [];
 
+  const paymentMethodOptions = [
+    { value: "card", label: "Card" },
+    { value: "apple", label: "Apple Pay" },
+    // { value: "wallet", label: "Wallet" },
+    { value: "taptap_send", label: "TapTap Send" },
+    { value: "bank_account", label: "Bank Account" },
+    { value: "instapay", label: "Instapay" },
+    { value: "vodafone_cash", label: "Vodafone Cash" },
+    { value: "western", label: "Western Union" },
+    { value: "paypal", label: "PayPal" },
+  ];
+
   const handleSearchChange = (e) =>
     setSearchQuery(e.target.value.toLowerCase());
+
+  const isWithinDateRange = (booking) => {
+    if (!startDate && !endDate) return true;
+    const referenceDate = booking?.paidAt || booking?.createdAt;
+    const parsedReferenceDate = referenceDate ? new Date(referenceDate) : null;
+    if (!parsedReferenceDate) return false;
+    const start = startDate ? new Date(startDate) : null;
+    const end = endDate ? new Date(endDate) : null;
+    if (start && parsedReferenceDate < start) return false;
+    if (end) {
+      const endOfDay = new Date(end);
+      endOfDay.setHours(23, 59, 59, 999);
+      if (parsedReferenceDate > endOfDay) return false;
+    }
+    return true;
+  };
 
   const filteredBookings = bookings?.filter((booking) => {
     const matchesSearch =
@@ -28,33 +57,31 @@ function Payment() {
     const matchesPaymentStatus = paymentStatusFilter
       ? booking?.paymentStatus === paymentStatusFilter
       : true;
+    const matchesPaymentMethod = paymentMethodFilter
+      ? booking?.paymentMethod === paymentMethodFilter
+      : true;
 
-    const createdAt = booking?.createdAt ? new Date(booking.createdAt) : null;
-    const inDateRange = (() => {
-      if (!startDate && !endDate) return true;
-      if (!createdAt) return false;
-      const start = startDate ? new Date(startDate) : null;
-      const end = endDate ? new Date(endDate) : null;
-      if (start && createdAt < start) return false;
-      if (end) {
-        const endOfDay = new Date(end);
-        endOfDay.setHours(23, 59, 59, 999);
-        if (createdAt > endOfDay) return false;
-      }
-      return true;
-    })();
+    const inDateRange = isWithinDateRange(booking);
 
     return (
-      matchesSearch && matchesStatus && matchesPaymentStatus && inDateRange
+      matchesSearch &&
+      matchesStatus &&
+      matchesPaymentStatus &&
+      matchesPaymentMethod &&
+      inDateRange
     );
   });
 
   // Get counts for filter badges
   const getStatusCount = (status) =>
-    bookings.filter((booking) => booking.status === status).length;
+    filteredBookings.filter((booking) => booking.status === status).length;
 
   const getPaymentStatusCount = (paymentStatus) =>
-    bookings.filter((booking) => booking.paymentStatus === paymentStatus)
+    filteredBookings.filter(
+      (booking) => booking.paymentStatus === paymentStatus
+    ).length;
+  const getPaymentMethodCount = (method) =>
+    filteredBookings.filter((booking) => booking.paymentMethod === method)
       .length;
 
   return (
@@ -151,13 +178,16 @@ function Payment() {
               Payment Method
             </label>
             <select
-              onChange={(e) => setPaymentStatusFilter(e.target.value)}
+              value={paymentMethodFilter}
+              onChange={(e) => setPaymentMethodFilter(e.target.value)}
               className="w-full bg-[var(--Input)] py-3 px-4 rounded-xl border border-transparent focus:outline-none focus:ring-2 focus:ring-[var(--Yellow)]"
             >
-              <option value="">All Methods</option>
-              <option value="card">Card</option>
-              <option value="apple">Apple Pay</option>
-              <option value="wallet">Wallet</option>
+              <option value="">All Methods ({bookings.length})</option>
+              {paymentMethodOptions.map((method) => (
+                <option key={method.value} value={method.value}>
+                  {method.label} ({getPaymentMethodCount(method.value)})
+                </option>
+              ))}
             </select>
           </div>
 
@@ -190,11 +220,11 @@ function Payment() {
       </section>
 
       {/* Summary Stats */}
-      {!isPending && bookings.length > 0 && (
+      {!isPending && filteredBookings.length > 0 && (
         <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
           <div className="bg-white p-4 rounded-xl shadow text-center">
             <div className="text-2xl font-bold text-[var(--Main)]">
-              {bookings.length}
+              {filteredBookings.length}
             </div>
             <div className="text-sm text-[var(--SubText)]">Total Bookings</div>
           </div>
@@ -213,8 +243,12 @@ function Payment() {
           <div className="bg-white p-4 rounded-xl shadow text-center">
             <div className="text-2xl font-bold text-[var(--Yellow)]">
               {Number(
-                bookings
-                  .filter((booking) => booking.status === "confirmed")
+                filteredBookings
+                  .filter(
+                    (booking) =>
+                      booking.status === "confirmed" &&
+                      isWithinDateRange(booking)
+                  )
                   .reduce((sum, booking) => sum + (booking.amount || 0), 0)
               ).toFixed(2)}{" "}
               EGP
@@ -261,7 +295,10 @@ function Payment() {
               No Bookings Found
             </h2>
             <p className="text-[var(--SubText)]">
-              {searchQuery || statusFilter || paymentStatusFilter
+              {searchQuery ||
+              statusFilter ||
+              paymentStatusFilter ||
+              paymentMethodFilter
                 ? "Try adjusting your search or filters"
                 : "No bookings have been made yet"}
             </p>

@@ -1,5 +1,3 @@
-import React from "react";
-
 // Status badge styling
 const getStatusBadge = (status) => {
   const baseClasses = "px-3 py-1 rounded-full text-xs font-medium";
@@ -128,9 +126,9 @@ function BookingRow({ booking }) {
         {getPaymentMethodDisplay(booking.paymentMethod)}
       </td>
 
-      {/* Date Created */}
+      {/* Date - prioritize paidAt if available */}
       <td className="p-4 text-sm text-[var(--SubText)]">
-        {formatDate(booking.createdAt)}
+        {formatDate(booking?.paidAt || booking?.createdAt)}
       </td>
 
       {/* Actions */}
