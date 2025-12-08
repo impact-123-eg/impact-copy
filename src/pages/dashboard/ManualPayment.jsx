@@ -315,6 +315,7 @@ export default function ManualPayment() {
               <option value="instapay">Instapay</option>
               <option value="vodafone_cash">Vodafone Cash</option>
               <option value="western">Western</option>
+              <option value="paypal">PayPal</option>
             </select>
           </div>
         </div>
