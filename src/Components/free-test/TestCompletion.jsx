@@ -138,14 +138,14 @@ const TestCompletion = ({ results }) => {
 
         {/* Action Buttons */}
         <div className="space-y-4">
-          {!results?.linkedToSession && (
+          {/* {!results?.linkedToSession && (
             <button
               onClick={handleBookSession}
               className="w-full py-4 bg-[var(--Yellow)] text-white font-semibold rounded-xl hover:bg-opacity-90 transition-colors text-lg"
             >
               {t("freeTest.completion.bookFreeSession")}
             </button>
-          )}
+          )} */}
 
           <button
             onClick={handleGoHome}
