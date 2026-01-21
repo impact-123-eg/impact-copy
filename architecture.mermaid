@@ -1,0 +1,60 @@
+graph TD
+    %% Entry Points
+    User((User))
+    Admin((Admin))
+
+    %% Routing
+    subgraph Router [React Router]
+        MainLayout
+        DashLayout
+        LoginLayout
+    end
+
+    %% Public Pages
+    subgraph Public [Public Pages]
+        Home
+        Courses
+        Checkout
+        FreeSession
+    end
+
+    %% Dashboard Pages
+    subgraph Dashboard [Dashboard Pages]
+        Overview
+        ManageBookings
+        ManageCourses
+        Settings
+    end
+
+    %% Core Services
+    subgraph Services [Services & Context]
+        AuthContext
+        AxiosService
+        ReactQuery
+    end
+
+    %% External
+    Backend[Backend API]
+    Paymob[Paymob Gateway]
+
+    %% Connections
+    User --> MainLayout
+    MainLayout --> Public
+    
+    Admin --> LoginLayout
+    Admin --> DashLayout
+    DashLayout --> Dashboard
+
+    %% logic
+    Public --> AxiosService
+    Dashboard --> AxiosService
+    
+    AxiosService --> Backend
+    Checkout --> Paymob
+    
+    LoginLayout --> AuthContext
+    AuthContext --> AxiosService
+
+    %% Data Flow
+    ReactQuery -.-> Backend
+    Dashboard -.-> ReactQuery
