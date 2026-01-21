@@ -1,7 +1,7 @@
 import { useMemo } from "react";
 import { useLocation, Link } from "react-router-dom";
 import { useGetPaymentStatus } from "@/hooks/Actions/payment/useCurdsPayment";
-import { useTranslation } from "react-i18next";
+import { useTranslation } from "../../node_modules/react-i18next";
 
 function useQuery() {
   const { search } = useLocation();
@@ -28,12 +28,12 @@ const PaymentResult = () => {
   const title = loading
     ? t("paymentResult.processingPayment")
     : errMsg
-    ? t("paymentResult.unableToConfirmPayment")
-    : booking?.paymentStatus === "paid"
-    ? t("paymentResult.paymentSuccessful")
-    : booking?.paymentStatus === "failed" || booking?.status === "cancelled"
-    ? t("paymentResult.paymentFailed")
-    : t("paymentResult.paymentPending");
+      ? t("paymentResult.unableToConfirmPayment")
+      : booking?.paymentStatus === "paid"
+        ? t("paymentResult.paymentSuccessful")
+        : booking?.paymentStatus === "failed" || booking?.status === "cancelled"
+          ? t("paymentResult.paymentFailed")
+          : t("paymentResult.paymentPending");
 
   return (
     <main className="max-w-2xl mx-auto p-6 space-y-6">

@@ -1,4 +1,4 @@
-import { useTranslation } from "react-i18next";
+import { useTranslation } from "../../node_modules/react-i18next";
 import { useParams } from "react-router-dom";
 import { FaApple } from "react-icons/fa";
 import { IoCardSharp } from "react-icons/io5";
@@ -94,16 +94,15 @@ const AppForm = () => {
                     onChange={formik.handleChange}
                     onBlur={formik.handleBlur}
                     value={formik.values.name}
-                    className={`w-full px-4 py-3 bg-gray-50 border rounded-lg focus:outline-none focus:ring-2 focus:ring-[var(--Yellow)] transition-colors ${
-                      (formik.touched.name || formik.submitCount > 0) &&
-                      formik.errors.name
+                    className={`w-full px-4 py-3 bg-gray-50 border rounded-lg focus:outline-none focus:ring-2 focus:ring-[var(--Yellow)] transition-colors ${(formik.touched.name || formik.submitCount > 0) &&
+                        formik.errors.name
                         ? "border-red-500"
                         : "border-gray-200"
-                    }`}
+                      }`}
                     placeholder={t("enterName") || "Enter your name"}
                   />
                   {(formik.touched.name || formik.submitCount > 0) &&
-                  formik.errors.name ? (
+                    formik.errors.name ? (
                     <div className="text-red-500 text-sm">
                       {formik.errors.name}
                     </div>
@@ -122,16 +121,15 @@ const AppForm = () => {
                     onChange={formik.handleChange}
                     onBlur={formik.handleBlur}
                     value={formik.values.email}
-                    className={`w-full px-4 py-3 bg-gray-50 border rounded-lg focus:outline-none focus:ring-2 focus:ring-[var(--Yellow)] transition-colors ${
-                      (formik.touched.email || formik.submitCount > 0) &&
-                      formik.errors.email
+                    className={`w-full px-4 py-3 bg-gray-50 border rounded-lg focus:outline-none focus:ring-2 focus:ring-[var(--Yellow)] transition-colors ${(formik.touched.email || formik.submitCount > 0) &&
+                        formik.errors.email
                         ? "border-red-500"
                         : "border-gray-200"
-                    }`}
+                      }`}
                     placeholder={t("enterEmail") || "Enter your email"}
                   />
                   {(formik.touched.email || formik.submitCount > 0) &&
-                  formik.errors.email ? (
+                    formik.errors.email ? (
                     <div className="text-red-500 text-sm">
                       {formik.errors.email}
                     </div>
@@ -153,18 +151,17 @@ const AppForm = () => {
                     onChange={formik.handleChange}
                     onBlur={formik.handleBlur}
                     value={formik.values.phoneNumber}
-                    className={`w-full px-4 py-3 bg-gray-50 border rounded-lg focus:outline-none focus:ring-2 focus:ring-[var(--Yellow)] transition-colors ${
-                      (formik.touched.phoneNumber || formik.submitCount > 0) &&
-                      formik.errors.phoneNumber
+                    className={`w-full px-4 py-3 bg-gray-50 border rounded-lg focus:outline-none focus:ring-2 focus:ring-[var(--Yellow)] transition-colors ${(formik.touched.phoneNumber || formik.submitCount > 0) &&
+                        formik.errors.phoneNumber
                         ? "border-red-500"
                         : "border-gray-200"
-                    }`}
+                      }`}
                     placeholder={
                       t("enterPhoneNumber") || "Enter your phone number"
                     }
                   />
                   {(formik.touched.phoneNumber || formik.submitCount > 0) &&
-                  formik.errors.phoneNumber ? (
+                    formik.errors.phoneNumber ? (
                     <div className="text-red-500 text-sm">
                       {formik.errors.phoneNumber}
                     </div>

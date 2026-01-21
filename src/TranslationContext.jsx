@@ -1,10 +1,10 @@
 import React, { createContext, useContext } from 'react';
-import { useTranslation } from 'react-i18next';
+import { useTranslation } from '../node_modules/react-i18next';
 
 const TranslationContext = createContext({
-  t: (key) => key, 
-  i18n: {}, 
-  changeLanguage: () => {}, 
+  t: (key) => key,
+  i18n: {},
+  changeLanguage: () => { },
 });
 
 export const TranslationProvider = ({ children }) => {
@@ -12,7 +12,7 @@ export const TranslationProvider = ({ children }) => {
 
   const changeLanguage = async (lang) => {
     try {
-      await i18n.changeLanguage(lang); 
+      await i18n.changeLanguage(lang);
     } catch (error) {
       console.error('Failed to change language:', error);
     }

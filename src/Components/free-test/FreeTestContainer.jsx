@@ -1,6 +1,6 @@
 // components/free-test/FreeTestContainer.jsx
 import React, { useState, useEffect } from "react";
-import { useTranslation } from "react-i18next";
+import { useTranslation } from "../../../node_modules/react-i18next";
 import TestWelcome from "./TestWelcome";
 import TestQuestion from "./TestQuestion";
 import LevelTransition from "./LevelTransition";
@@ -46,7 +46,7 @@ const FreeTestContainer = () => {
           localStorage.removeItem(k);
         }
       }
-    } catch {}
+    } catch { }
   };
 
   // Effect to automatically manage stage transitions (edge-aware)

@@ -1,6 +1,6 @@
 // components/free-test/TestQuestion.jsx (UPDATED)
 import React, { useState, useEffect, useRef } from "react";
-import { useTranslation } from "react-i18next";
+import { useTranslation } from "../../../node_modules/react-i18next";
 import TestProgress from "./TestProgress";
 import AudioPlayer from "./AudioPlayer";
 
@@ -121,20 +121,19 @@ const TestQuestion = ({
         {!question?.audioUrl && (
           <div className="mb-4 flex items-center justify-center">
             <span
-              className={`inline-flex items-center px-3 py-1 rounded-full text-sm ${
-                expired
+              className={`inline-flex items-center px-3 py-1 rounded-full text-sm ${expired
                   ? "bg-red-100 text-red-700"
                   : remainingSeconds <= 10
-                  ? "bg-yellow-100 text-yellow-700"
-                  : "bg-[var(--Light)] text-[var(--Main)]"
-              }`}
+                    ? "bg-yellow-100 text-yellow-700"
+                    : "bg-[var(--Light)] text-[var(--Main)]"
+                }`}
             >
               {expired
                 ? t("freeTest.questions.timeUp", "Time's up")
                 : t("freeTest.questions.timeLeft", {
-                    defaultValue: "Time left: {{s}}s",
-                    s: remainingSeconds ?? 0,
-                  })}
+                  defaultValue: "Time left: {{s}}s",
+                  s: remainingSeconds ?? 0,
+                })}
             </span>
           </div>
         )}
@@ -158,21 +157,18 @@ const TestQuestion = ({
               dir="ltr"
               onClick={() => handleAnswerSelect(index)}
               disabled={isLoading}
-              className={`w-full p-4 text-left rounded-xl border-2 transition-all duration-200 ${
-                selectedAnswer === index
+              className={`w-full p-4 text-left rounded-xl border-2 transition-all duration-200 ${selectedAnswer === index
                   ? "border-[var(--Yellow)] bg-yellow-50 ring-2 ring-[var(--Yellow)] ring-opacity-50"
                   : "border-[var(--Input)] hover:border-[var(--Yellow)] hover:bg-gray-50"
-              } ${
-                isLoading ? "opacity-50 cursor-not-allowed" : "cursor-pointer"
-              }`}
+                } ${isLoading ? "opacity-50 cursor-not-allowed" : "cursor-pointer"
+                }`}
             >
               <div className="flex items-center gap-2 space-x-4 rtl:space-x-reverse">
                 <div
-                  className={`flex-shrink-0 w-8 h-8 rounded-full flex items-center justify-center font-semibold ${
-                    selectedAnswer === index
+                  className={`flex-shrink-0 w-8 h-8 rounded-full flex items-center justify-center font-semibold ${selectedAnswer === index
                       ? "bg-[var(--Yellow)] text-white"
                       : "bg-gray-200 text-[var(--Main)]"
-                  }`}
+                    }`}
                 >
                   {getOptionLetter(index)}
                 </div>

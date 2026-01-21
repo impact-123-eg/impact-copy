@@ -1,7 +1,7 @@
 /* eslint-disable no-undef */
 import { useState, useEffect } from 'react';
 import { useLocation, useNavigate } from 'react-router';
-import { useTranslation } from 'react-i18next';
+import { useTranslation } from '../../node_modules/react-i18next';
 import Swal from 'sweetalert2';
 import visa from '../assets/visa.png';
 import mastercard from '../assets/Mastercard.png';
@@ -35,14 +35,14 @@ function Checkout() {
           body: JSON.stringify({
             latitude,
             longitude,
-            priceUSD: course?.Options[0]?.priceAfter, 
+            priceUSD: course?.Options[0]?.priceAfter,
           })
         });
         const finalDataAfter = await dataAfter.json();
         if (finalDataAfter) {
-          setPrice(finalDataAfter);  
-           (finalDataAfter);
-          
+          setPrice(finalDataAfter);
+          (finalDataAfter);
+
         }
       } catch (error) {
         console.error("Error fetching currency data:", error);
@@ -155,7 +155,7 @@ function Checkout() {
       // Step 4: Set Payment URL for Iframe
       const iframeUrl = `https://accept.paymob.com/api/acceptance/iframes/${process.env.REACT_APP_PAYMOB_IFRAME_ID}?payment_token=${paymentKey}`;
       setPaymentUrl(iframeUrl);
-    } catch (error){
+    } catch (error) {
       console.error("Payment error:", error);
     }
   };

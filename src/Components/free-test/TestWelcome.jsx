@@ -1,6 +1,6 @@
 // components/free-test/TestWelcome.jsx (UPDATED)
 import React from "react";
-import { useTranslation } from "react-i18next";
+import { useTranslation } from "../../../node_modules/react-i18next";
 import { useFormik } from "formik";
 import * as Yup from "yup";
 import cntris from "@/data/Countries.json";
@@ -148,11 +148,10 @@ const TestWelcome = ({
               value={formik.values.name}
               onChange={formik.handleChange}
               onBlur={formik.handleBlur}
-              className={`w-full px-4 py-3 border rounded-lg focus:ring-2 focus:ring-[var(--Yellow)] focus:border-transparent ${
-                formik.touched.name && formik.errors.name
+              className={`w-full px-4 py-3 border rounded-lg focus:ring-2 focus:ring-[var(--Yellow)] focus:border-transparent ${formik.touched.name && formik.errors.name
                   ? "border-red-500"
                   : "border-[var(--Input)]"
-              }`}
+                }`}
               placeholder={t("freeTest.form.enterName")}
               disabled={existingTest}
             />
@@ -174,11 +173,10 @@ const TestWelcome = ({
               value={formik.values.email}
               onChange={formik.handleChange}
               onBlur={formik.handleBlur}
-              className={`w-full px-4 py-3 border rounded-lg focus:ring-2 focus:ring-[var(--Yellow)] focus:border-transparent ${
-                formik.touched.email && formik.errors.email
+              className={`w-full px-4 py-3 border rounded-lg focus:ring-2 focus:ring-[var(--Yellow)] focus:border-transparent ${formik.touched.email && formik.errors.email
                   ? "border-red-500"
                   : "border-[var(--Input)]"
-              }`}
+                }`}
               placeholder={t("freeTest.form.enterEmail")}
               disabled={existingTest}
             />
@@ -200,11 +198,10 @@ const TestWelcome = ({
               value={formik.values.phoneNumber}
               onChange={formik.handleChange}
               onBlur={formik.handleBlur}
-              className={`w-full px-4 py-3 border rounded-lg focus:ring-2 focus:ring-[var(--Yellow)] focus:border-transparent ${
-                formik.touched.phoneNumber && formik.errors.phoneNumber
+              className={`w-full px-4 py-3 border rounded-lg focus:ring-2 focus:ring-[var(--Yellow)] focus:border-transparent ${formik.touched.phoneNumber && formik.errors.phoneNumber
                   ? "border-red-500"
                   : "border-[var(--Input)]"
-              }`}
+                }`}
               placeholder={t("freeTest.form.enterPhoneNumber")}
               disabled={existingTest}
             />
@@ -225,11 +222,10 @@ const TestWelcome = ({
               value={formik.values.country}
               onChange={formik.handleChange}
               onBlur={formik.handleBlur}
-              className={`w-full px-4 py-3 border rounded-lg focus:ring-2 focus:ring-[var(--Yellow)] focus:border-transparent ${
-                formik.touched.country && formik.errors.country
+              className={`w-full px-4 py-3 border rounded-lg focus:ring-2 focus:ring-[var(--Yellow)] focus:border-transparent ${formik.touched.country && formik.errors.country
                   ? "border-red-500"
                   : "border-[var(--Input)]"
-              }`}
+                }`}
               disabled={existingTest}
             >
               <option value="">{t("freeTest.form.chooseCountry")}</option>
@@ -256,8 +252,8 @@ const TestWelcome = ({
           {isLoading
             ? t("freeTest.welcome.startingTest")
             : existingTest
-            ? t("freeTest.welcome.continueTest")
-            : t("freeTest.welcome.startTestNow")}
+              ? t("freeTest.welcome.continueTest")
+              : t("freeTest.welcome.startTestNow")}
         </button>
 
         {/* Privacy Note */}

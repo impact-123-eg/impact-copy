@@ -1,6 +1,6 @@
 // components/FreeSessionCalendar.jsx
 import React, { useState } from "react";
-import { useTranslation } from "react-i18next";
+import { useTranslation } from "../../node_modules/react-i18next";
 import { useGetAvailableSlotsForUser } from "@/hooks/Actions/free-sessions/useFreeSessionBookingCruds";
 
 const FreeSessionCalendar = ({ onSlotSelect }) => {
@@ -131,22 +131,19 @@ const FreeSessionCalendar = ({ onSlotSelect }) => {
             <div
               key={dateString}
               onClick={() => slots.length > 0 && setSelectedDate(dateString)}
-              className={`p-3 sm:p-4 border rounded-lg transition-all ${
-                slots.length > 0
+              className={`p-3 sm:p-4 border rounded-lg transition-all ${slots.length > 0
                   ? "cursor-pointer hover:border-[var(--Yellow)] hover:shadow-sm"
                   : "cursor-not-allowed opacity-50"
-              } ${
-                isSelected
+                } ${isSelected
                   ? "border-[var(--Yellow)] bg-yellow-50 ring-2 ring-[var(--Yellow)] ring-opacity-50"
                   : "border-[var(--Input)]"
-              }`}
+                }`}
             >
               {/* Date Header */}
               <div className={`text-center mb-2 ${textAlignment}`}>
                 <div
-                  className={`text-xs sm:text-sm font-medium ${
-                    isToday ? "text-[var(--Yellow)]" : "text-[var(--Main)]"
-                  }`}
+                  className={`text-xs sm:text-sm font-medium ${isToday ? "text-[var(--Yellow)]" : "text-[var(--Main)]"
+                    }`}
                 >
                   {getShortWeekday(date)}
                 </div>

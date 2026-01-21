@@ -1,5 +1,5 @@
 import Course from "../Components/Course";
-import { useTranslation } from "react-i18next";
+import { useTranslation } from "../../node_modules/react-i18next";
 import { useGetAllcategories } from "@/hooks/Actions/categories/useCategoryCruds";
 
 function Courses() {

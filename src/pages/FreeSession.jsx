@@ -1,6 +1,6 @@
 import { useState } from "react";
 import { useFormik } from "formik";
-import { useTranslation } from "react-i18next";
+import { useTranslation } from "../../node_modules/react-i18next";
 import { useNavigate } from "react-router-dom";
 import cntris from "../data/Countries.json";
 import { freeSessionValidationSchema } from "@/Validation";
@@ -57,10 +57,10 @@ const FreeSessionForm = () => {
     const locale = AR ? "ar-EG" : undefined;
     const dateLabel = AR
       ? startDate.toLocaleDateString("ar-EG", {
-          year: "numeric",
-          month: "long",
-          day: "2-digit",
-        })
+        year: "numeric",
+        month: "long",
+        day: "2-digit",
+      })
       : formatDate(startDate);
     const startTime = startDate.toLocaleTimeString(locale, {
       hour: "2-digit",
@@ -132,11 +132,10 @@ const FreeSessionForm = () => {
             onChange={formik.handleChange}
             onBlur={formik.handleBlur}
             value={formik.values.name}
-            className={`mt-1 block w-full px-3 py-2 bg-[var(--Input)] rounded-md border ${
-              formik.touched.name && formik.errors.name
+            className={`mt-1 block w-full px-3 py-2 bg-[var(--Input)] rounded-md border ${formik.touched.name && formik.errors.name
                 ? "border-red-500"
                 : "border-transparent"
-            }`}
+              }`}
             placeholder={t("enterName")}
           />
           {formik.touched.name && formik.errors.name && (
@@ -161,11 +160,10 @@ const FreeSessionForm = () => {
             onChange={formik.handleChange}
             onBlur={formik.handleBlur}
             value={formik.values.email}
-            className={`mt-1 block w-full px-3 py-2 bg-[var(--Input)] rounded-md border ${
-              formik.touched.email && formik.errors.email
+            className={`mt-1 block w-full px-3 py-2 bg-[var(--Input)] rounded-md border ${formik.touched.email && formik.errors.email
                 ? "border-red-500"
                 : "border-transparent"
-            }`}
+              }`}
             placeholder={t("enterEmail")}
           />
           {formik.touched.email && formik.errors.email && (
@@ -190,11 +188,10 @@ const FreeSessionForm = () => {
             onChange={formik.handleChange}
             onBlur={formik.handleBlur}
             value={formik.values.phoneNumber}
-            className={`mt-1 block w-full px-3 py-2 bg-[var(--Input)] rounded-md border ${
-              formik.touched.phoneNumber && formik.errors.phoneNumber
+            className={`mt-1 block w-full px-3 py-2 bg-[var(--Input)] rounded-md border ${formik.touched.phoneNumber && formik.errors.phoneNumber
                 ? "border-red-500"
                 : "border-transparent"
-            }`}
+              }`}
             placeholder={t("enterPhoneNumber")}
           />
           {formik.touched.phoneNumber && formik.errors.phoneNumber && (
@@ -218,27 +215,26 @@ const FreeSessionForm = () => {
             onChange={formik.handleChange}
             onBlur={formik.handleBlur}
             value={formik.values.country}
-            className={`mt-1 appearance-none block w-full px-3 py-2 bg-[var(--Input)] rounded-md border ${
-              formik.touched.country && formik.errors.country
+            className={`mt-1 appearance-none block w-full px-3 py-2 bg-[var(--Input)] rounded-md border ${formik.touched.country && formik.errors.country
                 ? "border-red-500"
                 : "border-transparent"
-            }`}
+              }`}
           >
             <option value="">{t("chooseCountry")}</option>
             {i18n.language === "ar"
               ? countries.sort().map((country, index) => (
-                  <option key={index} value={country.nameEn}>
-                    {country.nameAr}
-                  </option>
-                ))
+                <option key={index} value={country.nameEn}>
+                  {country.nameAr}
+                </option>
+              ))
               : countries
-                  .map((cnt) => cnt.nameEn)
-                  .sort()
-                  .map((country, index) => (
-                    <option key={index} value={country}>
-                      {country}
-                    </option>
-                  ))}
+                .map((cnt) => cnt.nameEn)
+                .sort()
+                .map((country, index) => (
+                  <option key={index} value={country}>
+                    {country}
+                  </option>
+                ))}
           </select>
           {formik.touched.country && formik.errors.country && (
             <div className="text-red-500 text-sm mt-1">
@@ -261,11 +257,10 @@ const FreeSessionForm = () => {
             onChange={formik.handleChange}
             onBlur={formik.handleBlur}
             value={formik.values.age}
-            className={`mt-1 block w-full px-3 py-2 bg-[var(--Input)] rounded-md border ${
-              formik.touched.age && formik.errors.age
+            className={`mt-1 block w-full px-3 py-2 bg-[var(--Input)] rounded-md border ${formik.touched.age && formik.errors.age
                 ? "border-red-500"
                 : "border-transparent"
-            }`}
+              }`}
           >
             <option value="">{t("chooseAge")}</option>
             <option value="kid">{t("kid")}</option>

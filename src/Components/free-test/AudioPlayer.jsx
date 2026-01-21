@@ -1,6 +1,6 @@
 // components/free-test/AudioPlayer.jsx (UPDATED)
 import React, { useState, useRef, useEffect } from "react";
-import { useTranslation } from "react-i18next";
+import { useTranslation } from "../../../node_modules/react-i18next";
 
 const AudioPlayer = ({ src, className = "", storageKey, maxPlays = 2 }) => {
   const { t } = useTranslation();
@@ -88,7 +88,7 @@ const AudioPlayer = ({ src, className = "", storageKey, maxPlays = 2 }) => {
     setPlayCount(next);
     try {
       localStorage.setItem(key, String(next));
-    } catch {}
+    } catch { }
   };
 
   const togglePlay = async () => {
@@ -257,8 +257,8 @@ const AudioPlayer = ({ src, className = "", storageKey, maxPlays = 2 }) => {
           {isLoading
             ? t("freeTest.audio.audioLoading")
             : isPlaying
-            ? t("freeTest.audio.playingAudio")
-            : t("freeTest.audio.playAudio")}
+              ? t("freeTest.audio.playingAudio")
+              : t("freeTest.audio.playAudio")}
         </p>
         <p className="text-xs text-[var(--SubText)]">
           {t("freeTest.audio.playLimitNote", {

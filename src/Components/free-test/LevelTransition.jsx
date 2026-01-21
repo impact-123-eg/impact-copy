@@ -1,6 +1,6 @@
 // components/free-test/LevelTransition.jsx (UPDATED)
 import React from "react";
-import { useTranslation } from "react-i18next";
+import { useTranslation } from "../../../node_modules/react-i18next";
 
 const LevelTransition = ({ nextLevel, onContinue }) => {
   const { t } = useTranslation();

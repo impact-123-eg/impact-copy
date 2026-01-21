@@ -1,4 +1,4 @@
-import { useTranslation } from "react-i18next";
+import { useTranslation } from "../../node_modules/react-i18next";
 import { Link } from "react-router-dom";
 import bg from "../assets/bgcourses-Photoroom.png";
 import { FadeLoader } from "react-spinners";
@@ -70,18 +70,18 @@ function Option({ option, isBooking = false }) {
                   {loading
                     ? "Loading..."
                     : Number(option.priceBefore) > 0
-                    ? convertedPriceBefore != null
-                      ? `${convertedPriceBefore} ${targetCurrency.toUpperCase()}`
-                      : `${option.priceBefore} USD`
-                    : null}
+                      ? convertedPriceBefore != null
+                        ? `${convertedPriceBefore} ${targetCurrency.toUpperCase()}`
+                        : `${option.priceBefore} USD`
+                      : null}
                 </h3>
               )}
               <h3 className="text-4xl md:text-4xl font-bold">
                 {loading
                   ? "Loading..."
                   : convertedPriceAfter != null
-                  ? `${convertedPriceAfter} ${targetCurrency.toUpperCase()}`
-                  : `${option.priceAfter} USD`}
+                    ? `${convertedPriceAfter} ${targetCurrency.toUpperCase()}`
+                    : `${option.priceAfter} USD`}
               </h3>
             </div>
 

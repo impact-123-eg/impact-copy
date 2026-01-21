@@ -1,5 +1,5 @@
 import React, { useState } from "react";
-import { useTranslation } from "react-i18next";
+import { useTranslation } from "../../node_modules/react-i18next";
 import group from "../assets/group.png";
 import light from "../assets/light.png";
 import Instructor from "../Components/Instructor";
@@ -23,11 +23,11 @@ function AboutUs() {
   const [show2, setShow2] = useState("hidden");
 
   const rotation1 =
-      i18n.language === "en"
-        ? show
-          ? "-right-60 md:top-28 lg:top-24 xl:top-18"
-          : "-right-60 md:top-28 lg:top-40 xl:top-30"
-        : "-left-60 md:top-28 lg:top-20 xl:top-18",
+    i18n.language === "en"
+      ? show
+        ? "-right-60 md:top-28 lg:top-24 xl:top-18"
+        : "-right-60 md:top-28 lg:top-40 xl:top-30"
+      : "-left-60 md:top-28 lg:top-20 xl:top-18",
     rotation2 = i18n.language === "en" ? " -left-56" : "-right-60";
 
   const btn_pos = i18n.language === "en" ? "pe-14" : "pe-24";
@@ -181,9 +181,8 @@ function AboutUs() {
         >
           <img
             src={group}
-            className={`md:pr-2 hidden px-1 lg:block absolute w-full ${
-              show ? "h-80" : "h-80"
-            } ${rotation1}`}
+            className={`md:pr-2 hidden px-1 lg:block absolute w-full ${show ? "h-80" : "h-80"
+              } ${rotation1}`}
             alt="Meeting"
           />
         </article>
@@ -193,11 +192,10 @@ function AboutUs() {
           <article
             data-aos="fade-right"
             data-aos-duration="1000"
-            className={`space-y-10 py-20 text-[var(--LightTxt)] bg-[var(--Light)] p-8 ${
-              i18n.language == "en"
+            className={`space-y-10 py-20 text-[var(--LightTxt)] bg-[var(--Light)] p-8 ${i18n.language == "en"
                 ? "md:pl-12 lg:pl-60 pl-12"
                 : "md:pr-12 lg:pr-60 pr-12"
-            } rounded-s-[100px]`}
+              } rounded-s-[100px]`}
           >
             <h1 className="text-3xl font-bold text-black">
               {t("AcademyBackground")}
@@ -213,9 +211,8 @@ function AboutUs() {
             </section>
 
             <div
-              className={`flex justify-end ${
-                i18n.language === "en" ? "md:pr-40" : "md:pl-40"
-              } ${btn_pos}`}
+              className={`flex justify-end ${i18n.language === "en" ? "md:pr-40" : "md:pl-40"
+                } ${btn_pos}`}
             >
               <button
                 onClick={() => (show == "" ? setShow("hidden") : setShow(""))}
@@ -233,11 +230,10 @@ function AboutUs() {
           <article
             data-aos="fade-right"
             data-aos-duration="1000"
-            className={`space-y-6 text-[var(--LightTxt)] bg-[var(--Light)] py-20 p-8 ${
-              i18n.language == "en"
+            className={`space-y-6 text-[var(--LightTxt)] bg-[var(--Light)] py-20 p-8 ${i18n.language == "en"
                 ? "md:pl-12 lg:pl-60 pl-12"
                 : "md:pr-12 lg:pr-60 pr-12"
-            } rounded-e-[100px]`}
+              } rounded-e-[100px]`}
           >
             <h1 className="text-xl md:text-2xl font-bold">
               {t("WhyWeAreUnique")}
@@ -268,9 +264,8 @@ function AboutUs() {
               </div>
             </section>
             <div
-              className={`flex justify-end md:${btn_pos}  ${
-                i18n.language == "en" ? "md:pr-40" : "md:pl-40"
-              }`}
+              className={`flex justify-end md:${btn_pos}  ${i18n.language == "en" ? "md:pr-40" : "md:pl-40"
+                }`}
             >
               <button
                 onClick={() =>
@@ -310,24 +305,24 @@ function AboutUs() {
             {currentFeatures.length === 0
               ? null
               : currentFeatures.map((feature, index) => (
-                  <article
-                    data-aos="fade-up"
-                    data-aos-delay={feature.number * 100}
-                    key={index}
-                    className="bg-[var(--Light)] text-[var(--LightTxt)] p-4 rounded-3xl shadow-lg lg:my-0"
-                    style={{ marginTop: `-${feature.number * 30}px` }}
-                  >
-                    <p className="text-4xl font-bold my-6 text-center">
-                      {feature.number}
-                    </p>
-                    <h2 className="text-xl md:text-2xl font-semibold my-6 text-center">
-                      {feature.title}
-                    </h2>
-                    <p className="text-gray-600 text-center md:text-left">
-                      {feature.description}
-                    </p>
-                  </article>
-                ))}
+                <article
+                  data-aos="fade-up"
+                  data-aos-delay={feature.number * 100}
+                  key={index}
+                  className="bg-[var(--Light)] text-[var(--LightTxt)] p-4 rounded-3xl shadow-lg lg:my-0"
+                  style={{ marginTop: `-${feature.number * 30}px` }}
+                >
+                  <p className="text-4xl font-bold my-6 text-center">
+                    {feature.number}
+                  </p>
+                  <h2 className="text-xl md:text-2xl font-semibold my-6 text-center">
+                    {feature.title}
+                  </h2>
+                  <p className="text-gray-600 text-center md:text-left">
+                    {feature.description}
+                  </p>
+                </article>
+              ))}
           </div>
         </div>
 

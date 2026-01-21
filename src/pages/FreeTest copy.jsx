@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from "react";
-import { useTranslation } from "react-i18next";
+import { useTranslation } from "../../node_modules/react-i18next";
 import { useLocation, useNavigate } from "react-router-dom";
 import cntris from "../data/Countries.json";
 import Swal from "sweetalert2";
@@ -198,13 +198,13 @@ const FreeTest = () => {
             </option>
             {i18n.language === "ar"
               ? countries.sort().map((cntry, index) => (
-                  <option key={index} value={cntry.nameEn}>
-                    {cntry.nameAr}
-                  </option>
-                ))
+                <option key={index} value={cntry.nameEn}>
+                  {cntry.nameAr}
+                </option>
+              ))
               : countriesEn
-                  .sort()
-                  .map((cntry, index) => <option key={index}>{cntry}</option>)}
+                .sort()
+                .map((cntry, index) => <option key={index}>{cntry}</option>)}
             <option value="other">{t("other")}</option>
           </select>
         </div>

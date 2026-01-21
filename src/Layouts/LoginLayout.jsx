@@ -27,7 +27,7 @@
 import React from "react";
 import { Link, Outlet } from "react-router-dom";
 import Footer from "../Components/Footer";
-import { I18nextProvider } from "react-i18next";
+import { I18nextProvider } from "../../node_modules/react-i18next";
 import i18n from "../i18n";
 import logo from "../assets/logoblue.png";
 import { AdminProvider } from "../AdminContext";

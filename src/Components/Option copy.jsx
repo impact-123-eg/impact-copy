@@ -1,6 +1,6 @@
 /* eslint-disable react/prop-types */
 import { useEffect, useState } from "react";
-import { useTranslation } from "react-i18next";
+import { useTranslation } from "../../node_modules/react-i18next";
 import { Link } from "react-router-dom";
 import bg from "../assets/bgcourses-Photoroom.png";
 // import { GlobalContext } from "../context/GlobelContext";
@@ -423,8 +423,8 @@ function Option({ option }) {
                   {loading
                     ? "Loading..."
                     : Number(option.priceBefore) > 0
-                    ? finalPriceBefore || `${option.priceBefore} USD`
-                    : null}
+                      ? finalPriceBefore || `${option.priceBefore} USD`
+                      : null}
                 </h3>
               )}
               <h3 className="text-4xl md:text-4xl font-bold">

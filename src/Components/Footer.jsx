@@ -1,7 +1,7 @@
 import { Link, useNavigate } from "react-router-dom";
 import logo from "../assets/Logo White 1.png";
 import { FaFacebook, FaInstagram, FaTiktok, FaWhatsapp } from "react-icons/fa";
-import { useTranslation } from "react-i18next";
+import { useTranslation } from "../../node_modules/react-i18next";
 import { IoMdMail } from "react-icons/io";
 
 const Footer = () => {
@@ -10,9 +10,8 @@ const Footer = () => {
 
   return (
     <footer
-      className={`grid grid-cols-1 lg:grid-cols-2 p-10 lg:p-20 lg:px-40 text-white bg-gradient-to-r from-[var(--GradBg)] to-[var(--Main)] mt-12 ${
-        i18n.language === "ar" ? "rtl" : ""
-      }`}
+      className={`grid grid-cols-1 lg:grid-cols-2 p-10 lg:p-20 lg:px-40 text-white bg-gradient-to-r from-[var(--GradBg)] to-[var(--Main)] mt-12 ${i18n.language === "ar" ? "rtl" : ""
+        }`}
     >
       <section
         data-aos="fade-right"

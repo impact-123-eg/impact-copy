@@ -1,6 +1,6 @@
 import React, { useEffect } from "react";
 import { useNavigate } from "react-router";
-import { useTranslation } from "react-i18next";
+import { useTranslation } from "../../node_modules/react-i18next";
 import { Toaster } from "react-hot-toast";
 
 import photo from "../assets/student.png";
@@ -80,9 +80,8 @@ function Home() {
                 });
                 window.scroll(0, 0);
               }}
-              className={`p-4 sm:px-6 w-[150px] md:w-[250px] rounded-3xl bg-[var(--Yellow)] ${
-                i18n.language == "ar" && "px-8"
-              }`}
+              className={`p-4 sm:px-6 w-[150px] md:w-[250px] rounded-3xl bg-[var(--Yellow)] ${i18n.language == "ar" && "px-8"
+                }`}
             >
               {t("bookFreeTrial")}
             </button>
@@ -217,9 +216,8 @@ function Home() {
               navigate("/free-session", { state: { option: "Free Session" } });
               window.scroll(0, 0);
             }}
-            className={`p-3 sm:p-4 rounded-3xl bg-[var(--Yellow)] ${
-              i18n.language == "ar" ? "w-[150px]" : "w-[200px]"
-            } text-sm sm:text-base`}
+            className={`p-3 sm:p-4 rounded-3xl bg-[var(--Yellow)] ${i18n.language == "ar" ? "w-[150px]" : "w-[200px]"
+              } text-sm sm:text-base`}
           >
             {t("bookFreeTrial")}
           </button>

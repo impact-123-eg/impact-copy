@@ -1,6 +1,6 @@
 import React, { useEffect } from "react";
 import { Outlet, useLocation } from "react-router-dom";
-import { I18nextProvider } from "react-i18next";
+import { I18nextProvider } from "../../node_modules/react-i18next";
 import i18n from "../i18n";
 import Nav from "../Components/dashboard/Nav";
 import { AdminProvider } from "../AdminContext";
@@ -42,9 +42,8 @@ const DashLayout = () => {
 
         {/* Main content area */}
         <div
-          className={`flex-1 flex flex-col overflow-hidden ${
-            isMobile ? "pt-10" : ""
-          }`}
+          className={`flex-1 flex flex-col overflow-hidden ${isMobile ? "pt-10" : ""
+            }`}
         >
           <div className="flex-1 overflow-auto p-6">
             <Outlet />
