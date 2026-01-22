@@ -70,11 +70,10 @@ function CoursesPlans() {
           <button
             key={tab}
             onClick={() => setActiveTab(tab)}
-            className={`px-6 py-3 font-semibold text-lg rounded-t-lg transition-colors ${
-              activeTab === tab
+            className={`px-6 py-3 font-semibold text-lg rounded-t-lg transition-colors ${activeTab === tab
                 ? "bg-[var(--Yellow)] text-gray-800"
                 : "bg-gray-100 text-gray-600 hover:bg-gray-200"
-            }`}
+              }`}
           >
             {tab}
           </button>
@@ -156,7 +155,9 @@ function CoursesPlans() {
                     Sessions/Week
                   </span>
                   <span className="block font-semibold">
-                    {level.sessionPerWeek}
+                    {typeof level.sessionPerWeek === "object"
+                      ? `${level.sessionPerWeek.count}`
+                      : level.sessionPerWeek}
                   </span>
                 </div>
                 <div className="bg-gray-50 p-3 rounded-lg">

@@ -1,7 +1,8 @@
 import axios from "axios";
 
 const clientApi = axios.create({
-  baseURL: "https://impact-back-end-m7hw.onrender.com/api",
+  baseURL: import.meta.env.VITE_API_BASE_URL || "http://localhost:5000/api",
+  withCredentials: true,
 });
 
 export const request = async (options, token) => {

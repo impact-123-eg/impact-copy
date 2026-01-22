@@ -97,9 +97,13 @@ function Option({ option, isBooking = false }) {
               </h1>
               <p>{formatDuration(option?.totalTimeInWeeks, t, AR)}</p>
               <p>
-                {option?.sessionPerWeek}{" "}
+                {typeof option?.sessionPerWeek === "object"
+                  ? option.sessionPerWeek.count
+                  : option?.sessionPerWeek}{" "}
                 {t(
-                  option?.sessionPerWeek <= 2
+                  (typeof option?.sessionPerWeek === "object"
+                    ? option.sessionPerWeek.count
+                    : option?.sessionPerWeek) <= 2
                     ? "categories.sessionsPerWeek.one"
                     : "categories.sessionsPerWeek.more"
                 )}
