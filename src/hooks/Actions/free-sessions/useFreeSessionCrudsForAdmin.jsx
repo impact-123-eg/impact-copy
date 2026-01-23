@@ -33,7 +33,7 @@ export const useAddFreeSessionSlot = () => {
   const { mutate, data, error, isPending, isSuccess, isError } = usePostData(
     endPoints.freeSessionSlots,
     [queryKeys.addFreeSessionSlot],
-    [queryKeys.freeSessionSlotByDate]
+    [queryKeys.freeSessionSlotByDate, queryKeys.getFreeSessionSlots]
   );
 
   return { mutate, data, error, isPending, isSuccess, isError };
@@ -65,4 +65,20 @@ export const useDeleteSlot = () => {
     [queryKeys.freeSessionSlotByDate]
   );
   return { mutate, isPending, isSuccess };
+};
+
+export const useUpdateGroupTeacher = () => {
+  const { mutate: patchMutate, ...rest } = usePatchData(
+    endPoints.updateGroupTeacher,
+    [queryKeys.updateGroupTeacher],
+    [queryKeys.freeSessionBookings]
+  );
+
+  const updateTeacher = ({ groupId, teacherId }) =>
+    patchMutate({
+      data: { groupId, teacherId },
+      url: endPoints.updateGroupTeacher,
+    });
+
+  return { mutate: updateTeacher, ...rest };
 };

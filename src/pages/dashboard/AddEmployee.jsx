@@ -1,7 +1,7 @@
 import React from "react";
 import { useNavigate } from "react-router";
 import { useFormik } from "formik";
-import { useCreateUser } from "@/hooks/Actions/users/useCurdsUsers";
+import { useCreateUser, useGetAllEmployees } from "@/hooks/Actions/users/useCurdsUsers";
 import { addUserValidationSchema } from "@/Validation";
 
 // Validation Schema
@@ -10,6 +10,10 @@ const employeeValidationSchema = addUserValidationSchema;
 function AddEmployee() {
   const navigate = useNavigate();
   const { mutate: createUser, isPending } = useCreateUser();
+  const { data: employeesData } = useGetAllEmployees();
+
+  const employees = employeesData?.data?.data || [];
+  const teamLeaders = employees.filter(e => e.role === "team_leader");
 
   // Formik setup
   const formik = useFormik({
@@ -19,6 +23,10 @@ function AddEmployee() {
       phone: "",
       password: "",
       role: "admin",
+      shiftStart: "13:00",
+      shiftEnd: "22:00",
+      dailyLeadQuota: 10,
+      teamId: "",
     },
     validationSchema: employeeValidationSchema,
     onSubmit: (values) => {
@@ -34,6 +42,12 @@ function AddEmployee() {
         phoneNumber: values.phone,
         password: values.password,
         role: values.role,
+        ...(values.role === "sales" && {
+          shiftStart: values.shiftStart,
+          shiftEnd: values.shiftEnd,
+          dailyLeadQuota: values.dailyLeadQuota,
+          teamId: values.teamId || null,
+        }),
       },
     };
 
@@ -70,11 +84,10 @@ function AddEmployee() {
                 value={formik.values.name}
                 placeholder="Ahmed Ali"
                 type="text"
-                className={`py-3 px-4 w-full rounded-lg bg-[var(--Input)] border ${
-                  formik.touched.name && formik.errors.name
-                    ? "border-red-500"
-                    : "border-transparent"
-                }`}
+                className={`py-3 px-4 w-full rounded-lg bg-[var(--Input)] border ${formik.touched.name && formik.errors.name
+                  ? "border-red-500"
+                  : "border-transparent"
+                  }`}
               />
               {formik.touched.name && formik.errors.name ? (
                 <div className="text-red-500 text-sm">{formik.errors.name}</div>
@@ -92,11 +105,10 @@ function AddEmployee() {
                 value={formik.values.phone}
                 placeholder="0123456789"
                 type="tel"
-                className={`py-3 px-4 w-full rounded-lg bg-[var(--Input)] border ${
-                  formik.touched.phone && formik.errors.phone
-                    ? "border-red-500"
-                    : "border-transparent"
-                }`}
+                className={`py-3 px-4 w-full rounded-lg bg-[var(--Input)] border ${formik.touched.phone && formik.errors.phone
+                  ? "border-red-500"
+                  : "border-transparent"
+                  }`}
               />
               {formik.touched.phone && formik.errors.phone ? (
                 <div className="text-red-500 text-sm">
@@ -116,11 +128,10 @@ function AddEmployee() {
                 value={formik.values.email}
                 placeholder="1234@gmail.com"
                 type="email"
-                className={`py-3 px-4 w-full rounded-lg bg-[var(--Input)] border ${
-                  formik.touched.email && formik.errors.email
-                    ? "border-red-500"
-                    : "border-transparent"
-                }`}
+                className={`py-3 px-4 w-full rounded-lg bg-[var(--Input)] border ${formik.touched.email && formik.errors.email
+                  ? "border-red-500"
+                  : "border-transparent"
+                  }`}
               />
               {formik.touched.email && formik.errors.email ? (
                 <div className="text-red-500 text-sm">
@@ -140,11 +151,10 @@ function AddEmployee() {
                 value={formik.values.password}
                 placeholder="********"
                 type="password"
-                className={`py-3 px-4 w-full rounded-lg bg-[var(--Input)] border ${
-                  formik.touched.password && formik.errors.password
-                    ? "border-red-500"
-                    : "border-transparent"
-                }`}
+                className={`py-3 px-4 w-full rounded-lg bg-[var(--Input)] border ${formik.touched.password && formik.errors.password
+                  ? "border-red-500"
+                  : "border-transparent"
+                  }`}
               />
               {formik.touched.password && formik.errors.password ? (
                 <div className="text-red-500 text-sm">
@@ -162,21 +172,72 @@ function AddEmployee() {
                 onChange={formik.handleChange}
                 onBlur={formik.handleBlur}
                 value={formik.values.role}
-                className={`py-3 px-4 w-full rounded-lg bg-[var(--Input)] border cursor-pointer ${
-                  formik.touched.role && formik.errors.role
-                    ? "border-red-500"
-                    : "border-transparent"
-                }`}
+                className={`py-3 px-4 w-full rounded-lg bg-[var(--Input)] border cursor-pointer ${formik.touched.role && formik.errors.role
+                  ? "border-red-500"
+                  : "border-transparent"
+                  }`}
               >
                 <option value="admin">Admin</option>
                 <option value="supervisor">Supervisor</option>
                 <option value="instructor">Instructor</option>
                 <option value="cs">Customer Service</option>
+                <option value="sales">Sales Agent</option>
+                <option value="team_leader">Team Leader</option>
               </select>
               {formik.touched.role && formik.errors.role ? (
                 <div className="text-red-500 text-sm">{formik.errors.role}</div>
               ) : null}
             </div>
+
+            {/* Sales Specific Fields */}
+            {formik.values.role === "sales" && (
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-6 p-6 bg-gray-50 rounded-2xl border-2 border-dashed border-[var(--Yellow)]">
+                <div className="space-y-2">
+                  <h4 className="font-semibold">Shift Start</h4>
+                  <input
+                    name="shiftStart"
+                    type="time"
+                    onChange={formik.handleChange}
+                    value={formik.values.shiftStart}
+                    className="py-3 px-4 w-full rounded-lg bg-white border border-gray-200"
+                  />
+                </div>
+                <div className="space-y-2">
+                  <h4 className="font-semibold">Shift End</h4>
+                  <input
+                    name="shiftEnd"
+                    type="time"
+                    onChange={formik.handleChange}
+                    value={formik.values.shiftEnd}
+                    className="py-3 px-4 w-full rounded-lg bg-white border border-gray-200"
+                  />
+                </div>
+                <div className="space-y-2">
+                  <h4 className="font-semibold">Daily Lead Quota</h4>
+                  <input
+                    name="dailyLeadQuota"
+                    type="number"
+                    onChange={formik.handleChange}
+                    value={formik.values.dailyLeadQuota}
+                    className="py-3 px-4 w-full rounded-lg bg-white border border-gray-200"
+                  />
+                </div>
+                <div className="space-y-2">
+                  <h4 className="font-semibold">Team Leader</h4>
+                  <select
+                    name="teamId"
+                    onChange={formik.handleChange}
+                    value={formik.values.teamId}
+                    className="py-3 px-4 w-full rounded-lg bg-white border border-gray-200"
+                  >
+                    <option value="">No Team Leader</option>
+                    {teamLeaders.map(tl => (
+                      <option key={tl._id} value={tl._id}>{tl.name}</option>
+                    ))}
+                  </select>
+                </div>
+              </div>
+            )}
           </article>
 
           {/* Buttons */}

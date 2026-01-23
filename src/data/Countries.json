@@ -1,98 +1,137 @@
 [
- {
-  "nameEn": "Algeria",
-  "nameAr": "الجزائر"
- },
- {
-  "nameEn": "Bahrain",
-  "nameAr": "البحرين"
- },
- {
-  "nameEn": "Egypt",
-  "nameAr": "مصر"
- },
- {
-  "nameEn": "Jordan",
-  "nameAr": "الأردن"
- },
- {
-  "nameEn": "Kuwait",
-  "nameAr": "الكويت"
- },
- {
-  "nameEn": "Libya",
-  "nameAr": "ليبيا"
- },
- {
-  "nameEn": "Morocco",
-  "nameAr": "المغرب"
- },
- {
-  "nameEn": "Oman",
-  "nameAr": "عمان"
- },
- {
-  "nameEn": "Qatar",
-  "nameAr": "قطر"
- },
- {
-  "nameEn": "Saudi Arabia",
-  "nameAr": "السعودية"
- },
- {
-  "nameEn": "Tunisia",
-  "nameAr": "تونس"
- },
- {
-  "nameEn": "Turkey",
-  "nameAr": "تركيا"
- },
- {
-  "nameEn": "United Arab Emirates",
-  "nameAr": "الإمارات"
- },
- {
-  "nameEn": "Canada",
-  "nameAr": "كندا"
- },
- {
-  "nameEn": "Spain",
-  "nameAr": "إسبانيا"
- },
- {
-  "nameEn": "France",
-  "nameAr": "فرنسا"
- },
- {
-  "nameEn": "Italy",
-  "nameAr": "إيطاليا"
- },
- {
-  "nameEn": "United Kingdom",
-  "nameAr": "بريطانيا"
- },
- {
-  "nameEn": "United States of America",
-  "nameAr": "الولايات المتحدة الأمريكية"
- },
- {
-  "nameEn": "Belgium",
-  "nameAr": "بلجيكا"
- },
- {
-  "nameEn": "Netherlands",
-  "nameAr": "هولندا"
- },
- {
-  "nameEn": "Greece",
-  "nameAr": "اليونان"
- },
- {
-  "nameEn": "Cyprus",
-  "nameAr": "قبرص"
- },
- {
-  "nameEn": "Malta",
-  "nameAr": "مالطا"
- }
+    {
+        "nameEn": "Egypt",
+        "nameAr": "مصر",
+        "code": "+20"
+    },
+    {
+        "nameEn": "Saudi Arabia",
+        "nameAr": "السعودية",
+        "code": "+966"
+    },
+    {
+        "nameEn": "United Arab Emirates",
+        "nameAr": "الإمارات",
+        "code": "+971"
+    },
+    {
+        "nameEn": "Kuwait",
+        "nameAr": "الكويت",
+        "code": "+965"
+    },
+    {
+        "nameEn": "Qatar",
+        "nameAr": "قطر",
+        "code": "+974"
+    },
+    {
+        "nameEn": "Bahrain",
+        "nameAr": "البحرين",
+        "code": "+973"
+    },
+    {
+        "nameEn": "Oman",
+        "nameAr": "عمان",
+        "code": "+968"
+    },
+    {
+        "nameEn": "Jordan",
+        "nameAr": "الأردن",
+        "code": "+962"
+    },
+    {
+        "nameEn": "Lebanon",
+        "nameAr": "لبنان",
+        "code": "+961"
+    },
+    {
+        "nameEn": "Palestine",
+        "nameAr": "فلسطين",
+        "code": "+970"
+    },
+    {
+        "nameEn": "Iraq",
+        "nameAr": "العراق",
+        "code": "+964"
+    },
+    {
+        "nameEn": "Algeria",
+        "nameAr": "الجزائر",
+        "code": "+213"
+    },
+    {
+        "nameEn": "Morocco",
+        "nameAr": "المغرب",
+        "code": "+212"
+    },
+    {
+        "nameEn": "Tunisia",
+        "nameAr": "تونس",
+        "code": "+216"
+    },
+    {
+        "nameEn": "Libya",
+        "nameAr": "ليبيا",
+        "code": "+218"
+    },
+    {
+        "nameEn": "Sudan",
+        "nameAr": "السودان",
+        "code": "+249"
+    },
+    {
+        "nameEn": "Turkey",
+        "nameAr": "تركيا",
+        "code": "+90"
+    },
+    {
+        "nameEn": "United Kingdom",
+        "nameAr": "بريطانيا",
+        "code": "+44"
+    },
+    {
+        "nameEn": "United States",
+        "nameAr": "أمريكا",
+        "code": "+1"
+    },
+    {
+        "nameEn": "Canada",
+        "nameAr": "كندا",
+        "code": "+1"
+    },
+    {
+        "nameEn": "Germany",
+        "nameAr": "ألمانيا",
+        "code": "+49"
+    },
+    {
+        "nameEn": "France",
+        "nameAr": "فرنسا",
+        "code": "+33"
+    },
+    {
+        "nameEn": "Italy",
+        "nameAr": "إيطاليا",
+        "code": "+39"
+    },
+    {
+        "nameEn": "Spain",
+        "nameAr": "إسبانيا",
+        "code": "+34"
+    },
+    {
+        "nameEn": "Netherlands",
+        "nameAr": "هولندا",
+        "code": "+31"
+    },
+    {
+        "nameEn": "Sweden",
+        "nameAr": "السويد",
+        "code": "+46"
+    },
+    {
+        "nameEn": "Australia",
+        "nameAr": "أستراليا",
+        "code": "+61"
+    }
 ]

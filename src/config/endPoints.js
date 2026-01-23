@@ -17,10 +17,11 @@ const endPoints = {
   bookings: "/bookings/",
   //Admin
   freeSessionSlots: "/free-session-slots/",
-  freeSessionSlotByDate: "/free-session-slots/by-date/",
+  freeSessionSlotByDate: "/free-session-slots/by-date",
   freeSessionSlotByDateForAdmin: "/free-session-slots/admin/by-date/",
-  freeSessionAvailableDays: "/free-session-slots/available-days/",
-  moveFreeSessionBooking: "/free-session-groups/move-booking/",
+  freeSessionAvailableDays: "/free-session-slots/available-days",
+  moveFreeSessionBooking: "/free-session-groups/move-booking",
+  updateGroupTeacher: "/free-session-groups/update-teacher",
   dashboard: "/dashboard/",
 
   //User

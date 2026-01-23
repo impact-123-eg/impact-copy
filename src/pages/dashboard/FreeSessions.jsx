@@ -1,10 +1,9 @@
 import React, { useState } from "react";
-import { Calendar } from "react-calendar";
-import "react-calendar/dist/Calendar.css";
 import {
   useAddFreeSessionSlot,
   useGetFreeSessionSlotsByDate,
 } from "@/hooks/Actions/free-sessions/useFreeSessionCrudsForAdmin";
+import FreeSessionCalendar from "@/Components/FreeSessionCalendar";
 import FreeSessionSlotList from "@/Components/dashboard/FreeSessionSlotList";
 import FreeSessionSlotForm from "@/Components/dashboard/FreeSessionSlotForm";
 import FreeSessionGroupManager from "@/Components/dashboard/FreeSessionGroupManager";
@@ -55,7 +54,7 @@ const FreeSessionManagement = () => {
     );
   };
 
-  const formatDate = (date) => {
+  const formatDateLabel = (date) => {
     return date?.toLocaleDateString("en-UK", {
       weekday: "short",
       year: "numeric",
@@ -84,11 +83,12 @@ const FreeSessionManagement = () => {
           </h2>
 
           <div className="flex justify-center">
-            <Calendar
-              onChange={handleDateChange}
-              value={selectedDate}
-              minDate={new Date()}
-              className="rounded-xl border border-[var(--Input)]"
+            <FreeSessionCalendar
+              isAdmin={true}
+              showSlots={false}
+              externalDate={selectedDate}
+              setExternalDate={setSelectedDate}
+              onDateSelect={handleDateChange}
             />
           </div>
 
@@ -97,9 +97,10 @@ const FreeSessionManagement = () => {
             disabled={isLoadingSlots}
             className="w-full py-2 bg-[var(--Yellow)] hover:bg-opacity-90 transition-colors rounded-xl disabled:opacity-50"
           >
-            Create Time Slot for {formatDate(selectedDate)}
+            Create Time Slot for {formatDateLabel(selectedDate)}
           </button>
         </div>
+
 
         {/* Slot List Section */}
         <div className="bg-white p-6 rounded-2xl shadow">
@@ -147,7 +148,7 @@ const FreeSessionManagement = () => {
       {/* Slot Creation Form Modal */}
       {showForm && (
         <FreeSessionSlotForm
-          date={formatDate(selectedDate)}
+          date={formatDateLabel(selectedDate)}
           onSubmit={handleCreateSlot}
           onCancel={() => setShowForm(false)}
         />

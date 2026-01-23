@@ -164,3 +164,26 @@ export const freeSessionValidationSchema = (t) =>
     freeSessionSlotId: Yup.string().required(t("validation.timeSlotRequired")),
     freeTest: Yup.string().optional(),
   });
+
+export const freeSessionPersonalSchema = (t) =>
+  Yup.object({
+    name: Yup.string()
+      .required(t("validation.nameRequired") || "Name is required")
+      .min(2, t("nameTooShort"))
+      .max(50, t("nameTooLong")),
+    email: Yup.string()
+      .email(t("validation.invalidEmail") || "Invalid email address")
+      .required(t("validation.emailRequired") || "Email is required"),
+    phoneNumber: Yup.string()
+      .required(t("validation.phoneRequired") || "Phone number is required")
+      .matches(
+        /^[+]?[0-9\s\-()]{10,}$/,
+        t("validation.invalidPhone") || "Invalid phone number"
+      ),
+    country: Yup.string().required(
+      t("validation.countryRequired") || "Country is required"
+    ),
+    age: Yup.string()
+      .oneOf(["kid", "teen", "adult"], "invalidAge")
+      .required(t("validation.ageRequired")),
+  });

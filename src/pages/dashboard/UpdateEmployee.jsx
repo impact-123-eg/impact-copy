@@ -6,6 +6,7 @@ import { userUpdateValidationSchema } from "@/Validation";
 import {
   useGetEmployeeById,
   useUpdateUser,
+  useGetAllEmployees,
 } from "@/hooks/Actions/users/useCurdsUsers";
 
 function EditAdmin() {
@@ -14,6 +15,10 @@ function EditAdmin() {
   const { data: userData } = useGetEmployeeById(id);
   const user = userData?.data?.data;
   const { mutate: mutateUpdateUser, isPending } = useUpdateUser();
+  const { data: employeesData } = useGetAllEmployees();
+
+  const employees = employeesData?.data?.data || [];
+  const teamLeaders = employees.filter(e => e.role === "team_leader");
 
   const [showPassword, setShowPassword] = useState(false);
 
@@ -25,6 +30,10 @@ function EditAdmin() {
       phone: "",
       password: "",
       role: "admin",
+      shiftStart: "13:00",
+      shiftEnd: "22:00",
+      dailyLeadQuota: 10,
+      teamId: "",
     },
     validationSchema: userUpdateValidationSchema,
     onSubmit: (values) => {
@@ -41,6 +50,10 @@ function EditAdmin() {
         email: user.email || "",
         phone: user.phoneNumber || "",
         role: user.role || "admin",
+        shiftStart: user.shiftStart || "13:00",
+        shiftEnd: user.shiftEnd || "22:00",
+        dailyLeadQuota: user.dailyLeadQuota || 10,
+        teamId: user.teamId || "",
       });
     }
   }, [user]);
@@ -54,6 +67,12 @@ function EditAdmin() {
         phoneNumber: values.phone,
         ...(values.password && { password: values.password }),
         role: values.role,
+        ...(values.role === "sales" && {
+          shiftStart: values.shiftStart,
+          shiftEnd: values.shiftEnd,
+          dailyLeadQuota: values.dailyLeadQuota,
+          teamId: values.teamId || null,
+        }),
       },
     };
 
@@ -91,11 +110,10 @@ function EditAdmin() {
                 value={formik.values.name}
                 placeholder="Ahmed Ali"
                 type="text"
-                className={`py-3 px-4 w-full rounded-lg bg-[var(--Input)] border ${
-                  formik.touched.name && formik.errors.name
-                    ? "border-red-500"
-                    : "border-transparent"
-                }`}
+                className={`py-3 px-4 w-full rounded-lg bg-[var(--Input)] border ${formik.touched.name && formik.errors.name
+                  ? "border-red-500"
+                  : "border-transparent"
+                  }`}
               />
               {formik.touched.name && formik.errors.name ? (
                 <div className="text-red-500 text-sm">{formik.errors.name}</div>
@@ -113,11 +131,10 @@ function EditAdmin() {
                 value={formik.values.phone}
                 placeholder="0123456789"
                 type="tel"
-                className={`py-3 px-4 w-full rounded-lg bg-[var(--Input)] border ${
-                  formik.touched.phone && formik.errors.phone
-                    ? "border-red-500"
-                    : "border-transparent"
-                }`}
+                className={`py-3 px-4 w-full rounded-lg bg-[var(--Input)] border ${formik.touched.phone && formik.errors.phone
+                  ? "border-red-500"
+                  : "border-transparent"
+                  }`}
               />
               {formik.touched.phone && formik.errors.phone ? (
                 <div className="text-red-500 text-sm">
@@ -137,11 +154,10 @@ function EditAdmin() {
                 value={formik.values.email}
                 placeholder="1234@gmail.com"
                 type="email"
-                className={`py-3 px-4 w-full rounded-lg bg-[var(--Input)] border ${
-                  formik.touched.email && formik.errors.email
-                    ? "border-red-500"
-                    : "border-transparent"
-                }`}
+                className={`py-3 px-4 w-full rounded-lg bg-[var(--Input)] border ${formik.touched.email && formik.errors.email
+                  ? "border-red-500"
+                  : "border-transparent"
+                  }`}
               />
               {formik.touched.email && formik.errors.email ? (
                 <div className="text-red-500 text-sm">
@@ -162,11 +178,10 @@ function EditAdmin() {
                   value={formik.values.password}
                   placeholder="Enter new password (leave empty to keep current)"
                   type={showPassword ? "text" : "password"}
-                  className={`py-3 px-4 w-full rounded-lg bg-[var(--Input)] border ${
-                    formik.touched.password && formik.errors.password
-                      ? "border-red-500"
-                      : "border-transparent"
-                  } pr-12`}
+                  className={`py-3 px-4 w-full rounded-lg bg-[var(--Input)] border ${formik.touched.password && formik.errors.password
+                    ? "border-red-500"
+                    : "border-transparent"
+                    } pr-12`}
                 />
                 <button
                   type="button"
@@ -198,10 +213,64 @@ function EditAdmin() {
                 className="py-3 px-4 w-full rounded-lg bg-[var(--Input)] cursor-pointer opacity-70"
               >
                 <option value="admin">Admin</option>
+                <option value="supervisor">Supervisor</option>
+                <option value="instructor">Instructor</option>
                 <option value="cs">Customer Service</option>
+                <option value="sales">Sales Agent</option>
+                <option value="team_leader">Team Leader</option>
                 <option value="student">Student</option>
               </select>
             </div>
+
+            {/* Sales Specific Fields */}
+            {formik.values.role === "sales" && (
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-6 p-6 bg-gray-50 rounded-2xl border-2 border-dashed border-[var(--Yellow)]">
+                <div className="space-y-2">
+                  <h4 className="font-semibold">Shift Start</h4>
+                  <input
+                    name="shiftStart"
+                    type="time"
+                    onChange={formik.handleChange}
+                    value={formik.values.shiftStart}
+                    className="py-3 px-4 w-full rounded-lg bg-white border border-gray-200"
+                  />
+                </div>
+                <div className="space-y-2">
+                  <h4 className="font-semibold">Shift End</h4>
+                  <input
+                    name="shiftEnd"
+                    type="time"
+                    onChange={formik.handleChange}
+                    value={formik.values.shiftEnd}
+                    className="py-3 px-4 w-full rounded-lg bg-white border border-gray-200"
+                  />
+                </div>
+                <div className="space-y-2">
+                  <h4 className="font-semibold">Daily Lead Quota</h4>
+                  <input
+                    name="dailyLeadQuota"
+                    type="number"
+                    onChange={formik.handleChange}
+                    value={formik.values.dailyLeadQuota}
+                    className="py-3 px-4 w-full rounded-lg bg-white border border-gray-200"
+                  />
+                </div>
+                <div className="space-y-2">
+                  <h4 className="font-semibold">Team Leader</h4>
+                  <select
+                    name="teamId"
+                    onChange={formik.handleChange}
+                    value={formik.values.teamId}
+                    className="py-3 px-4 w-full rounded-lg bg-white border border-gray-200"
+                  >
+                    <option value="">No Team Leader</option>
+                    {teamLeaders.map(tl => (
+                      <option key={tl._id} value={tl._id}>{tl.name}</option>
+                    ))}
+                  </select>
+                </div>
+              </div>
+            )}
           </article>
 
           {/* Buttons */}

@@ -18,6 +18,20 @@ export const useCreateBooking = () => {
   return { mutate, data, error, isPending, isSuccess, isError };
 };
 
+export const useCreateManualBooking = () => {
+  const { mutate, data, error, isPending, isSuccess, isError } = usePostData(
+    `${endPoints.freeSessionBookings}/manual`,
+    [queryKeys.freeSessionBookings],
+    [
+      queryKeys.freeSessionBookings,
+      queryKeys.freeSessionSlotByDate,
+      queryKeys.freeSessionAvailableDays,
+    ]
+  );
+
+  return { mutate, data, error, isPending, isSuccess, isError };
+};
+
 export const useUpdateLevelForFreeSessionBooking = () => {
   const { mutate, data, error, isPending, isSuccess, isError } = usePatchData(
     endPoints.freeSessionBookings,
@@ -83,10 +97,46 @@ export const useUpdateLeadStatusForFreeSessionBooking = () => {
   };
 };
 
-export const useGetAllFreeSessionBookings = () => {
+export const useUpdateStatusForFreeSessionBooking = () => {
+  const { mutate, data, error, isPending, isSuccess, isError } = usePatchData(
+    endPoints.freeSessionBookings,
+    [queryKeys.freeSessionBookings, "updateStatus"],
+    [queryKeys.freeSessionBookings, queryKeys.freeSessionBookingsById]
+  );
+
+  const updateStatus = ({ id, status }) =>
+    mutate({
+      data: { status },
+      url: `${endPoints.freeSessionBookings}${id}/status`,
+    });
+
+  return { mutate: updateStatus, data, error, isPending, isSuccess, isError };
+};
+
+export const useUpdateSalesAgentForFreeSessionBooking = () => {
+  const { mutate, data, error, isPending, isSuccess, isError } = usePatchData(
+    endPoints.freeSessionBookings,
+    [queryKeys.freeSessionBookings, "updateSalesAgent"],
+    [queryKeys.freeSessionBookings, queryKeys.allEmployees, queryKeys.freeSessionBookingsById]
+  );
+
+  const updateSalesAgent = ({ id, salesAgentId }) =>
+    mutate({
+      data: { salesAgentId },
+      url: `${endPoints.freeSessionBookings}${id}/sales-agent`,
+    });
+
+  return { mutate: updateSalesAgent, data, error, isPending, isSuccess, isError };
+};
+
+export const useGetAllFreeSessionBookings = (params = {}) => {
+  const { page = 1, limit = 10, ...otherParams } = params;
+  const queryString = new URLSearchParams({ page, limit, ...otherParams }).toString();
+
   const { data, isPending, refetch, ...rest } = useGetData({
-    url: endPoints.freeSessionBookings,
-    queryKeys: [queryKeys.freeSessionBookings],
+    url: `${endPoints.freeSessionBookings}?${queryString}`,
+    queryKeys: [queryKeys.freeSessionBookings, page, limit, JSON.stringify(otherParams)],
+    other: { refetchInterval: 30000 }, // Auto-refresh every 30s
   });
 
   return {
@@ -101,6 +151,7 @@ export const useGetAvailableSlotsForUser = () => {
   const { data, isPending, refetch, ...rest } = useGetData({
     url: endPoints.getFreeSessionSlots,
     queryKeys: [queryKeys.getFreeSessionSlots],
+    other: { refetchInterval: 30000 },
   });
 
   return {

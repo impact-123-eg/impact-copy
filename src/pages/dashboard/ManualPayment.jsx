@@ -35,8 +35,13 @@ export default function ManualPayment() {
   const { mutate, isPending } = usePostData(
     `${endPoints.bookings}manual`,
     ["createManualPayment"],
+    ["createManualPayment"],
     ["bookings"]
   );
+
+  const getSelectedPackagePrice = () => {
+    return packages.find(p => p._id === formik.values.packageId)?.priceAfter || 0;
+  };
 
   const formik = useFormik({
     initialValues: {
@@ -45,7 +50,9 @@ export default function ManualPayment() {
       phoneNumber: "",
       country: "",
       packageId: "",
+      packageId: "",
       amount: "",
+      paymentType: "full", // Default to full
       paidAt: "",
       manualReference: "",
       recordedBy: "",
@@ -60,6 +67,9 @@ export default function ManualPayment() {
         country: values.country.trim(),
         packageId: values.packageId,
         amount: Number(values.amount),
+        paymentType: values.paymentType,
+        totalPrice: getSelectedPackagePrice() || Number(values.amount), // Helper to get price
+        remainingAmount: values.paymentType === "installment" ? (getSelectedPackagePrice() - Number(values.amount)) : 0,
         paidAt: values.paidAt
           ? new Date(values.paidAt).toISOString()
           : undefined,
@@ -114,11 +124,10 @@ export default function ManualPayment() {
               value={formik.values.name}
               onChange={formik.handleChange}
               onBlur={formik.handleBlur}
-              className={`w-full bg-[var(--Input)] py-3 px-4 rounded-xl border ${
-                formik.touched.name && formik.errors.name
+              className={`w-full bg-[var(--Input)] py-3 px-4 rounded-xl border ${formik.touched.name && formik.errors.name
                   ? "border-red-500"
                   : "border-transparent"
-              }`}
+                }`}
               placeholder="Customer name"
             />
             {formik.touched.name && formik.errors.name && (
@@ -138,11 +147,10 @@ export default function ManualPayment() {
               value={formik.values.email}
               onChange={formik.handleChange}
               onBlur={formik.handleBlur}
-              className={`w-full bg-[var(--Input)] py-3 px-4 rounded-xl border ${
-                formik.touched.email && formik.errors.email
+              className={`w-full bg-[var(--Input)] py-3 px-4 rounded-xl border ${formik.touched.email && formik.errors.email
                   ? "border-red-500"
                   : "border-transparent"
-              }`}
+                }`}
               placeholder="customer@example.com"
             />
             {formik.touched.email && formik.errors.email && (
@@ -162,11 +170,10 @@ export default function ManualPayment() {
               value={formik.values.phoneNumber}
               onChange={formik.handleChange}
               onBlur={formik.handleBlur}
-              className={`w-full bg-[var(--Input)] py-3 px-4 rounded-xl border ${
-                formik.touched.phoneNumber && formik.errors.phoneNumber
+              className={`w-full bg-[var(--Input)] py-3 px-4 rounded-xl border ${formik.touched.phoneNumber && formik.errors.phoneNumber
                   ? "border-red-500"
                   : "border-transparent"
-              }`}
+                }`}
               placeholder="+2010..."
             />
             {formik.touched.phoneNumber && formik.errors.phoneNumber && (
@@ -186,11 +193,10 @@ export default function ManualPayment() {
               value={formik.values.country}
               onChange={formik.handleChange}
               onBlur={formik.handleBlur}
-              className={`w-full bg-[var(--Input)] py-3 px-4 rounded-xl border ${
-                formik.touched.country && formik.errors.country
+              className={`w-full bg-[var(--Input)] py-3 px-4 rounded-xl border ${formik.touched.country && formik.errors.country
                   ? "border-red-500"
                   : "border-transparent"
-              }`}
+                }`}
               placeholder="EG"
             />
             {formik.touched.country && formik.errors.country && (
@@ -209,11 +215,10 @@ export default function ManualPayment() {
               value={formik.values.packageId}
               onChange={formik.handleChange}
               onBlur={formik.handleBlur}
-              className={`w-full bg-[var(--Input)] py-3 px-4 rounded-xl border ${
-                formik.touched.packageId && formik.errors.packageId
+              className={`w-full bg-[var(--Input)] py-3 px-4 rounded-xl border ${formik.touched.packageId && formik.errors.packageId
                   ? "border-red-500"
                   : "border-transparent"
-              }`}
+                }`}
             >
               <option value="">Select a package</option>
               {packages?.map((pkg) => (
@@ -230,9 +235,47 @@ export default function ManualPayment() {
             )}
           </div>
 
+          <div className="md:col-span-1">
+            <label className="block text-sm font-medium text-[var(--Main)] mb-2">
+              Payment Type
+            </label>
+            <div className="flex gap-4 items-center">
+              <label className="inline-flex items-center">
+                <input
+                  type="radio"
+                  name="paymentType"
+                  value="full"
+                  checked={formik.values.paymentType === "full"}
+                  onChange={(e) => {
+                    formik.setFieldValue("paymentType", "full");
+                    // Auto-set amount to full price
+                    const price = packages.find(p => p._id === formik.values.packageId)?.priceAfter;
+                    if (price) formik.setFieldValue("amount", price);
+                  }}
+                  className="form-radio text-[var(--Yellow)]"
+                />
+                <span className="ml-2">Full Payment</span>
+              </label>
+              <label className="inline-flex items-center">
+                <input
+                  type="radio"
+                  name="paymentType"
+                  value="installment"
+                  checked={formik.values.paymentType === "installment"}
+                  onChange={(e) => {
+                    formik.setFieldValue("paymentType", "installment");
+                    formik.setFieldValue("amount", ""); // Clear for manual input
+                  }}
+                  className="form-radio text-[var(--Yellow)]"
+                />
+                <span className="ml-2">Installment</span>
+              </label>
+            </div>
+          </div>
+
           <div>
             <label className="block text-sm font-medium text-[var(--Main)] mb-2">
-              Amount
+              Amount Paid
             </label>
             <input
               type="number"
@@ -240,13 +283,17 @@ export default function ManualPayment() {
               value={formik.values.amount}
               onChange={formik.handleChange}
               onBlur={formik.handleBlur}
-              className={`w-full bg-[var(--Input)] py-3 px-4 rounded-xl border ${
-                formik.touched.amount && formik.errors.amount
+              className={`w-full bg-[var(--Input)] py-3 px-4 rounded-xl border ${formik.touched.amount && formik.errors.amount
                   ? "border-red-500"
                   : "border-transparent"
-              }`}
+                }`}
               placeholder="Amount in EGP"
             />
+            {formik.values.paymentType === "installment" && formik.values.packageId && (
+              <div className="text-sm text-[var(--SubText)] mt-1">
+                Remaining: {Math.max(0, (packages.find(p => p._id === formik.values.packageId)?.priceAfter || 0) - (formik.values.amount || 0))} EGP
+              </div>
+            )}
             {formik.touched.amount && formik.errors.amount && (
               <div className="text-red-500 text-sm mt-1">
                 {formik.errors.amount}

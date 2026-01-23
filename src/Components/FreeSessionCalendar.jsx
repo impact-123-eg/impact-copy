@@ -1,11 +1,30 @@
 // components/FreeSessionCalendar.jsx
-import React, { useState } from "react";
-import { useTranslation } from "../../node_modules/react-i18next";
+import React, { useState, useEffect } from "react";
+import { useTranslation } from "react-i18next";
 import { useGetAvailableSlotsForUser } from "@/hooks/Actions/free-sessions/useFreeSessionBookingCruds";
+import { Calendar } from "@/Components/ui/calendar";
+import { addDays, format, isSameDay } from "date-fns";
+import { ar, enUS } from "date-fns/locale";
 
-const FreeSessionCalendar = ({ onSlotSelect }) => {
+const FreeSessionCalendar = ({
+  onSlotSelect,
+  onDateSelect,
+  externalDate,
+  setExternalDate,
+  isAdmin = false,
+  showSlots = true
+}) => {
   const { t, i18n } = useTranslation();
-  const [selectedDate, setSelectedDate] = useState(null);
+  const [internalDate, setInternalDate] = useState(null);
+  const [selectedSlot, setSelectedSlot] = useState(null);
+
+  const date = externalDate !== undefined ? externalDate : internalDate;
+  const setDate = (d) => {
+    if (setExternalDate) setExternalDate(d);
+    else setInternalDate(d);
+    if (onDateSelect) onDateSelect(d);
+    setSelectedSlot(null); // Reset selected slot when date changes
+  };
 
   // Fetch upcoming available slots (next 14 days)
   const {
@@ -16,242 +35,125 @@ const FreeSessionCalendar = ({ onSlotSelect }) => {
 
   const upcomingSlots = upcomingSlotsRes?.data?.data || [];
 
-  // Generate dates for the next 14 days, starting 2 days from today
-  const generateDates = () => {
-    const dates = [];
-    const base = new Date();
-    base.setDate(base.getDate() + 2); // skip today and tomorrow
+  // Parse slots to identify days with availability
+  const availableDates = upcomingSlots
+    .filter((day) => day.slots && day.slots.length > 0)
+    .map((day) => new Date(day.date));
 
-    for (let i = 0; i < 14; i++) {
-      const date = new Date(base);
-      date.setDate(base.getDate() + i);
-      dates.push(date);
-    }
+  // Determine selectable range (Only for non-admins)
+  const today = new Date();
+  const maxDate = addDays(today, 14);
 
-    return dates;
+  const isDayDisabled = (d) => {
+    if (isAdmin) return false; // Admin can select any date
+    // Disable past dates, today (if desired?), and dates beyond 14 days
+    if (d < new Date().setHours(0, 0, 0, 0)) return true;
+    if (d > maxDate) return true;
+    return false;
   };
 
-  const dates = generateDates();
-
-  // Format a date as YYYY-MM-DD in LOCAL time (avoid UTC shifts)
-  const formatLocalYMD = (date) => {
-    const d = new Date(date);
-    d.setHours(0, 0, 0, 0);
-    const y = d.getFullYear();
-    const m = String(d.getMonth() + 1).padStart(2, "0");
-    const day = String(d.getDate()).padStart(2, "0");
-    return `${y}-${m}-${day}`;
+  const hasSlots = (d) => {
+    return availableDates.some((avail) => isSameDay(avail, d));
   };
 
-  const getSlotsForDate = (date) => {
-    if (!upcomingSlots) return [];
-
-    // Create date at start of day in local timezone
-    const localDate = new Date(date);
-    localDate.setHours(0, 0, 0, 0);
-
-    // Format date as YYYY-MM-DD
-    const dateString =
-      localDate.getFullYear() +
-      "-" +
-      String(localDate.getMonth() + 1).padStart(2, "0") +
-      "-" +
-      String(localDate.getDate()).padStart(2, "0");
-
-    return upcomingSlots?.find((day) => day.date === dateString)?.slots || [];
+  const getSlotsForDate = (d) => {
+    if (!d) return [];
+    const dateStr = format(d, "yyyy-MM-dd");
+    return upcomingSlots.find((day) => day.date === dateStr)?.slots || [];
   };
 
-  const localeWithLatn = i18n.language === "ar" ? "ar-EG-u-nu-latn" : "en-US";
+  const selectedSlots = getSlotsForDate(date);
+  const isRTL = i18n.language === "ar";
+  const dateFnsLocale = isRTL ? ar : enUS;
 
+  // Formatting helpers
   const formatTime = (dateString) => {
-    const date = new Date(dateString);
-    return date.toLocaleTimeString(localeWithLatn, {
+    const d = new Date(dateString);
+    return d.toLocaleTimeString(isRTL ? "ar-EG" : "en-US", {
       hour: "2-digit",
       minute: "2-digit",
     });
   };
 
-  // Format date for display
-  const formatDisplayDate = (date) => {
-    return date.toLocaleDateString(localeWithLatn, {
-      weekday: "long",
-      year: "numeric",
-      month: "long",
-      day: "numeric",
-    });
-  };
-
-  // Get short weekday names based on language
-  const getShortWeekday = (date) => {
-    return date.toLocaleDateString(localeWithLatn, {
-      weekday: "short",
-    });
-  };
-
-  // Get short month names based on language
-  const getShortMonth = (date) => {
-    return date.toLocaleDateString(localeWithLatn, {
-      month: "short",
-    });
-  };
-
-  // RTL support
-  const isRTL = i18n.language === "ar";
-  const textDirection = isRTL ? "rtl" : "ltr";
-  const textAlignment = isRTL ? "text-right" : "text-left";
-
-  if (isLoading) {
+  if (isLoading && !isAdmin) { // Admin might not want to wait for "user" availability slots
     return (
-      <div className="text-center py-8" dir={textDirection}>
-        <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-[var(--Yellow)] mx-auto"></div>
-        <p className="mt-2 text-[var(--SubText)]">{t("loadingSlots")}</p>
+      <div className="flex justify-center p-8">
+        <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-[var(--Yellow)]"></div>
       </div>
     );
   }
 
-  if (error) {
-    return (
-      <div className="text-center py-8 text-red-500" dir={textDirection}>
-        {t("failedToLoadSlots")}
-      </div>
-    );
-  }
+  // if (error && !isAdmin) return <div className="text-red-500 text-center">{t("failedToLoadSlots")}</div>;
 
   return (
-    <div className="space-y-6" dir={textDirection}>
-      {/* Calendar Grid */}
-      <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-7 gap-3 sm:gap-4">
-        {dates.map((date, index) => {
-          const dateString = formatLocalYMD(date);
-          const slots = getSlotsForDate(date);
-          const isToday = date.toDateString() === new Date().toDateString();
-          const isSelected = selectedDate === dateString;
-
-          return (
-            <div
-              key={dateString}
-              onClick={() => slots.length > 0 && setSelectedDate(dateString)}
-              className={`p-3 sm:p-4 border rounded-lg transition-all ${slots.length > 0
-                  ? "cursor-pointer hover:border-[var(--Yellow)] hover:shadow-sm"
-                  : "cursor-not-allowed opacity-50"
-                } ${isSelected
-                  ? "border-[var(--Yellow)] bg-yellow-50 ring-2 ring-[var(--Yellow)] ring-opacity-50"
-                  : "border-[var(--Input)]"
-                }`}
-            >
-              {/* Date Header */}
-              <div className={`text-center mb-2 ${textAlignment}`}>
-                <div
-                  className={`text-xs sm:text-sm font-medium ${isToday ? "text-[var(--Yellow)]" : "text-[var(--Main)]"
-                    }`}
-                >
-                  {getShortWeekday(date)}
-                </div>
-                <div className="text-base sm:text-lg font-bold text-[var(--Main)]">
-                  {date.getDate().toLocaleString("en-US")}
-                </div>
-                <div className="text-xs text-[var(--SubText)]">
-                  {getShortMonth(date)}
-                </div>
+    <div className={`flex flex-col ${showSlots ? "md:flex-row" : ""} gap-8 items-start justify-center`}>
+      <div className="bg-white p-4 rounded-xl shadow-sm border border-gray-100">
+        <Calendar
+          size="lg"
+          mode="single"
+          selected={date}
+          onSelect={setDate}
+          disabled={isDayDisabled}
+          locale={dateFnsLocale}
+          dir={isRTL ? "rtl" : "ltr"}
+          className="rounded-md border"
+          modifiers={{ hasSlots: (d) => hasSlots(d) }}
+          modifiersClassNames={{
+            hasSlots: "font-bold text-[var(--Main)] underline decoration-[var(--Yellow)] decoration-2 underline-offset-4"
+          }}
+          footer={
+            !isAdmin && (
+              <div className="mt-4 text-xs text-gray-500 text-center">
+                * {t("daysMarkedHaveSlots", { defaultValue: "Underlined days have available slots" })}
               </div>
+            )
+          }
+        />
+      </div>
 
-              {/* Slots Count */}
-              {slots.length > 0 && (
-                <div className={`text-center ${textAlignment}`}>
-                  <div className="text-xs text-[var(--SubText)]">
-                    {slots.length.toLocaleString("en-US")}{" "}
-                    {t("timeSlotForm.one", { count: slots.length })}
-                  </div>
-                  <div className="text-xs text-green-600 font-medium">
-                    {t("available")}
-                  </div>
+      {showSlots && (
+        <div className="flex-1 w-full max-w-md">
+          {date ? (
+            <div>
+              <h3 className="font-bold text-lg mb-4 text-[var(--Main)]">
+                {format(date, "EEEE, MMMM do", { locale: dateFnsLocale })}
+              </h3>
+              {selectedSlots.length > 0 ? (
+                <div className="grid grid-cols-2 gap-3">
+                  {selectedSlots.map(slot => (
+                    <button
+                      key={slot._id}
+                      onClick={() => {
+                        setSelectedSlot(slot);
+                        if (onSlotSelect) onSlotSelect(slot);
+                      }}
+                      className={`p-3 rounded-lg border transition-all text-sm font-medium
+                             ${selectedSlot?._id === slot._id
+                          ? "bg-[var(--Main)] text-white border-[var(--Main)]"
+                          : "bg-white text-gray-700 border-gray-200 hover:border-[var(--Yellow)] hover:bg-yellow-50"
+                        }
+                          `}
+                    >
+                      {formatTime(slot.startTime)} - {formatTime(slot.endTime)}
+                    </button>
+                  ))}
                 </div>
-              )}
-
-              {slots.length === 0 && (
-                <div
-                  className={`text-center text-xs text-[var(--SubText)] ${textAlignment}`}
-                >
-                  {t("noSlots")}
+              ) : (
+                <div className="p-6 bg-gray-50 rounded-lg text-center text-gray-500 italic">
+                  {t("noSlotsForDate")}
                 </div>
               )}
             </div>
-          );
-        })}
-      </div>
-
-      {/* Selected Date Slots */}
-      {selectedDate && (
-        <div className="bg-[var(--Light)] p-4 sm:p-6 rounded-lg">
-          <div className="flex flex-col sm:flex-row sm:justify-between sm:items-center mb-4 gap-2">
-            <h3
-              className={`font-bold text-lg text-[var(--Main)] ${textAlignment}`}
-            >
-              {t("availableSlotsFor")}{" "}
-              {formatDisplayDate(new Date(selectedDate))}
-            </h3>
-            {/* <button
-              onClick={() => setSelectedDate(null)}
-              className={`text-sm text-[var(--SubText)] hover:text-[var(--Main)] transition-colors ${
-                isRTL ? "sm:self-start" : "sm:self-end"
-              }`}
-            >
-              {t("changeSlot")}
-            </button> */}
-          </div>
-
-          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3 sm:gap-4">
-            {(() => {
-              const selectedDay = upcomingSlots?.find(
-                (day) => day.date === selectedDate
-              );
-              const slots = selectedDay?.slots || [];
-
-              if (slots.length === 0) {
-                return (
-                  <div
-                    className={`col-span-full text-center py-4 text-[var(--SubText)] ${textAlignment}`}
-                  >
-                    {t("noSlotsForDate")}
-                  </div>
-                );
-              }
-
-              return slots.map((slot) => (
-                <div
-                  key={slot._id}
-                  onClick={() => onSlotSelect(slot)}
-                  className="p-3 sm:p-4 bg-white border border-[var(--Input)] rounded-lg cursor-pointer hover:border-[var(--Yellow)] hover:shadow-sm transition-all"
-                >
-                  <div
-                    className={`font-medium text-[var(--Main)] ${textAlignment}`}
-                  >
-                    {formatTime(slot.startTime)} - {formatTime(slot.endTime)}
-                  </div>
-                  {/* {slot.availableGroupsCount && (
-                    <div
-                      className={`text-sm text-[var(--SubText)] mt-1 ${textAlignment}`}
-                    >
-                      {slot.availableGroupsCount}{" "}
-                      {t("group", { count: slot.availableGroupsCount })}{" "}
-                      {t("available")}
-                    </div>
-                  )} */}
-                </div>
-              ));
-            })()}
-          </div>
+          ) : (
+            <div className="h-full flex items-center justify-center p-8 text-gray-400 border-2 border-dashed rounded-xl">
+              {t("selectDateFirst", { defaultValue: "Please select a date from the calendar" })}
+            </div>
+          )}
         </div>
       )}
-
-      {/* Mobile Navigation Help Text */}
-      <div
-        className={`text-center text-sm text-[var(--SubText)] md:hidden ${textAlignment}`}
-      >
-        {t("scrollHorizontalHint")}
-      </div>
     </div>
   );
 };
+
 
 export default FreeSessionCalendar;

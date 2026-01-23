@@ -278,7 +278,7 @@ function Payment() {
                   <th className="p-4 font-medium">Payment</th>
                   <th className="p-4 font-medium">Method</th>
                   <th className="p-4 font-medium">Date</th>
-                  {/* <th className="p-4 font-medium">Actions</th> */}
+                  <th className="p-4 font-medium">Actions</th>
                 </tr>
               </thead>
               <tbody className="divide-y divide-[var(--Light)]">
@@ -296,9 +296,9 @@ function Payment() {
             </h2>
             <p className="text-[var(--SubText)]">
               {searchQuery ||
-              statusFilter ||
-              paymentStatusFilter ||
-              paymentMethodFilter
+                statusFilter ||
+                paymentStatusFilter ||
+                paymentMethodFilter
                 ? "Try adjusting your search or filters"
                 : "No bookings have been made yet"}
             </p>

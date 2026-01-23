@@ -28,10 +28,9 @@ function HomePage() {
 
   // Load recent free session bookings for the Requests section
   const { data: bookingsResp } = useGetAllFreeSessionBookings();
-  const bookings = (bookingsResp?.data || [])
-    .slice()
-    .sort((a, b) => new Date(b.createdAt) - new Date(a.createdAt))
-    .slice(0, 3);
+  // Server returns { data: [...], ... }
+  // We just take the first 3
+  const bookings = (bookingsResp?.data?.data || []).slice(0, 3);
 
   const monthlyCounts = stats?.payments?.monthlyCounts || new Array(12).fill(0);
 

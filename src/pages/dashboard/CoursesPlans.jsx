@@ -19,8 +19,20 @@ function CoursesPlans() {
   const { data: catData } = useGetAllcategories();
   const categories = catData?.data || [];
 
-  const tabs = categories.map((cat) => cat.name) || [];
+  const defaultTabs = ["General English", "Business English"];
+  // Merge default tabs with categories from DB, ensuring no duplicates and maintaining order
+  const tabs = [
+    ...defaultTabs,
+    ...categories
+      .map((cat) => cat.name)
+      .filter((name) => !defaultTabs.includes(name)),
+  ];
+
   const [activeTab, setActiveTab] = useState(tabs[0]);
+
+  // Find the category object for the active tab if it exists
+  const activeCategory = categories.find((cat) => cat.name === activeTab);
+
   const tabCourses = courses.filter(
     (course) => course?.category?.name === activeTab
   );
@@ -71,8 +83,8 @@ function CoursesPlans() {
             key={tab}
             onClick={() => setActiveTab(tab)}
             className={`px-6 py-3 font-semibold text-lg rounded-t-lg transition-colors ${activeTab === tab
-                ? "bg-[var(--Yellow)] text-gray-800"
-                : "bg-gray-100 text-gray-600 hover:bg-gray-200"
+              ? "bg-[var(--Yellow)] text-gray-800"
+              : "bg-gray-100 text-gray-600 hover:bg-gray-200"
               }`}
           >
             {tab}
@@ -82,19 +94,46 @@ function CoursesPlans() {
 
       {/* Empty State */}
       {tabCourses.length === 0 && (
-        <div className="text-center py-12 bg-gray-50 rounded-lg">
-          <h3 className="text-xl font-semibold text-gray-600 mb-2">
+        <div className="flex flex-col items-center justify-center py-20 px-4 bg-gradient-to-b from-gray-50 to-white rounded-2xl border-2 border-dashed border-gray-200">
+          <div className="w-20 h-20 bg-gray-100 rounded-full flex items-center justify-center mb-6">
+            <svg
+              className="w-10 h-10 text-gray-400"
+              fill="none"
+              stroke="currentColor"
+              viewBox="0 0 24 24"
+            >
+              <path
+                strokeLinecap="round"
+                strokeLinejoin="round"
+                strokeWidth="2"
+                d="M20 13V6a2 2 0 00-2-2H6a2 2 0 00-2 2v7m16 0v5a2 2 0 01-2 2H6a2 2 0 01-2-2v-5m16 0h-2.586a1 1 0 00-.707.293l-2.414 2.414a1 1 0 01-.707.293h-3.172a1 1 0 01-.707-.293l-2.414-2.414A1 1 0 006.586 13H4"
+              />
+            </svg>
+          </div>
+          <h3 className="text-2xl font-bold text-gray-800 mb-2">
             No Packages Found
           </h3>
-          <p className="text-gray-500 mb-4">
-            There are no packages available for {activeTab} category.
+          <p className="text-gray-500 text-center max-w-md mb-8">
+            There are currently no packages available for the{" "}
+            <span className="font-semibold text-gray-700">{activeTab}</span>{" "}
+            category. Start by adding your first package or managing categories.
           </p>
-          <button
-            onClick={() => navigate("/dash/courses/addcourse")}
-            className="px-6 py-2 rounded-xl bg-[var(--Yellow)] hover:bg-opacity-90 transition-colors"
-          >
-            Add First Package
-          </button>
+          <div className="flex flex-col sm:flex-row gap-4">
+            {!activeCategory && (
+              <button
+                onClick={() => navigate("/dash/categories/add-category")}
+                className="px-8 py-3 rounded-xl bg-blue-600 text-white font-semibold hover:bg-blue-700 transition-all shadow-lg hover:shadow-blue-200"
+              >
+                Create "{activeTab}" Category
+              </button>
+            )}
+            <button
+              onClick={() => navigate("/dash/courses/addcourse")}
+              className="px-8 py-3 rounded-xl bg-[var(--Yellow)] text-gray-900 font-semibold hover:bg-opacity-90 transition-all shadow-lg hover:shadow-yellow-100"
+            >
+              Add First Package
+            </button>
+          </div>
         </div>
       )}
 

@@ -74,8 +74,23 @@ const formatCurrency = (amount, currency = "EGP") => {
   }).format(amount || 0);
 };
 
+import usePostData from "@/hooks/curdsHook/usePostData";
+import endPoints from "@/config/endPoints";
+
 function BookingRow({ booking }) {
   const pkg = booking?.package;
+
+  const { mutate: refundMutate, isPending: isRefunding } = usePostData(
+    `${endPoints.bookings}${booking._id}/refund`,
+    [`refundBooking-${booking._id}`],
+    ["bookings"] // Invalidate main bookings list
+  );
+
+  const handleRefund = () => {
+    if (window.confirm(`Are you sure you want to refund ${booking.name}? This action cannot be undone.`)) {
+      refundMutate({ data: {} }); // POST with empty body
+    }
+  };
 
   return (
     <tr className="hover:bg-[var(--Light)] transition-colors">
@@ -95,7 +110,7 @@ function BookingRow({ booking }) {
         </div>
       </td>
 
-      {/* Package Info - This would need to be populated from the referenced Package */}
+      {/* Package Info */}
       <td className="p-4 text-[var(--SubText)]">
         {`${pkg?.category?.name} — ${pkg?.levelno} Level`} — {pkg?.priceAfter}{" "}
         {"USD"}
@@ -103,7 +118,14 @@ function BookingRow({ booking }) {
 
       {/* Amount */}
       <td className="p-4 font-medium text-[var(--Main)]">
-        {formatCurrency(booking.amount, booking.currency)}
+        <div>Total: {formatCurrency(booking.totalPrice || booking.amount, booking.currency)}</div>
+        {booking.paymentType === "installment" && (
+          <div className="text-xs text-[var(--SubText)]">
+            Paid: {formatCurrency(booking.amount, booking.currency)}
+            <br />
+            Rem: <span className="text-red-500">{formatCurrency(booking.remainingAmount || 0, booking.currency)}</span>
+          </div>
+        )}
       </td>
 
       {/* Booking Status */}
@@ -126,38 +148,26 @@ function BookingRow({ booking }) {
         {getPaymentMethodDisplay(booking.paymentMethod)}
       </td>
 
-      {/* Date - prioritize paidAt if available */}
+      {/* Date */}
       <td className="p-4 text-sm text-[var(--SubText)]">
         {formatDate(booking?.paidAt || booking?.createdAt)}
       </td>
 
       {/* Actions */}
-      {/* <td className="p-4">
+      <td className="p-4">
         <div className="flex space-x-2">
-          <button
-            className="p-1 text-blue-600 hover:text-blue-800"
-            title="View Details"
-          >
-            👁️
-          </button>
-          {booking.paymentStatus === "unpaid" && (
+          {booking.paymentStatus === "paid" && (
             <button
-              className="p-1 text-green-600 hover:text-green-800"
-              title="Mark as Paid"
+              disabled={isRefunding}
+              className={`px-2 py-1 text-xs border border-red-200 text-red-600 rounded hover:bg-red-50 ${isRefunding ? 'opacity-50 cursor-not-allowed' : ''}`}
+              title="Refund Payment"
+              onClick={handleRefund}
             >
-              💰
-            </button>
-          )}
-          {booking.status === "pending" && (
-            <button
-              className="p-1 text-red-600 hover:text-red-800"
-              title="Cancel Booking"
-            >
-              ❌
+              {isRefunding ? "..." : "Refund"}
             </button>
           )}
         </div>
-      </td> */}
+      </td>
     </tr>
   );
 }

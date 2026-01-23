@@ -9,6 +9,7 @@ export const useGetAllBookings = () => {
   const { data, isPending, refetch, ...rest } = useGetData({
     url: endPoints.bookings,
     queryKeys: [queryKeys.bookings],
+    other: { refetchInterval: 30000 }, // Auto-refresh every 30s
   });
 
   return {
