@@ -20,6 +20,7 @@ import EditAdmin from "./pages/dashboard/UpdateEmployee";
 import Requests from "./pages/dashboard/Requests";
 import StudentsBooking from "./pages/dashboard/StudentsBooking";
 import CoursesPlans from "./pages/dashboard/CoursesPlans";
+import PageManagement from "./pages/dashboard/PageManagement";
 
 import { AuthProvider } from "./AuthContext";
 import ProtectedRoute from "./ProtectedRoute";
@@ -47,6 +48,7 @@ import FreeTestContainer from "./Components/free-test/FreeTestContainer";
 import ReactPixel from "react-facebook-pixel";
 import { useEffect, useState } from "react";
 import PaymentResult from "./pages/PaymentResult";
+import { ServerTranslationProvider } from "./services/translationService";
 
 const pixelId = import.meta.env.VITE_PIXEL_ID;
 
@@ -79,8 +81,9 @@ function App() {
 
   return (
     <>
-      <AuthProvider>
-        <Routes>
+      <ServerTranslationProvider>
+        <AuthProvider>
+          <Routes>
           {/* Main layout for general pages */}
           <Route path="/" element={<MainLayout />}>
             <Route index element={<Home />} />
@@ -244,6 +247,15 @@ function App() {
                 />
               }
             />
+            <Route
+              path="pages"
+              element={
+                <ProtectedRoute
+                  element={<PageManagement />}
+                  requiredRoles={["admin"]}
+                />
+              }
+            />
           </Route>
 
           <Route path="/dash/login" element={<LoginLayout />}>
@@ -251,6 +263,7 @@ function App() {
           </Route>
         </Routes>
       </AuthProvider>
+      </ServerTranslationProvider>
       <Toaster position="top-center" toastOptions={toastOptions} />
     </>
   );
