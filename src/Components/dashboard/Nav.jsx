@@ -58,6 +58,11 @@ function Nav() {
       icon: <CiSettings size={24} />,
       path: "/dash/settings",
     },
+    isAdmin && {
+      name: "Page Management",
+      icon: <GiPapers size={24} />,
+      path: "/dash/pages",
+    },
   ].filter(Boolean); // Filter out any false values
 
   const isActive = (itemPath) => {
