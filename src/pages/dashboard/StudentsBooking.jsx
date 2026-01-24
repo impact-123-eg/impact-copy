@@ -9,6 +9,7 @@ import {
   useUpdateSalesAgentForFreeSessionBooking,
 } from "@/hooks/Actions/free-sessions/useFreeSessionBookingCruds";
 import { useGetAllEmployees } from "@/hooks/Actions/users/useCurdsUsers";
+import { useAuth } from "@/context/AuthContext";
 import { useUpdateGroupTeacher } from "@/hooks/Actions/free-sessions/useFreeSessionCrudsForAdmin";
 import InlineSelect from "@/Components/ui/InlineSelect";
 import { to12h } from "@/utilities/formatTime";
@@ -49,7 +50,11 @@ function StudentsBooking() {
   const { mutate: updateStatus, isPending: isUpdatingStatus } = useUpdateStatusForFreeSessionBooking();
   const { mutate: updateSalesAgent, isPending: isUpdatingSalesAgent } = useUpdateSalesAgentForFreeSessionBooking();
 
-  // Data comes in as { data: [...], total, page, limit }
+  const { user } = useAuth();
+  const isAdmin = user?.role === "admin";
+  const isTeamLeader = user?.role === "team_leader";
+  const isSales = user?.role === "sales";
+
   const bookings = freeSessionsData?.data?.data || [];
   const totalPages = freeSessionsData?.data?.totalPages || 1;
   const currentPage = freeSessionsData?.data?.page || 1;
@@ -201,8 +206,9 @@ function StudentsBooking() {
 
   const renderSlot = (b) => {
     const slot = b?.freeSessionSlotId || b?.freeSessionSlot;
-    const teacherRaw = b?.freeSessionGroupId?.teacher;
-    const teacherName = typeof teacherRaw === "object" ? teacherRaw?.name : teacherRaw;
+    const instructorObj = b?.freeSessionGroupId?.instructor;
+    const teacherStr = b?.freeSessionGroupId?.teacher;
+    const teacherName = (typeof instructorObj === "object" ? instructorObj?.name : instructorObj) || teacherStr;
 
     const teacherDisplay = teacherName ? (
       <div className="text-[10px] text-[var(--SubText)] mt-1">
@@ -574,6 +580,7 @@ function StudentsBooking() {
                             updateSalesAgent({ id: b._id, salesAgentId: val });
                           }}
                           placeholder="Assign Sales"
+                          nonInteractive={isSales}
                         />
                       </div>
                     </td>
@@ -606,6 +613,7 @@ function StudentsBooking() {
                             }
                           }}
                           placeholder="Assign Instructor"
+                          nonInteractive={isSales || isTeamLeader}
                         />
                       </div>
                     </td>
@@ -621,6 +629,7 @@ function StudentsBooking() {
                           setUpdatingStatusId(b._id);
                           updateStatus({ id: b._id, status: val });
                         }}
+                        nonInteractive={isSales}
                       />
                     </td>
                     <td className="p-4">
@@ -632,6 +641,7 @@ function StudentsBooking() {
                           setUpdatingLevelId(b._id);
                           updateLevel({ id: b._id, level: val });
                         }}
+                        nonInteractive={isSales}
                       />
                     </td>
                     <td className="p-4">
@@ -643,6 +653,7 @@ function StudentsBooking() {
                           setUpdatingLeadId(b._id);
                           updateLeadStatus({ id: b._id, leadStatus: val });
                         }}
+                        nonInteractive={isSales}
                       />
                     </td>
                   </tr>

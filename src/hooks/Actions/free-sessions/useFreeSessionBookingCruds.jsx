@@ -161,3 +161,23 @@ export const useGetAvailableSlotsForUser = () => {
     refetch,
   };
 };
+
+export const useBulkReassign = () => {
+  const { mutate, data, error, isPending, isSuccess, isError } = usePostData(
+    endPoints.bulkReassign,
+    [queryKeys.freeSessionBookings, "bulkReassign"],
+    [queryKeys.freeSessionBookings, queryKeys.allEmployees, queryKeys.users]
+  );
+  return { mutate, data, error, isPending, isSuccess, isError };
+};
+
+export const useGetSuggestedAgents = ({ role, startTime, enabled = false }) => {
+  const queryString = new URLSearchParams({ role, startTime }).toString();
+  const { data, isPending, isSuccess, refetch } = useGetData({
+    url: `${endPoints.suggestAgents}?${queryString}`,
+    queryKeys: [queryKeys.suggestAgents, role, startTime],
+    enabled: enabled && !!role && !!startTime,
+  });
+
+  return { data, isPending, isSuccess, refetch };
+};

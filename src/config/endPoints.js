@@ -33,6 +33,8 @@ const endPoints = {
   startTest: "freetests/start/",
   submitTest: "freetests/submit/",
   getTest: "freetests/",
+  bulkReassign: "/free-session-bookings/bulk-reassign",
+  suggestAgents: "/free-session-bookings/suggest-agents",
 };
 
 export default endPoints;

@@ -8,6 +8,8 @@ import {
   useUpdateUser,
   useGetAllEmployees,
 } from "@/hooks/Actions/users/useCurdsUsers";
+import ReassignConflictModal from "@/Components/dashboard/ReassignConflictModal";
+import { toast } from "react-hot-toast";
 
 function EditAdmin() {
   const navigate = useNavigate();
@@ -21,6 +23,10 @@ function EditAdmin() {
   const teamLeaders = employees.filter(e => e.role === "team_leader");
 
   const [showPassword, setShowPassword] = useState(false);
+  const [showConflictModal, setShowConflictModal] = useState(false);
+  const [conflicts, setConflicts] = useState([]);
+
+  const daysOfWeek = ["Sunday", "Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday"];
 
   // Formik setup
   const formik = useFormik({
@@ -30,8 +36,9 @@ function EditAdmin() {
       phone: "",
       password: "",
       role: "admin",
-      shiftStart: "13:00",
-      shiftEnd: "22:00",
+      shiftStart: "09:00",
+      shiftEnd: "17:00",
+      daysOff: [],
       dailyLeadQuota: 10,
       teamId: "",
     },
@@ -50,9 +57,10 @@ function EditAdmin() {
         email: user.email || "",
         phone: user.phoneNumber || "",
         role: user.role || "admin",
-        shiftStart: user.shiftStart || "13:00",
-        shiftEnd: user.shiftEnd || "22:00",
-        dailyLeadQuota: user.dailyLeadQuota || 10,
+        managedRole: user.managedRole || "",
+        shiftStart: user.shiftStart || "09:00",
+        shiftEnd: user.shiftEnd || "17:00",
+        daysOff: user.daysOff || [],
         teamId: user.teamId || "",
       });
     }
@@ -67,22 +75,31 @@ function EditAdmin() {
         phoneNumber: values.phone,
         ...(values.password && { password: values.password }),
         role: values.role,
-        ...(values.role === "sales" && {
+        ...(values.role === "team_leader" && { managedRole: values.managedRole }),
+        ...((values.role === "sales" || values.role === "instructor") && {
           shiftStart: values.shiftStart,
           shiftEnd: values.shiftEnd,
-          dailyLeadQuota: values.dailyLeadQuota,
+          daysOff: values.daysOff,
+        }),
+        ...(values.role === "sales" && {
           teamId: values.teamId || null,
         }),
       },
     };
 
-    //Update data with React Query
     mutateUpdateUser(updateData, {
-      onSuccess: () => {
-        navigate("/dash/settings");
+      onSuccess: (response) => {
+        const result = response?.data;
+        if (result?.conflictCount > 0) {
+          setConflicts(result.conflicts);
+          setShowConflictModal(true);
+        } else {
+          toast.success("User updated successfully");
+          navigate("/dash/settings");
+        }
       },
       onError: (error) => {
-        console.error("Update failed:", error);
+        toast.error(error.message || "Update failed");
       },
     });
   };
@@ -166,7 +183,7 @@ function EditAdmin() {
               ) : null}
             </div>
 
-            {/* Password Field - Consider making this optional for updates */}
+            {/* Password Field */}
             <div className="space-y-2">
               <h4 className="font-semibold text-lg">Password</h4>
               <div className="relative">
@@ -196,9 +213,6 @@ function EditAdmin() {
                   {formik.errors.password}
                 </div>
               ) : null}
-              <p className="text-sm text-gray-500 mt-1">
-                Leave password field empty to keep the current password
-              </p>
             </div>
 
             {/* Role Field */}
@@ -210,7 +224,7 @@ function EditAdmin() {
                 onChange={formik.handleChange}
                 onBlur={formik.handleBlur}
                 value={formik.values.role}
-                className="py-3 px-4 w-full rounded-lg bg-[var(--Input)] cursor-pointer opacity-70"
+                className="py-3 px-4 w-full rounded-lg bg-[var(--Input)] cursor-pointer"
               >
                 <option value="admin">Admin</option>
                 <option value="supervisor">Supervisor</option>
@@ -222,53 +236,92 @@ function EditAdmin() {
               </select>
             </div>
 
-            {/* Sales Specific Fields */}
-            {formik.values.role === "sales" && (
+            {/* Managed Role for Team Leader */}
+            {formik.values.role === "team_leader" && (
+              <div className="space-y-2 p-6 bg-blue-50 rounded-2xl border-2 border-dashed border-blue-200">
+                <h4 className="font-semibold text-lg text-blue-800">Managed Team Type</h4>
+                <select
+                  id="managedRole"
+                  name="managedRole"
+                  onChange={formik.handleChange}
+                  value={formik.values.managedRole}
+                  className="py-3 px-4 w-full rounded-lg bg-white border border-blue-100 cursor-pointer outline-none"
+                >
+                  <option value="">Select team type...</option>
+                  <option value="sales">Sales Team</option>
+                  <option value="instructor">Instructor Team</option>
+                </select>
+                <p className="text-xs text-blue-600">This determines which records this team leader can view and manage.</p>
+              </div>
+            )}
+
+            {/* Sales & Instructor Specific Fields (Shifts) */}
+            {(formik.values.role === "sales" || formik.values.role === "instructor") && (
               <div className="grid grid-cols-1 md:grid-cols-2 gap-6 p-6 bg-gray-50 rounded-2xl border-2 border-dashed border-[var(--Yellow)]">
                 <div className="space-y-2">
-                  <h4 className="font-semibold">Shift Start</h4>
+                  <h4 className="font-semibold text-[var(--Main)]">🕒 Shift Start</h4>
                   <input
                     name="shiftStart"
                     type="time"
                     onChange={formik.handleChange}
                     value={formik.values.shiftStart}
-                    className="py-3 px-4 w-full rounded-lg bg-white border border-gray-200"
+                    className="py-3 px-4 w-full rounded-lg bg-white border border-gray-200 outline-none"
                   />
                 </div>
                 <div className="space-y-2">
-                  <h4 className="font-semibold">Shift End</h4>
+                  <h4 className="font-semibold text-[var(--Main)]">🕒 Shift End</h4>
                   <input
                     name="shiftEnd"
                     type="time"
                     onChange={formik.handleChange}
                     value={formik.values.shiftEnd}
-                    className="py-3 px-4 w-full rounded-lg bg-white border border-gray-200"
+                    className="py-3 px-4 w-full rounded-lg bg-white border border-gray-200 outline-none"
                   />
                 </div>
-                <div className="space-y-2">
-                  <h4 className="font-semibold">Daily Lead Quota</h4>
-                  <input
-                    name="dailyLeadQuota"
-                    type="number"
-                    onChange={formik.handleChange}
-                    value={formik.values.dailyLeadQuota}
-                    className="py-3 px-4 w-full rounded-lg bg-white border border-gray-200"
-                  />
-                </div>
-                <div className="space-y-2">
-                  <h4 className="font-semibold">Team Leader</h4>
-                  <select
-                    name="teamId"
-                    onChange={formik.handleChange}
-                    value={formik.values.teamId}
-                    className="py-3 px-4 w-full rounded-lg bg-white border border-gray-200"
-                  >
-                    <option value="">No Team Leader</option>
-                    {teamLeaders.map(tl => (
-                      <option key={tl._id} value={tl._id}>{tl.name}</option>
+
+                <div className="md:col-span-2 space-y-3">
+                  <h4 className="font-semibold text-[var(--Main)] mb-2">📅 Days Off</h4>
+                  <div className="flex flex-wrap gap-2">
+                    {daysOfWeek.map((day) => (
+                      <button
+                        key={day}
+                        type="button"
+                        onClick={() => {
+                          const current = formik.values.daysOff || [];
+                          const next = current.includes(day)
+                            ? current.filter((d) => d !== day)
+                            : [...current, day];
+                          formik.setFieldValue("daysOff", next);
+                        }}
+                        className={`px-4 py-2 rounded-xl text-sm font-bold transition-all border-2 ${formik.values.daysOff?.includes(day)
+                          ? "bg-[var(--Yellow)] border-[var(--Yellow)] text-[var(--Main)]"
+                          : "bg-white border-gray-100 text-gray-400 hover:border-gray-200"
+                          }`}
+                      >
+                        {day}
+                      </button>
                     ))}
-                  </select>
+                  </div>
                 </div>
+
+                {formik.values.role === "sales" && (
+                  <>
+                    <div className="space-y-2 col-span-2">
+                      <h4 className="font-semibold text-[var(--Main)]">👥 Team Leader</h4>
+                      <select
+                        name="teamId"
+                        onChange={formik.handleChange}
+                        value={formik.values.teamId}
+                        className="py-3 px-4 w-full rounded-lg bg-white border border-gray-200 outline-none"
+                      >
+                        <option value="">No Team Leader</option>
+                        {teamLeaders.map(tl => (
+                          <option key={tl._id} value={tl._id}>{tl.name}</option>
+                        ))}
+                      </select>
+                    </div>
+                  </>
+                )}
               </div>
             )}
           </article>
@@ -278,20 +331,29 @@ function EditAdmin() {
             <button
               type="button"
               onClick={() => navigate("/dash/settings")}
-              className="py-3 px-12 text-xl rounded-2xl border-2 border-[var(--Yellow)] hover:bg-gray-50 transition-colors"
+              className="py-3 px-12 text-xl rounded-2xl border-2 border-[var(--Yellow)]"
             >
               Cancel
             </button>
             <button
               type="submit"
               disabled={!formik.isValid || isPending}
-              className="py-3 px-12 text-xl rounded-2xl bg-[var(--Yellow)] hover:bg-opacity-90 disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
+              className="py-3 px-12 text-xl rounded-2xl bg-[var(--Yellow)] disabled:opacity-50"
             >
               {isPending ? "Saving..." : "Save"}
             </button>
           </article>
         </form>
       </section>
+
+      <ReassignConflictModal
+        isOpen={showConflictModal}
+        onClose={() => setShowConflictModal(false)}
+        conflicts={conflicts}
+        userId={id}
+        userRole={formik.values.role}
+        onSuccess={() => navigate("/dash/settings")}
+      />
     </main>
   );
 }

@@ -1,3 +1,4 @@
+import { useState } from "react";
 // Status badge styling
 const getStatusBadge = (status) => {
   const baseClasses = "px-3 py-1 rounded-full text-xs font-medium";
@@ -76,9 +77,34 @@ const formatCurrency = (amount, currency = "EGP") => {
 
 import usePostData from "@/hooks/curdsHook/usePostData";
 import endPoints from "@/config/endPoints";
+import InlineSelect from "@/Components/ui/InlineSelect";
+import { useUpdateBooking } from "@/hooks/Actions/booking/useBookingCruds";
+import { MoreHorizontal, Edit2, RotateCcw } from "lucide-react";
+import EditAmountModal from "./EditAmountModal";
+
+const statusOptions = [
+  { value: "pending", label: "Pending" },
+  { value: "confirmed", label: "Confirmed" },
+  { value: "cancelled", label: "Cancelled" },
+  { value: "expired", label: "Expired" },
+];
+
+const paymentMethodOptions = [
+  { value: "card", label: "Card" },
+  { value: "apple", label: "Apple Pay" },
+  { value: "taptap_send", label: "TapTap Send" },
+  { value: "bank_account", label: "Bank Account" },
+  { value: "instapay", label: "Instapay" },
+  { value: "vodafone_cash", label: "Vodafone Cash" },
+  { value: "western", label: "Western Union" },
+  { value: "paypal", label: "PayPal" },
+];
 
 function BookingRow({ booking }) {
   const pkg = booking?.package;
+  const [isAmountModalOpen, setIsAmountModalOpen] = useState(false);
+
+  const { mutate: updateMutate, isPending: isUpdating } = useUpdateBooking();
 
   const { mutate: refundMutate, isPending: isRefunding } = usePostData(
     `${endPoints.bookings}${booking._id}/refund`,
@@ -87,9 +113,46 @@ function BookingRow({ booking }) {
   );
 
   const handleRefund = () => {
-    if (window.confirm(`Are you sure you want to refund ${booking.name}? This action cannot be undone.`)) {
-      refundMutate({ data: {} }); // POST with empty body
+    if (
+      window.confirm(
+        `Are you sure you want to refund ${booking.name}? This action cannot be undone.`
+      )
+    ) {
+      refundMutate({ data: {} });
     }
+  };
+
+  const handleStatusChange = (newStatus) => {
+    updateMutate({ data: { status: newStatus }, id: booking._id });
+  };
+
+  const handlePaymentMethodChange = (newMethod) => {
+    updateMutate({ data: { paymentMethod: newMethod }, id: booking._id });
+  };
+
+  const handleEditPayment = () => {
+    setIsAmountModalOpen(true);
+  };
+
+  const handleConfirmAmount = (newVal) => {
+    if (newVal !== null && !isNaN(newVal)) {
+      updateMutate({
+        data: { amount: Number(newVal) },
+        id: booking._id,
+      });
+    }
+  };
+
+  const actionOptions = [
+    ...(booking.paymentStatus === "paid"
+      ? [{ value: "refund", label: "Refund", icon: RotateCcw }]
+      : []),
+    { value: "edit_payment", label: "Edit Payment", icon: Edit2 },
+  ];
+
+  const handleAction = (val) => {
+    if (val === "refund") handleRefund();
+    if (val === "edit_payment") handleEditPayment();
   };
 
   return (
@@ -129,10 +192,14 @@ function BookingRow({ booking }) {
       </td>
 
       {/* Booking Status */}
-      <td className="p-4">
-        <span className={getStatusBadge(booking.status)}>
-          {booking.status?.charAt(0).toUpperCase() + booking.status?.slice(1)}
-        </span>
+      <td className="p-4 min-w-[150px]">
+        <InlineSelect
+          value={booking.status}
+          onChange={handleStatusChange}
+          options={statusOptions}
+          isLoading={isUpdating}
+          className="text-xs"
+        />
       </td>
 
       {/* Payment Status */}
@@ -144,8 +211,14 @@ function BookingRow({ booking }) {
       </td>
 
       {/* Payment Method */}
-      <td className="p-4 text-sm text-[var(--SubText)]">
-        {getPaymentMethodDisplay(booking.paymentMethod)}
+      <td className="p-4 min-w-[150px]">
+        <InlineSelect
+          value={booking.paymentMethod}
+          onChange={handlePaymentMethodChange}
+          options={paymentMethodOptions}
+          isLoading={isUpdating}
+          className="text-xs"
+        />
       </td>
 
       {/* Date */}
@@ -155,18 +228,19 @@ function BookingRow({ booking }) {
 
       {/* Actions */}
       <td className="p-4">
-        <div className="flex space-x-2">
-          {booking.paymentStatus === "paid" && (
-            <button
-              disabled={isRefunding}
-              className={`px-2 py-1 text-xs border border-red-200 text-red-600 rounded hover:bg-red-50 ${isRefunding ? 'opacity-50 cursor-not-allowed' : ''}`}
-              title="Refund Payment"
-              onClick={handleRefund}
-            >
-              {isRefunding ? "..." : "Refund"}
-            </button>
-          )}
-        </div>
+        <InlineSelect
+          placeholder="Actions"
+          options={actionOptions}
+          onChange={handleAction}
+          isLoading={isRefunding || isUpdating}
+          className="text-xs"
+        />
+        <EditAmountModal
+          isOpen={isAmountModalOpen}
+          onClose={() => setIsAmountModalOpen(false)}
+          onConfirm={handleConfirmAmount}
+          booking={booking}
+        />
       </td>
     </tr>
   );

@@ -40,6 +40,10 @@ export const userUpdateValidationSchema = Yup.object({
     .required("Phone number is required"),
   password: Yup.string().min(8, "Password must be at least 8 characters"),
   role: Yup.string().required("Role is required"),
+  managedRole: Yup.string().oneOf(["sales", "instructor", ""]).optional(),
+  shiftStart: Yup.string().optional(),
+  shiftEnd: Yup.string().optional(),
+  daysOff: Yup.array().of(Yup.string()).optional(),
 });
 
 export const addUserValidationSchema = Yup.object({
@@ -56,6 +60,10 @@ export const addUserValidationSchema = Yup.object({
     .min(8, "Password must be at least 8 characters")
     .required("Password is required"),
   role: Yup.string().required("Role is required"),
+  managedRole: Yup.string().oneOf(["sales", "instructor", ""]).optional(),
+  shiftStart: Yup.string().optional(),
+  shiftEnd: Yup.string().optional(),
+  daysOff: Yup.array().of(Yup.string()).optional(),
 });
 
 export const packageValidationSchema = Yup.object({

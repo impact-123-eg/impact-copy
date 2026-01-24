@@ -5,7 +5,13 @@ import {
   useUpdateLevelForFreeTest,
 } from "@/hooks/Actions/free-tests/useFreeTestsCruds";
 
+import InlineSelect from "@/Components/ui/InlineSelect";
+import { useAuth } from "@/context/AuthContext";
+
 function StudentsFreeTests() {
+  const { user } = useAuth();
+  const isSales = user?.role === "sales";
+  const isTeamLeader = user?.role === "team_leader";
   const [searchQuery, setSearchQuery] = useState("");
   const [completedFilter, setCompletedFilter] = useState("");
   const [levelFilter, setLevelFilter] = useState("");
@@ -110,37 +116,31 @@ function StudentsFreeTests() {
             <label className="block text-sm font-medium text-[var(--Main)] mb-2">
               Completed
             </label>
-            <select
+            <InlineSelect
               value={completedFilter}
-              onChange={(e) => setCompletedFilter(e.target.value)}
-              className="w-full bg-[var(--Input)] py-3 px-4 rounded-xl border border-transparent focus:outline-none focus:ring-2 focus:ring-[var(--Yellow)]"
-            >
-              <option value="">All ({tests.length})</option>
-              <option value="true">
-                Completed ({getCompletedCount(true)})
-              </option>
-              <option value="false">
-                In Progress ({getCompletedCount(false)})
-              </option>
-            </select>
+              onChange={setCompletedFilter}
+              options={[
+                { value: "", label: `All (${tests.length})` },
+                { value: "true", label: `Completed (${getCompletedCount(true)})` },
+                { value: "false", label: `In Progress (${getCompletedCount(false)})` },
+              ]}
+              className="w-full"
+            />
           </div>
 
           <div>
             <label className="block text-sm font-medium text-[var(--Main)] mb-2">
               Level
             </label>
-            <select
+            <InlineSelect
               value={levelFilter}
-              onChange={(e) => setLevelFilter(e.target.value)}
-              className="w-full bg-[var(--Input)] py-3 px-4 rounded-xl border border-transparent focus:outline-none focus:ring-2 focus:ring-[var(--Yellow)]"
-            >
-              <option value="">All Levels ({tests.length})</option>
-              {allLevels.map((lvl) => (
-                <option key={lvl} value={lvl}>
-                  {lvl}
-                </option>
-              ))}
-            </select>
+              onChange={setLevelFilter}
+              options={[
+                { value: "", label: `All Levels (${tests.length})` },
+                ...allLevels.map((lvl) => ({ value: lvl, label: lvl })),
+              ]}
+              className="w-full"
+            />
           </div>
 
           <div>
@@ -201,56 +201,30 @@ function StudentsFreeTests() {
                       <div className="text-sm">{t?.phoneNumber || "N/A"}</div>
                     </td>
                     <td className="p-4">{t?.country || "N/A"}</td>
-                    <td className="p-4">
-                      <div className="flex items-center gap-2">
-                        <select
-                          className="bg-[var(--Input)] px-2 py-1 rounded"
-                          value={
-                            levelById?.[t._id] ??
-                            t?.level ??
-                            t?.currentLevel ??
-                            "Starter"
-                          }
-                          onChange={(e) =>
-                            setLevelById((prev) => ({
-                              ...prev,
-                              [t._id]: e.target.value,
-                            }))
-                          }
-                        >
-                          {levelOptions.map((opt) => (
-                            <option key={opt} value={opt}>
-                              {opt}
-                            </option>
-                          ))}
-                        </select>
-                        <button
-                          disabled={
-                            (updatingId === t._id && isUpdatingLevel) ||
-                            (levelById?.[t._id] ??
-                              t?.level ??
-                              t?.currentLevel ??
-                              "Starter") ===
-                              (t?.level ?? t?.currentLevel ?? "Starter")
-                          }
-                          onClick={() => {
-                            setUpdatingId(t._id);
-                            updateLevel({
-                              id: t._id,
-                              level:
-                                levelById?.[t._id] ??
-                                t?.level ??
-                                t?.currentLevel ??
-                                "Starter",
-                            });
-                          }}
-                          className="text-sm px-3 py-1 rounded bg-[var(--Yellow)] text-black disabled:opacity-50"
-                        >
-                          {updatingId === t._id && isUpdatingLevel
-                            ? "Saving..."
-                            : "Update"}
-                        </button>
-                      </div>
+                    <td className="p-4 min-w-[180px]">
+                      <InlineSelect
+                        options={levelOptions}
+                        value={
+                          levelById?.[t._id] ??
+                          t?.level ??
+                          t?.currentLevel ??
+                          "Starter"
+                        }
+                        onChange={(val) => {
+                          setUpdatingId(t._id);
+                          setLevelById((prev) => ({
+                            ...prev,
+                            [t._id]: val,
+                          }));
+                          updateLevel({
+                            id: t._id,
+                            level: val,
+                          });
+                        }}
+                        isLoading={updatingId === t._id && isUpdatingLevel}
+                        className="min-w-[150px]"
+                        nonInteractive={isSales}
+                      />
                     </td>
                     <td className="p-4">
                       {typeof t?.score === "number" ? t.score : "-"}

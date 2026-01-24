@@ -12,7 +12,21 @@ const InlineSelect = ({
     placeholder = "Select..."
 }) => {
     const [isOpen, setIsOpen] = useState(false);
+    const [dropdownUp, setDropdownUp] = useState(false);
     const containerRef = useRef(null);
+
+    const updateDropdownPosition = () => {
+        if (containerRef.current) {
+            const rect = containerRef.current.getBoundingClientRect();
+            const spaceBelow = window.innerHeight - rect.bottom;
+            // If less than 280px below and more space above, open upwards
+            if (spaceBelow < 280 && rect.top > spaceBelow) {
+                setDropdownUp(true);
+            } else {
+                setDropdownUp(false);
+            }
+        }
+    };
 
     const displayValue = options.find(opt =>
         (typeof opt === 'string' ? opt : opt.value) === value
@@ -31,6 +45,18 @@ const InlineSelect = ({
         document.addEventListener("mousedown", handleClickOutside);
         return () => document.removeEventListener("mousedown", handleClickOutside);
     }, []);
+
+    useEffect(() => {
+        if (isOpen) {
+            updateDropdownPosition();
+            window.addEventListener('scroll', updateDropdownPosition, true);
+            window.addEventListener('resize', updateDropdownPosition);
+        }
+        return () => {
+            window.removeEventListener('scroll', updateDropdownPosition, true);
+            window.removeEventListener('resize', updateDropdownPosition);
+        };
+    }, [isOpen]);
 
     if (nonInteractive) {
         return (
@@ -66,7 +92,12 @@ const InlineSelect = ({
             </button>
 
             {isOpen && (
-                <div className="absolute z-[60] mt-2 w-full min-w-[180px] bg-white border border-gray-100 rounded-2xl shadow-2xl py-2 overflow-hidden animate-in fade-in zoom-in duration-200 origin-top">
+                <div
+                    className={`
+                        absolute z-[60] w-full min-w-[180px] bg-white border border-gray-100 rounded-2xl shadow-2xl py-2 overflow-hidden animate-in fade-in zoom-in duration-200 
+                        ${dropdownUp ? 'bottom-full mb-2 origin-bottom' : 'top-full mt-2 origin-top'}
+                    `}
+                >
                     <div className="max-h-64 overflow-y-auto custom-scrollbar">
                         {options.map((opt) => {
                             const val = typeof opt === 'string' ? opt : opt.value;
@@ -82,12 +113,13 @@ const InlineSelect = ({
                                         setIsOpen(false);
                                     }}
                                     className={`
-                                        w-full text-left px-5 py-3 text-base transition-colors
+                                        w-full text-left px-5 py-3 text-base transition-colors flex items-center
                                         ${isSelected
                                             ? 'bg-[var(--Yellow)]/10 text-[var(--Main)] font-bold'
                                             : 'text-gray-600 hover:bg-gray-50 hover:text-black hover:font-medium'}
                                     `}
                                 >
+                                    {opt.icon && <opt.icon className="h-4 w-4 mr-3" />}
                                     {optLabel}
                                 </button>
                             );

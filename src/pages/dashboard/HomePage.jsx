@@ -29,8 +29,8 @@ function HomePage() {
   // Load recent free session bookings for the Requests section
   const { data: bookingsResp } = useGetAllFreeSessionBookings();
   // Server returns { data: [...], ... }
-  // We just take the first 3
-  const bookings = (bookingsResp?.data?.data || []).slice(0, 3);
+  // We just take the first 5
+  const bookings = (bookingsResp?.data?.data || []).slice(0, 5);
 
   const monthlyCounts = stats?.payments?.monthlyCounts || new Array(12).fill(0);
 
@@ -201,39 +201,61 @@ function HomePage() {
                 <tr className="text-left text-[var(--SubText)]">
                   <th className="p-4 font-medium">Customer</th>
                   <th className="p-4 font-medium">Contact</th>
-                  <th className="p-4 font-medium">Country</th>
-                  <th className="p-4 font-medium">Age</th>
-                  <th className="p-4 font-medium w-56">Slot</th>
+                  <th className="p-4 font-medium">Slot</th>
+                  <th className="p-4 font-medium">Instructor</th>
+                  <th className="p-4 font-medium">Sales Agent</th>
                   <th className="p-4 font-medium">Status</th>
                 </tr>
               </thead>
               <tbody className="divide-y divide-[var(--Light)]">
-                {bookings.map((b) => (
-                  <tr key={b._id} className="hover:bg-[var(--Light)]/40">
-                    <td className="p-4">
-                      <div className="font-semibold text-[var(--Main)]">
-                        <Link
-                          to={`/dash/booking/${b._id}`}
-                          className="hover:underline"
-                        >
-                          {b?.name || "N/A"}
-                        </Link>
-                      </div>
-                    </td>
-                    <td className="p-4">
-                      <div className="text-sm">{b?.email || "N/A"}</div>
-                      <div className="text-sm">{b?.phoneNumber || "N/A"}</div>
-                    </td>
-                    <td className="p-4">{b?.country || "N/A"}</td>
-                    <td className="p-4">{b?.age || "N/A"}</td>
-                    <td className="p-4 min-w-[14rem]">{renderSlot(b)}</td>
-                    <td className="p-4">
-                      <span className="inline-flex items-center px-2.5 py-1 rounded-full text-xs font-medium bg-[var(--Input)]">
-                        {b?.status || "Pending"}
-                      </span>
+                {bookings.length > 0 ? (
+                  bookings.map((b) => (
+                    <tr
+                      key={b._id}
+                      className="hover:bg-[var(--Light)]/40 text-sm"
+                    >
+                      <td className="p-4">
+                        <div className="font-semibold text-[var(--Main)]">
+                          <Link
+                            to={`/dash/booking/${b._id}`}
+                            className="hover:underline"
+                          >
+                            {b?.name || "N/A"}
+                          </Link>
+                        </div>
+                        <div className="text-xs text-[var(--SubText)]">
+                          {b?.country} ({b?.age})
+                        </div>
+                      </td>
+                      <td className="p-4">
+                        <div>{b?.email || "N/A"}</div>
+                        <div className="text-xs text-[var(--SubText)]">
+                          {b?.phoneNumber || "N/A"}
+                        </div>
+                      </td>
+                      <td className="p-4 min-w-[12rem]">{renderSlot(b)}</td>
+                      <td className="p-4 font-medium text-[var(--Main)]">
+                        {b?.freeSessionGroupId?.teacher || "N/A"}
+                      </td>
+                      <td className="p-4">
+                        <div className="font-medium text-[var(--Main)]">
+                          {b?.salesAgentId?.name || "N/A"}
+                        </div>
+                      </td>
+                      <td className="p-4">
+                        <span className="inline-flex items-center px-2.5 py-1 rounded-full text-xs font-medium bg-[var(--Input)]">
+                          {b?.status || "Pending"}
+                        </span>
+                      </td>
+                    </tr>
+                  ))
+                ) : (
+                  <tr>
+                    <td colSpan="6" className="p-10 text-center text-[var(--SubText)]">
+                      No recent bookings found
                     </td>
                   </tr>
-                ))}
+                )}
               </tbody>
             </table>
           </div>

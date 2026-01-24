@@ -16,15 +16,17 @@ function Nav() {
   const location = useLocation();
   const { user, handleLogout } = useAuth();
   const isAdmin = user?.role === "admin";
+  const isTeamLeader = user?.role === "team_leader";
+  const isSales = user?.role === "sales";
   const [modalOpen, setModalOpen] = useState(false);
 
   const menuItems = [
-    isAdmin && {
+    (isAdmin || isTeamLeader) && {
       name: "Dashboard",
       icon: <RxDashboard size={24} />,
       path: "/dash/",
     },
-    {
+    isAdmin && {
       name: "Free Sessions",
       icon: <BiSolidTime size={24} />,
       path: "/dash/free-sessions",
@@ -35,12 +37,12 @@ function Nav() {
       icon: <PiBooksBold size={24} />,
       path: "/dash/courses",
     },
-    {
+    (isAdmin || isTeamLeader || isSales) && {
       name: "Free Tests",
       icon: <FaFileInvoice size={24} />,
       path: "/dash/free-tests",
     },
-    {
+    (isAdmin || isTeamLeader || isSales) && {
       name: "Student Booking",
       icon: <RxCalendar size={24} />,
       path: "/dash/booking",
@@ -74,8 +76,8 @@ function Nav() {
 
       {/* User Profile Section */}
       <section className="flex items-center gap-4 text-white mb-10 px-2">
-        <div className="flex items-center justify-center w-16 h-16 bg-white/10 rounded-full">
-          <MdPersonOutline size={32} />
+        <div className="flex items-center justify-center w-12 h-12 bg-white/10 rounded-full">
+          <MdPersonOutline size={24} />
         </div>
         <div>
           <h1 className="text-xl font-semibold truncate max-w-[140px]">
@@ -94,16 +96,14 @@ function Nav() {
             key={item.name}
             to={item.path}
             onClick={() => window.scroll(0, 0)}
-            className={`flex items-center gap-4 text-lg rounded-xl py-3 px-4 transition-all duration-200 ${
-              isActive(item.path)
+            className={`flex items-center gap-4 text-lg rounded-xl py-3 px-4 transition-all duration-200 ${isActive(item.path)
                 ? "bg-white text-[var(--Main)] shadow-md"
                 : "text-white hover:bg-white/10"
-            }`}
+              }`}
           >
             <span
-              className={`${
-                isActive(item.path) ? "text-[var(--Main)]" : "text-white"
-              }`}
+              className={`${isActive(item.path) ? "text-[var(--Main)]" : "text-white"
+                }`}
             >
               {item.icon}
             </span>

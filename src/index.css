@@ -16,11 +16,16 @@
   --Yellow: #f5d019;
   --SubText: #031323a6;
   --SubTextBorder: #68686880;
-  --YellowDark: #ed8936; /* Darker yellow for hover */
-  --Green: #48bb78; /* Green for positive actions */
-  --GreenDark: #38a169; /* Darker green for hover */
-  --Red: #f56565; /* Red for negative actions */
-  --RedDark: #e53e3e; /* Darker red for hover */
+  --YellowDark: #ed8936;
+  /* Darker yellow for hover */
+  --Green: #48bb78;
+  /* Green for positive actions */
+  --GreenDark: #38a169;
+  /* Darker green for hover */
+  --Red: #f56565;
+  /* Red for negative actions */
+  --RedDark: #e53e3e;
+  /* Darker red for hover */
 
   /* clock colors */
   --top-selected-color: var(--Yellow);
@@ -48,6 +53,72 @@ Link {
 
 * {
   line-height: 1.4;
+  box-sizing: border-box;
+}
+
+/* --- Modern Global Scrollbar --- */
+* {
+  scrollbar-width: thin;
+  scrollbar-color: var(--Yellow) transparent;
+}
+
+/* Chrome, Edge, and Safari */
+*::-webkit-scrollbar {
+  width: 8px;
+  height: 8px;
+}
+
+*::-webkit-scrollbar-track {
+  background: transparent;
+}
+
+*::-webkit-scrollbar-thumb {
+  background-color: #cbd5e1;
+  /* slate-300 */
+  border-radius: 20px;
+  border: 2px solid transparent;
+  background-clip: content-box;
+}
+
+*::-webkit-scrollbar-thumb:hover {
+  background-color: var(--Yellow);
+}
+
+/* Custom Scrollbar Utility */
+.custom-scrollbar::-webkit-scrollbar {
+  width: 6px;
+}
+
+.custom-scrollbar::-webkit-scrollbar-thumb {
+  background-color: var(--SubTextBorder);
+  border-radius: 10px;
+}
+
+/* --- Modern Button Enhancements --- */
+button,
+.btn {
+  @apply px-5 py-2 rounded-xl font-medium transition-all duration-300 active:scale-95 disabled:opacity-50 disabled:grayscale;
+}
+
+button:not(:disabled):hover {
+  filter: brightness(1.1);
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.05);
+}
+
+.btn-modern {
+  @apply px-6 py-2.5 rounded-2xl font-semibold transition-all duration-300 flex items-center justify-center gap-2 shadow-sm hover:shadow-lg active:scale-95 disabled:opacity-50 disabled:cursor-not-allowed;
+}
+
+.btn-primary {
+  @apply bg-[var(--Yellow)] text-[var(--Main)] hover:bg-[var(--YellowDark)] hover:text-white;
+}
+
+.btn-secondary {
+  @apply bg-[var(--Light)] text-[var(--Main)] hover:bg-[var(--Main)] hover:text-white;
+}
+
+.btn-outline {
+  @apply border-2 border-[var(--Yellow)] text-[var(--Main)] hover:bg-[var(--Yellow)] hover:text-white;
 }
 
 hr {

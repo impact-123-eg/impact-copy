@@ -1,33 +1,20 @@
 import formatDateForAPI from "@/utilities/formatDateForApi";
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
+import { useGetUsers } from "@/hooks/Actions/users/useCurdsUsers";
 
 const FreeSessionSlotForm = ({ date, onSubmit, onCancel }) => {
+  const { data: instructorsData } = useGetUsers({ role: "instructor" });
+  const teachersList = instructorsData?.data?.data || [];
+
   const [formData, setFormData] = useState({
     startTime: "",
     endTime: "",
     maxGroups: 1,
     maxParticipantsPerGroup: 3,
   });
-  const teacherOptions = [
-    "Rania Jubarah",
-    "Omar Jubarah",
-    "Shaza Al muslhy",
-    "Ala’a Hamed",
-    "Ala’a Ashraf",
-    "Haneen Ashraf",
-    "Kholoud Salama",
-    "Fatma Hamed",
-    "Aya Al byar",
-    "Aya Ramadan",
-    "Mohamed Elkomy",
-    "Moaz Mohamed",
-    "Mohanad Mohamed",
-    "Enas",
-    "Dahlia Essam",
-    "Zeyad",
-    "Another Instructor",
-  ];
+
   const [teachers, setTeachers] = useState([""]);
+  const [instructorIds, setInstructorIds] = useState([""]); // New state for IDs
 
   const handleSubmit = (e) => {
     e.preventDefault();
@@ -55,6 +42,7 @@ const FreeSessionSlotForm = ({ date, onSubmit, onCancel }) => {
       startTime: combinedStartTime,
       endTime: combinedEndTime,
       teachers: teachers.slice(0, Number(formData.maxGroups)),
+      instructorIds: instructorIds.slice(0, Number(formData.maxGroups)),
     };
 
     onSubmit(submissionData);
@@ -76,11 +64,26 @@ const FreeSessionSlotForm = ({ date, onSubmit, onCancel }) => {
         }
         return next;
       });
+      setInstructorIds((prev) => {
+        const next = [...prev];
+        if (next.length < count) {
+          while (next.length < count) next.push("");
+        } else if (next.length > count) {
+          next.length = count;
+        }
+        return next;
+      });
     }
   };
 
   const handleTeacherChange = (index, value) => {
+    const selectedInstructor = teachersList.find(t => t._id === value);
     setTeachers((prev) => {
+      const next = [...prev];
+      next[index] = selectedInstructor ? selectedInstructor.name : "";
+      return next;
+    });
+    setInstructorIds((prev) => {
       const next = [...prev];
       next[index] = value;
       return next;
@@ -152,13 +155,13 @@ const FreeSessionSlotForm = ({ date, onSubmit, onCancel }) => {
                 <div key={i} className="flex items-center gap-3">
                   <span className="w-24 text-sm text-[var(--SubText)]">Group {i + 1}</span>
                   <select
-                    value={teachers[i] || ""}
+                    value={instructorIds[i] || ""}
                     onChange={(e) => handleTeacherChange(i, e.target.value)}
                     className="flex-1 p-2 border border-[var(--Input)] rounded-lg focus:ring-2 focus:ring-[var(--Yellow)]"
                   >
                     <option value="">Select teacher</option>
-                    {teacherOptions.map((t) => (
-                      <option key={t} value={t}>{t}</option>
+                    {teachersList.map((t) => (
+                      <option key={t._id} value={t._id}>{t.name}</option>
                     ))}
                   </select>
                 </div>

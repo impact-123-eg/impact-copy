@@ -72,3 +72,14 @@ export const useDeleteUser = () => {
   );
   return { mutate, isPending, isSuccess };
 };
+
+export const useGetUsers = (filters = {}) => {
+  const queryString = new URLSearchParams(filters).toString();
+  const { data, isPending, isSuccess, refetch } = useGetData({
+    url: `${endPoints.users}?${queryString}`,
+    queryKeys: [queryKeys.users, filters],
+    enabled: true,
+  });
+
+  return { data, isPending, isSuccess, refetch };
+};

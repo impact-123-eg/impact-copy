@@ -25,6 +25,15 @@ const Employee = ({ employee, onDelete }) => {
         <td className="px-4 py-3 text-sm text-gray-800 whitespace-nowrap max-w-[220px] overflow-hidden text-ellipsis">{employee?.name}</td>
         <td className="px-4 py-3 text-sm text-gray-800 whitespace-nowrap max-w-[180px] overflow-hidden text-ellipsis">{employee?.phoneNumber}</td>
         <td className="px-4 py-3 text-sm text-gray-800 whitespace-nowrap max-w-[160px] overflow-hidden text-ellipsis">{employee?.role}</td>
+        <td className="px-4 py-3 text-sm text-gray-800 whitespace-nowrap">
+          {employee?.shiftStart && employee?.shiftEnd ? (
+            <span className="bg-blue-50 text-blue-700 px-2 py-1 rounded text-xs font-medium border border-blue-100">
+              {employee.shiftStart} - {employee.shiftEnd}
+            </span>
+          ) : (
+            <span className="text-gray-400">---</span>
+          )}
+        </td>
         <td className="px-4 py-3 text-right align-middle">
           <div className="flex flex-wrap gap-2">
             <button

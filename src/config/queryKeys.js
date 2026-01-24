@@ -47,6 +47,7 @@ const queryKeys = {
   getTest: "getTest",
   dashboard: "dashboard",
   createPayment: "createPayment",
+  suggestAgents: "suggestAgents",
 };
 
 export default queryKeys;
