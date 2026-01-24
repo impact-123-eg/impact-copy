@@ -1,6 +1,4 @@
-// components/free-test/TestProgress.jsx (UPDATED)
-import React from "react";
-import { useTranslation } from "../../../node_modules/react-i18next";
+import { useI18n } from "../../hooks/useI18n";
 
 const TestProgress = ({
   currentQuestion,
@@ -8,42 +6,48 @@ const TestProgress = ({
   progress,
   currentLevel,
 }) => {
-  const { t } = useTranslation();
+  const { t, initialize, loading } = useI18n();
+
+  useEffect(() => {
+    initialize();
+  }, [initialize]);
 
   const getLevelDisplayName = (level) => {
     const levelMap = {
-      Starter: t("freeTest.progress.starter"),
-      "Basic 1": t("freeTest.progress.basic1"),
-      "Basic 2": t("freeTest.progress.basic2"),
-      "Level 1": t("freeTest.progress.level1"),
-      "Level 2": t("freeTest.progress.level2"),
-      "Level 3": t("freeTest.progress.level3"),
-      "Level 4": t("freeTest.progress.level4"),
-      "Level 5": t("freeTest.progress.level5"),
-      "Level 6": t("freeTest.progress.level6"),
-      "Level 7": t("freeTest.progress.level7"),
-      "Level 8": t("freeTest.progress.level8"),
-      "Level 9": t("freeTest.progress.level9"),
+      Starter: t("free-test", "starter", "Starter"),
+      "Basic 1": t("free-test", "basic1", "Basic 1"),
+      "Basic 2": t("free-test", "basic2", "Basic 2"),
+      "Level 1": t("free-test", "level1", "Level 1"),
+      "Level 2": t("free-test", "level2", "Level 2"),
+      "Level 3": t("free-test", "level3", "Level 3"),
+      "Level 4": t("free-test", "level4", "Level 4"),
+      "Level 5": t("free-test", "level5", "Level 5"),
+      "Level 6": t("free-test", "level6", "Level 6"),
+      "Level 7": t("free-test", "level7", "Level 7"),
+      "Level 8": t("free-test", "level8", "Level 8"),
+      "Level 9": t("free-test", "level9", "Level 9"),
     };
 
     return levelMap[level] || level;
   };
 
+  if (loading) {
+    return <div className="h-20 flex items-center justify-center">...</div>;
+  }
+
   return (
     <div className="space-y-4">
-      {/* Level and Progress Info */}
       <div className="flex justify-between items-center">
         <div className="text-sm font-medium bg-white bg-opacity-20 px-3 py-1 rounded-full">
-          {t("freeTest.progress.currentLevel")}:{" "}
+          {t("free-test", "currentLevel", "Current Level")}:{" "}
           {getLevelDisplayName(currentLevel)}
         </div>
         <div className="text-sm font-medium">
-          {t("freeTest.questions.question")} {currentQuestion}{" "}
-          {t("freeTest.questions.of")} {totalQuestions}
+          {t("free-test", "question", "Question")} {currentQuestion}{" "}
+          {t("free-test", "of", "of")} {totalQuestions}
         </div>
       </div>
 
-      {/* Progress Bar */}
       <div className="w-full bg-white bg-opacity-30 rounded-full h-3">
         <div
           className="bg-white h-3 rounded-full transition-all duration-500 ease-out"
@@ -51,9 +55,8 @@ const TestProgress = ({
         ></div>
       </div>
 
-      {/* Progress Percentage */}
       <div className="text-center text-sm font-medium">
-        {Math.round(progress)}% {t("freeTest.progress.complete")}
+        {Math.round(progress)}% {t("free-test", "complete", "complete")}
       </div>
     </div>
   );

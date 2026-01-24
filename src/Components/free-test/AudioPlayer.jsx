@@ -1,6 +1,6 @@
 // components/free-test/AudioPlayer.jsx (UPDATED)
 import React, { useState, useRef, useEffect } from "react";
-import { useTranslation } from "../../../node_modules/react-i18next";
+import { useTranslation } from "react-i18next";
 
 const AudioPlayer = ({ src, className = "", storageKey, maxPlays = 2 }) => {
   const { t } = useTranslation();

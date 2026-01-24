@@ -1,37 +1,32 @@
-// pages/FreeSessionSuccess.jsx
-import React, { useEffect } from "react";
-import { useTranslation } from "../../node_modules/react-i18next";
-import { useNavigate, useLocation } from "react-router-dom";
-import { Toaster } from "react-hot-toast";
+import { useI18n } from "../hooks/useI18n";
 
 const FreeSessionSuccess = () => {
-  const { t, i18n } = useTranslation();
+  const { t, currentLocale, initialize, loading, localizePath } = useI18n();
   const navigate = useNavigate();
   const location = useLocation();
 
-  // Get booking details from location state (if available)
-  const bookingDetails = location.state?.booking || {};
-
   useEffect(() => {
-    // Scroll to top when component mounts
+    initialize();
     window.scrollTo(0, 0);
-  }, []);
+  }, [initialize]);
 
   const handleBackToHome = () => {
-    navigate("/");
+    navigate(localizePath("/"));
   };
 
-  // const handleViewBookings = () => {
-  //   // Navigate to user's bookings page if you have one
-  //   navigate("/my-bookings");
-  // };
+  if (loading) {
+    return (
+      <div className="flex justify-center items-center h-screen">
+        <div className="animate-spin rounded-full h-32 w-32 border-b-2 border-[var(--Yellow)]"></div>
+      </div>
+    );
+  }
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-[var(--Light)] to-white flex items-center justify-center px-4 py-8">
       <Toaster />
 
       <div className="max-w-2xl w-full bg-white rounded-3xl shadow-xl p-8 sm:p-12 text-center">
-        {/* Success Icon */}
         <div className="mb-8">
           <div className="w-20 h-20 bg-green-100 rounded-full flex items-center justify-center mx-auto">
             <svg
@@ -48,15 +43,13 @@ const FreeSessionSuccess = () => {
           </div>
         </div>
 
-        {/* Success Title */}
         <h1 className="text-3xl sm:text-4xl font-bold text-[var(--Main)] mb-4">
-          {t("bookingSubmitted")}
+          {t("free-session", "bookingSubmitted", "Booking Submitted Successfully!")}
         </h1>
 
-        {/* Success Message */}
         <div className={`space-y-4 mb-8`}>
           <p className="text-lg text-[var(--SubText)] leading-relaxed">
-            {t("bookingPendingConfirmation")}
+            {t("free-session", "bookingPendingConfirmation")}
           </p>
 
           <div className="bg-blue-50 border border-blue-200 rounded-2xl p-6">
@@ -71,55 +64,15 @@ const FreeSessionSuccess = () => {
               </svg>
               <div className={`flex-1`}>
                 <p className="text-blue-800 font-medium">
-                  {t("checkYourEmail")}
+                  {t("free-session", "checkYourEmail", "Check your email")}
                 </p>
                 <p className="text-blue-600 text-sm mt-1">
-                  {t("confirmationEmailSent")}
+                  {t("free-session", "confirmationEmailSent")}
                 </p>
               </div>
             </div>
           </div>
 
-          {/* Booking Details (if available) */}
-          {/* {bookingDetails && (
-            <div className="bg-[var(--Light)] rounded-2xl p-6 mt-6">
-              <h3 className="font-semibold text-[var(--Main)] mb-3">
-                {t("bookingDetails")}
-              </h3>
-              <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 text-sm">
-                {bookingDetails.name && (
-                  <div>
-                    <span className="text-[var(--SubText)]">{t("name")}: </span>
-                    <span className="font-medium text-[var(--Main)]">
-                      {bookingDetails.name}
-                    </span>
-                  </div>
-                )}
-                {bookingDetails.email && (
-                  <div>
-                    <span className="text-[var(--SubText)]">
-                      {t("email")}:{" "}
-                    </span>
-                    <span className="font-medium text-[var(--Main)]">
-                      {bookingDetails.email}
-                    </span>
-                  </div>
-                )}
-                {bookingDetails.sessionTime && (
-                  <div className={`sm:col-span-2 `}>
-                    <span className="text-[var(--SubText)]">
-                      {t("sessionTime")}:{" "}
-                    </span>
-                    <span className="font-medium text-[var(--Main)]">
-                      {bookingDetails.sessionTime}
-                    </span>
-                  </div>
-                )}
-              </div>
-            </div>
-          )} */}
-
-          {/* Important Notes */}
           <div
             className={`bg-yellow-50 border border-yellow-200 rounded-2xl p-6 mt-6`}
           >
@@ -135,49 +88,35 @@ const FreeSessionSuccess = () => {
                   clipRule="evenodd"
                 />
               </svg>
-              <div className="flex-1">
+              <div className="flex-1 text-start">
                 <p className="text-yellow-800 font-medium mb-2">
-                  {t("important")}
+                  {t("free-session", "important", "Important")}
                 </p>
                 <ul className="text-yellow-700 text-sm space-y-1 list-disc list-inside">
-                  <li>{t("checkSpamFolder")}</li>
-                  <li>{t("confirmWithin24Hours")}</li>
-                  <li>{t("contactSupportIfNoEmail")}</li>
+                  <li>{t("free-session", "checkSpamFolder")}</li>
+                  <li>{t("free-session", "confirmWithin24Hours")}</li>
+                  <li>{t("free-session", "contactSupportIfNoEmail")}</li>
                 </ul>
               </div>
             </div>
           </div>
         </div>
 
-        {/* Action Buttons */}
         <div className="flex flex-col sm:flex-row gap-4 justify-center">
           <button
             onClick={handleBackToHome}
             className="px-8 py-3 rounded-2xl border-2 border-[var(--Yellow)] text-[var(--Main)] hover:bg-[var(--Light)] transition-colors font-medium"
           >
-            {t("backToHome")}
+            {t("free-session", "backToHome", "Back to Home")}
           </button>
 
           <button
-            onClick={() => navigate("/free-test")}
+            onClick={() => navigate(localizePath("/free-test"))}
             className="px-8 py-3 rounded-2xl bg-[var(--Yellow)] text-white hover:bg-opacity-90 transition-colors font-medium"
           >
-            {t("BookFreeTest")}
+            {t("navbar", "BookFreeTest", "Book Free Test")}
           </button>
         </div>
-
-        {/* Support Contact */}
-        {/* <div className={`mt-8 pt-6 border-t border-[var(--Input)]`}>
-          <p className="text-sm text-[var(--SubText)]">
-            {t("needHelp")}{" "}
-            <a
-              href="mailto:support@youcompany.com"
-              className="text-[var(--Yellow)] hover:underline font-medium"
-            >
-              {t("contactSupport")}
-            </a>
-          </p>
-        </div> */}
       </div>
     </div>
   );

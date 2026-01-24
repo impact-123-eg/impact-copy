@@ -1,16 +1,16 @@
 import { Link, useNavigate } from "react-router-dom";
 import logo from "../assets/Logo White 1.png";
 import { FaFacebook, FaInstagram, FaTiktok, FaWhatsapp } from "react-icons/fa";
-import { useTranslation } from "../../node_modules/react-i18next";
 import { IoMdMail } from "react-icons/io";
+import { useI18n } from "../hooks/useI18n";
 
 const Footer = () => {
-  const { t, i18n } = useTranslation();
+  const { t, currentLocale, localizePath } = useI18n();
   const navigate = useNavigate();
 
   return (
     <footer
-      className={`grid grid-cols-1 lg:grid-cols-2 p-10 lg:p-20 lg:px-40 text-white bg-gradient-to-r from-[var(--GradBg)] to-[var(--Main)] mt-12 ${i18n.language === "ar" ? "rtl" : ""
+      className={`grid grid-cols-1 lg:grid-cols-2 p-10 lg:p-20 lg:px-40 text-white bg-gradient-to-r from-[var(--GradBg)] to-[var(--Main)] mt-12 ${currentLocale === "ar" ? "rtl" : ""
         }`}
     >
       <section
@@ -20,9 +20,9 @@ const Footer = () => {
       >
         <img src={logo} className="w-40 lg:w-60" alt="Logo" />
 
-        <h1 className="font-bold text-2xl">{t("AboutUs")}</h1>
+        <h1 className="font-bold text-2xl">{t("footer", "AboutUs", "About Us")}</h1>
 
-        <p className="md:text-md">{t("footerDescription")}</p>
+        <p className="md:text-md">{t("footer", "footerDescription")}</p>
       </section>
 
       <article
@@ -31,29 +31,29 @@ const Footer = () => {
         className="flex justify-evenly space-x-10 lg:space-x-15 space-y-5 lg:space-y-0 flex-row mt-10 lg:mt-0"
       >
         <section className="text-center space-y-4">
-          <h1 className="underline font-bold text-xl">{t("quickLinks")}</h1>
+          <h1 className="underline font-bold text-xl">{t("footer", "quickLinks", "Quick Links")}</h1>
 
           <ul className="space-y-2 md:space-y-4 text-sm md:text-lg">
             <li>
-              <Link onClick={() => window.scroll(0, 0)} to="/">
-                {t("Home")}
+              <Link onClick={() => window.scroll(0, 0)} to={localizePath("/")}>
+                {t("footer", "Home", "Home")}
               </Link>
             </li>
             <li>
-              <Link onClick={() => window.scroll(0, 0)} to="/courses">
-                {t("Courses")}
+              <Link onClick={() => window.scroll(0, 0)} to={localizePath("/courses")}>
+                {t("footer", "Courses", "Courses")}
               </Link>
             </li>
             <li>
-              <Link onClick={() => window.scroll(0, 0)} to="/about">
-                {t("AboutUs")}
+              <Link onClick={() => window.scroll(0, 0)} to={localizePath("/about")}>
+                {t("footer", "AboutUs", "About Us")}
               </Link>
             </li>
           </ul>
         </section>
 
         <section className="text-center space-y-6">
-          <h1 className="underline font-bold text-xl">{t("followUs")}</h1>
+          <h1 className="underline font-bold text-xl">{t("footer", "followUs", "Follow Us")}</h1>
 
           <ul className="flex justify-center space-x-3 lg:space-x-6 text-xl md:text-2xl">
             <Link
@@ -74,7 +74,7 @@ const Footer = () => {
           </ul>
 
           <div className="text-center space-y-3 lg:space-y-6">
-            <h1 className="underline font-bold text-xl">{t("contactUs")}</h1>
+            <h1 className="underline font-bold text-xl">{t("footer", "contactUs", "Contact Us")}</h1>
             <div className="flex gap-x-2 items-center justify-center text-lg md:text-xl my-2">
               <FaWhatsapp className="" />
               <a href="tel:+201091085271" target="_blank">
@@ -92,28 +92,28 @@ const Footer = () => {
       >
         <div className=" cursor-pointer flex gap-2">
           <span
-            onClick={() => navigate("/privacy-policy")}
+            onClick={() => navigate(localizePath("/privacy-policy"))}
             className="border-b-2"
           >
-            {t("privacyPolicy")}
+            {t("footer", "privacyPolicy", "Privacy Policy")}
           </span>{" "}
           |
           <span
-            onClick={() => navigate("/refund-policy")}
+            onClick={() => navigate(localizePath("/refund-policy"))}
             className="border-b-2"
           >
-            {t("contentPolicy")}
+            {t("footer", "contentPolicy", "Refund Policy")}
           </span>{" "}
           |
           <span
-            onClick={() => navigate("/terms-of-use")}
+            onClick={() => navigate(localizePath("/terms-of-use"))}
             className="border-b-2"
           >
-            {t("termsOfUse")}
+            {t("footer", "termsOfUse", "Terms of Use")}
           </span>
         </div>
         <p className="my-3 flex gap-2">
-          {t("designedBy")}
+          {t("footer", "designedBy", "Designed & Developed by:")}
           <a href="https://ABSai.dev" target="_blank" className=" underline">
             ABSai.dev
           </a>
@@ -126,7 +126,7 @@ const Footer = () => {
             Ahmed Assem
           </a>
         </p>
-        <p>{t("allRightsReserved")}</p>
+        <p>{t("footer", "allRightsReserved", "All Rights Reserved @2025 impact.com")}</p>
       </article>
     </footer>
   );

@@ -1,17 +1,13 @@
-// components/free-test/FreeTestContainer.jsx
-import React, { useState, useEffect } from "react";
-import { useTranslation } from "../../../node_modules/react-i18next";
-import TestWelcome from "./TestWelcome";
-import TestQuestion from "./TestQuestion";
-import LevelTransition from "./LevelTransition";
-import TestCompletion from "./TestCompletion";
-import WarningNote from "./WarningNote";
-import { useFreeTest } from "@/hooks/Actions/freeTest/useFreeTest";
+import { useI18n } from "../../hooks/useI18n";
 
 const FreeTestContainer = () => {
-  const { t } = useTranslation();
+  const { t, initialize, loading: i18nLoading } = useI18n();
   const [testStage, setTestStage] = useState("welcome");
   const [showTransition, setShowTransition] = useState(false);
+
+  useEffect(() => {
+    initialize();
+  }, [initialize]);
 
   const {
     testData,

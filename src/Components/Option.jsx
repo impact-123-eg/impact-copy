@@ -1,4 +1,4 @@
-import { useTranslation } from "../../node_modules/react-i18next";
+import { useI18n } from "../hooks/useI18n";
 import { Link } from "react-router-dom";
 import bg from "../assets/bgcourses-Photoroom.png";
 import { FadeLoader } from "react-spinners";
@@ -8,13 +8,10 @@ import useCurrencyExchange from "@/hooks/useCurrencyExchange";
 import useClientLocation from "@/hooks/useClientLocation";
 
 function Option({ option, isBooking = false }) {
-  const { t, i18n } = useTranslation();
-  const AR = i18n.language === "ar";
+  const { t, currentLocale, localizePath } = useI18n();
+  const AR = currentLocale === "ar";
   const {
-    rates,
-    currencies,
     loading: exchangeLoading,
-    error,
     convert,
   } = useCurrencyExchange("usd");
 
@@ -61,7 +58,7 @@ function Option({ option, isBooking = false }) {
           <div className="relative z-20 space-y-8 mt-4">
             <h1 className="text-xl md:text-3xl text-[var(--Yellow)] font-bold">
               {option?.levelno}{" "}
-              {t(option?.levelno <= (AR ? 2 : 1) ? "level" : "levels")}
+              {t("courses", option?.levelno <= (AR ? 2 : 1) ? "level" : "levels", option?.levelno <= (AR ? 2 : 1) ? "Level" : "Levels")}
             </h1>
 
             <div className="space-y-4">
@@ -89,10 +86,12 @@ function Option({ option, isBooking = false }) {
               <h1>
                 {option?.sessionNo}{" "}
                 {t(
+                  "courses",
                   option?.sessionNo <= (AR ? 2 : 1) ||
                     (option?.sessionNo > 10 && AR)
                     ? "session"
-                    : "sessions"
+                    : "sessions",
+                  option?.sessionNo <= (AR ? 2 : 1) ? "Session" : "Sessions"
                 )}
               </h1>
               <p>{formatDuration(option?.totalTimeInWeeks, t, AR)}</p>
@@ -101,34 +100,32 @@ function Option({ option, isBooking = false }) {
                   ? option.sessionPerWeek.count
                   : option?.sessionPerWeek}{" "}
                 {t(
-                  (typeof option?.sessionPerWeek === "object"
-                    ? option.sessionPerWeek.count
-                    : option?.sessionPerWeek) <= 2
-                    ? "categories.sessionsPerWeek.one"
-                    : "categories.sessionsPerWeek.more"
+                  "courses",
+                  "sessionsPerWeek",
+                  "Sessions per week"
                 )}
               </p>
               <p>
                 {" "}
                 {option?.hours}{" "}
                 {t(
-                  option?.hours <= (AR ? 2 : 1)
-                    ? "categories.hoursPerSession.one"
-                    : "categories.hoursPerSession.more"
+                  "courses",
+                  "hours",
+                  "Hours"
                 )}
               </p>
-              <p>{t(`categories.scheduleType.${option?.scheduleType}`)}</p>
+              <p>{t("courses", option?.scheduleType, option?.scheduleType)}</p>
             </div>
 
             {!isBooking && (
               <Link
-                to={`/ApplicationForm/${targetCurrency}/${option._id}`}
+                to={localizePath(`/ApplicationForm/${targetCurrency}/${option._id}`)}
                 onClick={() => {
                   window.scroll(0, 0);
                 }}
                 className={`bg-white p-3 text-black  rounded-3xl w-full block`}
               >
-                {t("enrll")}
+                {t("courses", "enroll", "Enroll Now")}
               </Link>
             )}
           </div>

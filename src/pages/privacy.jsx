@@ -1,60 +1,44 @@
+import React, { useEffect } from "react";
+import { useI18n } from '../hooks/useI18n';
 
-import { useEffect } from 'react';
-import { useTranslation } from '../../node_modules/react-i18next';
-// import {useNavigate } from 'react-router-dom';
 export default function Privacy() {
-  const { t } = useTranslation();
-  // const navigate = useNavigate();
+  const { t, initialize, loading } = useI18n();
+
   useEffect(() => {
+    initialize();
     window.scrollTo({ top: 0, behavior: "smooth" });
-  }, []);
+  }, [initialize]);
+
+  if (loading) {
+    return (
+      <div className="flex justify-center items-center h-screen">
+        <div className="animate-spin rounded-full h-32 w-32 border-b-2 border-[var(--Yellow)]"></div>
+      </div>
+    );
+  }
+
+  const sections = [
+    { title: "TitleOne", sub: "SubOne", body: "BodyOne" },
+    { title: "TitleTwo", sub: "SubTwo", body: "BodyTwo" },
+    { title: "TitleThree", sub: "SubThree", body: "BodyThree" },
+    { title: "TitleFour", sub: "SubFour", body: "BodyFour" },
+    { title: "TitleFive", sub: "SubFive", body: "BodyFive" },
+    { title: "TitleSix", sub: "SubSix", body: "BodySix" },
+    { title: "TitleSeven", sub: "SubSeven", body: "BodySeven" },
+    { title: "TitleEight", sub: "SubEight", body: "BodyEight" },
+    { title: "TitleNine", sub: null, body: "BodyNine" },
+  ];
 
   return (
     <section className="md:px-40 px-4">
-      <h2 className="text-3xl font-bold mb-10 my-4">{t("PrivacyPolicy")}</h2>
-      <h3>1-{t("TitleOne")}.</h3>
-      <h4 className=' my-5'> {t("SubOne")}</h4>
-      <div className=' ml-6' dangerouslySetInnerHTML={{ __html: t("BodyOne") }} />
-      <div className=' my-4'>
-        <h3>2-{t("TitleTwo")}.</h3>
-        <h4 className=' my-5'> {t("SubTwo")}</h4>
-        <div className=' ml-6' dangerouslySetInnerHTML={{ __html: t("BodyTwo") }} />
-      </div>
-      <div className=' my-4'>
-        <h3>3-{t("TitleThree")}.</h3>
-        <h4 className=' my-5'> {t("SubThree")}</h4>
-        <div className=' ml-6' dangerouslySetInnerHTML={{ __html: t("BodyThree") }} />
-      </div>
-      <div className=' my-4'>
-        <h3>4-{t("TitleFour")}.</h3>
-        <h4 className=' my-5'> {t("SubFour")}</h4>
-        <div className=' ml-6' dangerouslySetInnerHTML={{ __html: t("BodyFour") }} />
-      </div>
-      <div className=' my-4'>
-        <h3>5-{t("TitleFive")}.</h3>
-        <h4 className=' my-5'> {t("SubFive")}</h4>
-        <div className=' ml-6' dangerouslySetInnerHTML={{ __html: t("BodyFive") }} />
-      </div>
-      <div className=' my-4'>
-        <h3>6-{t("TitleSix")}.</h3>
-        <h4 className=' my-5'> {t("SubSix")}</h4>
-        <div className=' ml-6' dangerouslySetInnerHTML={{ __html: t("BodySix") }} />
-      </div>
-      <div className=' my-4'>
-        <h3>7-{t("TitleSeven")}.</h3>
-        <h4 className=' my-5'> {t("SubSeven")}</h4>
-        <div className=' ml-6' dangerouslySetInnerHTML={{ __html: t("BodySeven") }} />
-      </div>
-      <div className=' my-4'>
-        <h3>8-{t("TitleEight")}.</h3>
-        <h4 className=' my-5'> {t("SubEight")}</h4>
-        <div className=' ml-6' dangerouslySetInnerHTML={{ __html: t("BodyEight") }} />
-      </div>
-      <div className=' my-4'>
-        <h3>9-{t("TitleNine")}.</h3>
-        <div className=' ml-6' dangerouslySetInnerHTML={{ __html: t("BodyNine") }} />
-      </div>
-      {/* // <p className=' ml-20'>{}</p> */}
+      <h2 className="text-3xl font-bold mb-10 my-4">{t("legal", "PrivacyPolicy", "Privacy Policy")}</h2>
+      {sections.map((section, index) => (
+        <div key={index} className="my-4">
+          <h3>{index + 1}-{t("legal", section.title)}.</h3>
+          {section.sub && <h4 className=' my-5'> {t("legal", section.sub)}</h4>}
+          <div className=' ml-6' dangerouslySetInnerHTML={{ __html: t("legal", section.body) }} />
+        </div>
+      ))}
     </section >
   );
 }

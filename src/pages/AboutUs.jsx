@@ -1,36 +1,40 @@
-import React, { useState } from "react";
-import { useTranslation } from "../../node_modules/react-i18next";
-import group from "../assets/group.png";
-import light from "../assets/light.png";
-import Instructor from "../Components/Instructor";
+import React, { useEffect, useState } from "react";
 import { useKeenSlider } from "keen-slider/react";
 import "keen-slider/keen-slider.min.css";
+import { IoMdArrowBack, IoMdArrowForward } from "react-icons/io";
+import Instructor from "../Components/Instructor";
+import { useI18n } from "../hooks/useI18n";
+import SEO from "../Components/SEO";
 
-import Fatma from "../assets/instructors/Fatma.jpg";
-import Hanady from "../assets/instructors/Hanady.jpg";
 import Haneen from "../assets/instructors/Haneen.jpg";
-import Mazen from "../assets/instructors/Mazen.jpg";
+import Fatma from "../assets/instructors/Fatma.jpg";
 import Nada from "../assets/instructors/Nada.jpg";
 import Shaza from "../assets/instructors/Shaza.jpg";
-
+import Mazen from "../assets/instructors/Mazen.jpg";
+import Hanady from "../assets/instructors/Hanady.jpg";
+import group from "../assets/group.png";
 import vid from "../assets/video.mp4";
-
-import { IoMdArrowBack, IoMdArrowForward } from "react-icons/io";
+import light from "../assets/light.png";
 
 function AboutUs() {
-  const { t, i18n } = useTranslation();
+  const { t, currentLocale, initialize, loading } = useI18n();
   const [show, setShow] = useState("hidden");
   const [show2, setShow2] = useState("hidden");
 
-  const rotation1 =
-    i18n.language === "en"
-      ? show
-        ? "-right-60 md:top-28 lg:top-24 xl:top-18"
-        : "-right-60 md:top-28 lg:top-40 xl:top-30"
-      : "-left-60 md:top-28 lg:top-20 xl:top-18",
-    rotation2 = i18n.language === "en" ? " -left-56" : "-right-60";
+  useEffect(() => {
+    initialize();
+  }, [initialize]);
 
-  const btn_pos = i18n.language === "en" ? "pe-14" : "pe-24";
+  const AR = currentLocale === "ar";
+  const rotation1 =
+    !AR
+      ? show === "hidden"
+        ? "-right-60 md:top-28 lg:top-40 xl:top-30"
+        : "-right-60 md:top-28 lg:top-24 xl:top-18"
+      : "-left-60 md:top-28 lg:top-20 xl:top-18",
+    rotation2 = !AR ? " -left-56" : "-right-60";
+
+  const btn_pos = !AR ? "pe-14" : "pe-24";
 
   const [sliderRef, instanceRef] = useKeenSlider({
     slides: {
@@ -53,104 +57,78 @@ function AboutUs() {
     },
   });
 
-  const features = {
-    en: [
-      {
-        number: "1",
-        title: t("PersonalizedFeedback"),
-        description: t("aboutDecOne"),
-      },
-      {
-        number: "2",
-        title: t("LivePracticeSessions"),
-        description: t("aboutDectwo"),
-      },
-      {
-        number: "3",
-        title: t("ProgressTracking"),
-        description: t("aboutDecthree"),
-      },
-      {
-        number: "4",
-        title: t("FlexibleLearningPaths"),
-        description: t("aboutDecfour"),
-      },
-    ],
-    ar: [
-      {
-        number: "1",
-        title: t("تعليقات مخصصة"),
-        description: t("توجيه فردي من مدربين خبراء."),
-      },
-      {
-        number: "2",
-        title: t("جلسات تدريبية مباشرة"),
-        description: t("تمارين تحدث واستماع في الوقت الفعلي."),
-      },
-      {
-        number: "3",
-        title: t("تتبع التقدم"),
-        description: t("تقييمات منتظمة لقياس التحسن."),
-      },
-      {
-        number: "4",
-        title: t("مسارات تعلم مرنة"),
-        description: t(
-          "تجارب تعلم مخصصة مصممة لتتناسب مع أسلوبك الفريد، سرعتك، وأهدافك."
-        ),
-      },
-    ],
-  };
+  const features = [
+    {
+      number: "1",
+      title: t("about-us", "PersonalizedFeedback", "Personalized Feedback"),
+      description: t("about-us", "aboutDecOne"),
+    },
+    {
+      number: "2",
+      title: t("about-us", "LivePracticeSessions", "Live Practice Sessions"),
+      description: t("about-us", "aboutDectwo"),
+    },
+    {
+      number: "3",
+      title: t("about-us", "ProgressTracking", "Progress Tracking"),
+      description: t("about-us", "aboutDecthree"),
+    },
+    {
+      number: "4",
+      title: t("about-us", "FlexibleLearningPaths", "Flexible Learning Paths"),
+      description: t("about-us", "aboutDecfour"),
+    },
+  ];
 
-  const currentFeatures = features[i18n.language] || features.en;
   const ins = [
     {
       img: Haneen,
-      name: {
-        en: t("insOne"),
-      },
+      nameKey: "insOne",
       years: 4,
     },
     {
       img: Fatma,
-      name: {
-        en: t("insTwo"),
-      },
+      nameKey: "insTwo",
       years: 5,
     },
     {
       img: Nada,
-      name: {
-        en: t("insThree"),
-      },
+      nameKey: "insThree",
       years: 5,
     },
     {
       img: Shaza,
-      name: {
-        en: t("insFour"),
-      },
+      nameKey: "insFour",
       years: 10,
     },
     {
       img: Mazen,
-      name: {
-        en: t("insFive"),
-      },
+      nameKey: "insFive",
       years: 4,
     },
     {
       img: Hanady,
-      name: {
-        en: t("insSix"),
-      },
+      nameKey: "insSix",
       years: 6,
     },
   ];
+
+  if (loading) {
+    return (
+      <div className="flex justify-center items-center h-screen">
+        <div className="animate-spin rounded-full h-32 w-32 border-b-2 border-[var(--Yellow)]"></div>
+      </div>
+    );
+  }
+
   return (
     <main className="space-y-10 lg:space-y-20">
-      <h1 className="font-bold text-3xl py-5 mb-8 px-10 md:px-12 lg:px-60">
-        {t("AboutUs")}
+      <SEO
+        title={t("about-us", "AboutUs", "About Us")}
+        description="Learn more about Impact Academy, our mission, our expert instructors, and our teaching approach to help you master English."
+      />
+      <h1 data-aos="fade-up" className="font-bold text-3xl md:text-5xl py-5 mb-12 text-center">
+        {t("about-us", "AboutUs", "About Us")}
       </h1>
 
       <section
@@ -160,7 +138,7 @@ function AboutUs() {
         className="px-10 md:px-12 lg:px-60"
       >
         <article className="my-10 space-y-10 md:px-1 w-full">
-          <h1 className="text-2xl font-bold">{t("AboutOur")}</h1>
+          <h1 className="text-2xl font-bold">{t("about-us", "AboutOur", "About Our Academy")}</h1>
           <div className="flex flex-col items-center">
             <video
               className="h-full w-full rounded-2xl"
@@ -181,7 +159,7 @@ function AboutUs() {
         >
           <img
             src={group}
-            className={`md:pr-2 hidden px-1 lg:block absolute w-full ${show ? "h-80" : "h-80"
+            className={`md:pr-2 hidden px-1 lg:block absolute w-full ${show === "hidden" ? "h-80" : "h-80"
               } ${rotation1}`}
             alt="Meeting"
           />
@@ -192,33 +170,33 @@ function AboutUs() {
           <article
             data-aos="fade-right"
             data-aos-duration="1000"
-            className={`space-y-10 py-20 text-[var(--LightTxt)] bg-[var(--Light)] p-8 ${i18n.language == "en"
-                ? "md:pl-12 lg:pl-60 pl-12"
-                : "md:pr-12 lg:pr-60 pr-12"
+            className={`space-y-10 py-20 text-[var(--LightTxt)] bg-[var(--Light)] p-8 ${!AR
+              ? "md:pl-12 lg:pl-60 pl-12"
+              : "md:pr-12 lg:pr-60 pr-12"
               } rounded-s-[100px]`}
           >
             <h1 className="text-3xl font-bold text-black">
-              {t("AcademyBackground")}
+              {t("about-us", "AcademyBackground", "Academy Background")}
             </h1>
-            <h3 className="font-bold text-2xl">{t("OurJourney")}</h3>
-            <p className="w-full lg:w-3/4">{t("acadback")}</p>
+            <h3 className="font-bold text-2xl">{t("about-us", "OurJourney", "Our Journey")}</h3>
+            <p className="w-full lg:w-3/4">{t("about-us", "acadback")}</p>
 
             <section className={`my-3 space-y-3 ${show}`}>
-              <h1 className="text-2xl font-bold">{t("OurAchievements")}</h1>
+              <h1 className="text-2xl font-bold">{t("about-us", "OurAchievements", "Our Achievements")}</h1>
               <p className="w-full lg:w-3/4">
-                {t("OurAchievementsDescription")}
+                {t("about-us", "OurAchievementsDescription")}
               </p>
             </section>
 
             <div
-              className={`flex justify-end ${i18n.language === "en" ? "md:pr-40" : "md:pl-40"
+              className={`flex justify-end ${!AR ? "md:pr-40" : "md:pl-40"
                 } ${btn_pos}`}
             >
               <button
-                onClick={() => (show == "" ? setShow("hidden") : setShow(""))}
+                onClick={() => (show === "" ? setShow("hidden") : setShow(""))}
                 className="p-4 text-black rounded-3xl bg-[var(--Yellow)] transition-colors"
               >
-                {show ? t("ExploreMore") : t("ExploreLess")}
+                {show === "hidden" ? t("about-us", "ExploreMore", "Explore More") : t("about-us", "ExploreLess", "Explore Less")}
               </button>
             </div>
           </article>
@@ -230,50 +208,48 @@ function AboutUs() {
           <article
             data-aos="fade-right"
             data-aos-duration="1000"
-            className={`space-y-6 text-[var(--LightTxt)] bg-[var(--Light)] py-20 p-8 ${i18n.language == "en"
-                ? "md:pl-12 lg:pl-60 pl-12"
-                : "md:pr-12 lg:pr-60 pr-12"
+            className={`space-y-6 text-[var(--LightTxt)] bg-[var(--Light)] py-20 p-8 ${!AR
+              ? "md:pl-12 lg:pl-60 pl-12"
+              : "md:pr-12 lg:pr-60 pr-12"
               } rounded-e-[100px]`}
           >
             <h1 className="text-xl md:text-2xl font-bold">
-              {t("WhyWeAreUnique")}
+              {t("about-us", "WhyWeAreUnique", "Why We Are Unique")}
             </h1>
-            <h3 className="text-lg font-bold">{t("ExpertGuidance")}</h3>
+            <h3 className="text-lg font-bold">{t("about-us", "ExpertGuidance", "Expert Guidance")}</h3>
             <p className="w-full lg:w-3/4 text-lg">
-              {t("Learn from certified instructors with years of experience.")}
+              {t("about-us", "ExpertGuidanceDetails", "Learn from certified instructors with years of experience.")}
             </p>
-            <h3 className="text-lg font-bold">{t("Tailored Learning")}</h3>
+            <h3 className="text-lg font-bold">{t("about-us", "TailoredLearning", "Tailored Learning")}</h3>
             <p className="w-full lg:w-3/4 text-lg">
-              {t(
-                "Courses customized to match your proficiency level and goals."
-              )}
+              {t("about-us", "TailoredLearningDetails", "Courses customized to match your proficiency level and goals.")}
             </p>
 
             <section className={`my-3 space-y-3 ${show2}`}>
               <div className="space-y-3">
-                <h3 className="text-lg font-bold">{t("BilingualSupport")}</h3>
+                <h3 className="text-lg font-bold">{t("about-us", "BilingualSupport", "Bilingual Support")}</h3>
                 <p className="w-full lg:w-3/4 text-lg">
-                  {t("BilingualSupportDescription")}
+                  {t("about-us", "BilingualSupportDescription")}
                 </p>
               </div>
               <div className="space-y-3">
-                <h1 className="text-lg font-bold">{t("FlexibleScheduling")}</h1>
+                <h1 className="text-lg font-bold">{t("about-us", "FlexibleScheduling", "Flexible Scheduling")}</h1>
                 <p className="w-full lg:w-3/4 text-lg">
-                  {t("FlexibleSchedulingDescription")}
+                  {t("about-us", "FlexibleSchedulingDescription")}
                 </p>
               </div>
             </section>
             <div
-              className={`flex justify-end md:${btn_pos}  ${i18n.language == "en" ? "md:pr-40" : "md:pl-40"
+              className={`flex justify-end md:${btn_pos}  ${!AR ? "md:pr-40" : "md:pl-40"
                 }`}
             >
               <button
                 onClick={() =>
-                  show2 == "" ? setShow2("hidden") : setShow2("")
+                  show2 === "" ? setShow2("hidden") : setShow2("")
                 }
                 className="p-4 text-black rounded-3xl bg-[var(--Yellow)] transition-colors"
               >
-                {show2 ? t("ExploreMore") : t("ExploreLess")}
+                {show2 === "hidden" ? t("about-us", "ExploreMore", "Explore More") : t("about-us", "ExploreLess", "Explore Less")}
               </button>
             </div>
           </article>
@@ -297,38 +273,36 @@ function AboutUs() {
         className="px-10 md:px-12 lg:px-60 space-y-10 lg:space-y-40"
       >
         <h1 className="text-2xl md:text-3xl font-bold">
-          {t("OurTeachingApproach")}
+          {t("about-us", "OurTeachingApproach", "Our Teaching Approach")}
         </h1>
 
         <div className="xl:block hidden">
           <div className="grid grid-cols-1 lg:grid-cols-4 lg:my-20 gap-2 md:gap-8">
-            {currentFeatures.length === 0
-              ? null
-              : currentFeatures.map((feature, index) => (
-                <article
-                  data-aos="fade-up"
-                  data-aos-delay={feature.number * 100}
-                  key={index}
-                  className="bg-[var(--Light)] text-[var(--LightTxt)] p-4 rounded-3xl shadow-lg lg:my-0"
-                  style={{ marginTop: `-${feature.number * 30}px` }}
-                >
-                  <p className="text-4xl font-bold my-6 text-center">
-                    {feature.number}
-                  </p>
-                  <h2 className="text-xl md:text-2xl font-semibold my-6 text-center">
-                    {feature.title}
-                  </h2>
-                  <p className="text-gray-600 text-center md:text-left">
-                    {feature.description}
-                  </p>
-                </article>
-              ))}
+            {features.map((feature, index) => (
+              <article
+                data-aos="fade-up"
+                data-aos-delay={feature.number * 100}
+                key={index}
+                className="bg-[var(--Light)] text-[var(--LightTxt)] p-4 rounded-3xl shadow-lg lg:my-0"
+                style={{ marginTop: `-${feature.number * 30}px` }}
+              >
+                <p className="text-4xl font-bold my-6 text-center">
+                  {feature.number}
+                </p>
+                <h2 className="text-xl md:text-2xl font-semibold my-6 text-center">
+                  {feature.title}
+                </h2>
+                <p className="text-gray-600 text-center md:text-left">
+                  {feature.description}
+                </p>
+              </article>
+            ))}
           </div>
         </div>
 
         <div className="block xl:hidden">
           <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-4 gap-4 md:gap-8">
-            {currentFeatures.map((feature, index) => (
+            {features.map((feature, index) => (
               <article
                 data-aos="fade-up"
                 data-aos-delay={feature.number * 100}
@@ -355,7 +329,7 @@ function AboutUs() {
         className="px-10 md:px-12 lg:px-60 space-y-10"
       >
         <h1 className="font-bold text-2xl md:text-3xl">
-          {t("MeetOurInstructors")}
+          {t("about-us", "MeetOurInstructors", "Meet Our Expert Instructors")}
         </h1>
 
         <article className="px-1.5">
@@ -372,7 +346,7 @@ function AboutUs() {
                 >
                   <Instructor
                     pic={inst.img}
-                    name={inst.name[i18n.language] || inst.name.en}
+                    name={t("about-us", inst.nameKey)}
                     years={inst.years}
                   />
                 </div>

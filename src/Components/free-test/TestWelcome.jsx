@@ -1,9 +1,4 @@
-// components/free-test/TestWelcome.jsx (UPDATED)
-import React from "react";
-import { useTranslation } from "../../../node_modules/react-i18next";
-import { useFormik } from "formik";
-import * as Yup from "yup";
-import cntris from "@/data/Countries.json";
+import { useI18n } from "../../hooks/useI18n";
 
 const TestWelcome = ({
   onStartTest,
@@ -12,15 +7,20 @@ const TestWelcome = ({
   clearError,
   existingTest,
 }) => {
-  const { t, i18n } = useTranslation();
+  const { t, currentLocale, initialize, loading, localizePath } = useI18n();
+  const AR = currentLocale === "ar";
+
+  useEffect(() => {
+    initialize();
+  }, [initialize]);
 
   const validationSchema = Yup.object({
-    name: Yup.string().required(t("freeTest.errors.nameRequired")),
+    name: Yup.string().required(t("free-test", "nameRequired", "Name is required")),
     email: Yup.string()
-      .email(t("freeTest.errors.invalidEmail"))
-      .required(t("freeTest.errors.emailRequired")),
-    phoneNumber: Yup.string().required(t("freeTest.errors.phoneRequired")),
-    country: Yup.string().required(t("freeTest.errors.countryRequired")),
+      .email(t("free-test", "invalidEmail", "Invalid email"))
+      .required(t("free-test", "emailRequired", "Email is required")),
+    phoneNumber: Yup.string().required(t("free-test", "phoneRequired", "Phone number is required")),
+    country: Yup.string().required(t("free-test", "countryRequired", "Country is required")),
   });
 
   const formik = useFormik({
@@ -51,19 +51,19 @@ const TestWelcome = ({
         </div>
         <h1 className="text-3xl font-bold text-[var(--Main)] mb-4">
           {existingTest
-            ? t("freeTest.welcome.continueTest")
-            : t("freeTest.welcome.title")}
+            ? t("free-test", "continueTest", "Continue Your Test")
+            : t("free-test", "title", "Impact English Placement Test")}
         </h1>
         <p className="text-lg text-[var(--SubText)] leading-relaxed">
           {existingTest
-            ? t("freeTest.welcome.continueTestDescription")
-            : t("freeTest.welcome.description")}
+            ? t("free-test", "continueTestDescription")
+            : t("free-test", "description")}
         </p>
 
         {existingTest && (
           <div className="mt-4 p-3 bg-blue-50 rounded-lg">
             <p className="text-sm text-blue-700">
-              {t("freeTest.welcome.continueTestNote")}
+              {t("free-test", "continueTestNote")}
             </p>
           </div>
         )}
@@ -89,10 +89,10 @@ const TestWelcome = ({
               {error.includes("already completed") && (
                 <div className="mt-2">
                   <button
-                    onClick={() => (window.location.href = "/contact")}
+                    onClick={() => (window.location.href = localizePath("/contact"))}
                     className="text-red-600 hover:text-red-800 text-sm underline"
                   >
-                    {t("freeTest.welcome.contactSupport")}
+                    {t("free-test", "contactSupport", "Contact Support")}
                   </button>
                 </div>
               )}
@@ -107,28 +107,28 @@ const TestWelcome = ({
           <div className="text-center p-4 bg-blue-50 rounded-lg">
             <div className="text-2xl mb-2">⏱️</div>
             <h3 className="font-semibold text-[var(--Main)] mb-1">
-              {t("freeTest.welcome.quick")}
+              {t("free-test", "quick", "Quick")}
             </h3>
             <p className="text-sm text-[var(--SubText)]">
-              {t("freeTest.welcome.minutes")}
+              {t("free-test", "minutes", "10-15 Minutes")}
             </p>
           </div>
           <div className="text-center p-4 bg-green-50 rounded-lg">
             <div className="text-2xl mb-2">📊</div>
             <h3 className="font-semibold text-[var(--Main)] mb-1">
-              {t("freeTest.welcome.accurate")}
+              {t("free-test", "accurate", "Accurate")}
             </h3>
             <p className="text-sm text-[var(--SubText)]">
-              {t("freeTest.welcome.levelDetection")}
+              {t("free-test", "levelDetection", "Level Detection")}
             </p>
           </div>
           <div className="text-center p-4 bg-purple-50 rounded-lg">
             <div className="text-2xl mb-2">🎁</div>
             <h3 className="font-semibold text-[var(--Main)] mb-1">
-              {t("freeTest.welcome.free")}
+              {t("free-test", "free", "Free")}
             </h3>
             <p className="text-sm text-[var(--SubText)]">
-              {t("freeTest.welcome.noCost")}
+              {t("free-test", "noCost", "100% Free")}
             </p>
           </div>
         </div>
@@ -140,7 +140,7 @@ const TestWelcome = ({
           {/* Name */}
           <div>
             <label className="block text-sm font-medium text-[var(--Main)] mb-2">
-              {t("freeTest.form.name")} *
+              {t("free-session", "name", "Name")} *
             </label>
             <input
               type="text"
@@ -149,10 +149,10 @@ const TestWelcome = ({
               onChange={formik.handleChange}
               onBlur={formik.handleBlur}
               className={`w-full px-4 py-3 border rounded-lg focus:ring-2 focus:ring-[var(--Yellow)] focus:border-transparent ${formik.touched.name && formik.errors.name
-                  ? "border-red-500"
-                  : "border-[var(--Input)]"
+                ? "border-red-500"
+                : "border-[var(--Input)]"
                 }`}
-              placeholder={t("freeTest.form.enterName")}
+              placeholder={t("free-session", "enterName", "Enter your name")}
               disabled={existingTest}
             />
             {formik.touched.name && formik.errors.name && (
@@ -162,10 +162,9 @@ const TestWelcome = ({
             )}
           </div>
 
-          {/* Email */}
           <div>
             <label className="block text-sm font-medium text-[var(--Main)] mb-2">
-              {t("freeTest.form.email")} *
+              {t("free-session", "email", "Email")} *
             </label>
             <input
               type="email"
@@ -174,10 +173,10 @@ const TestWelcome = ({
               onChange={formik.handleChange}
               onBlur={formik.handleBlur}
               className={`w-full px-4 py-3 border rounded-lg focus:ring-2 focus:ring-[var(--Yellow)] focus:border-transparent ${formik.touched.email && formik.errors.email
-                  ? "border-red-500"
-                  : "border-[var(--Input)]"
+                ? "border-red-500"
+                : "border-[var(--Input)]"
                 }`}
-              placeholder={t("freeTest.form.enterEmail")}
+              placeholder={t("free-session", "enterEmail", "Enter your email")}
               disabled={existingTest}
             />
             {formik.touched.email && formik.errors.email && (
@@ -187,10 +186,9 @@ const TestWelcome = ({
             )}
           </div>
 
-          {/* Phone */}
           <div>
             <label className="block text-sm font-medium text-[var(--Main)] mb-2">
-              {t("freeTest.form.phoneNumber")} *
+              {t("free-session", "phoneNumber", "Phone Number")} *
             </label>
             <input
               type="tel"
@@ -199,10 +197,10 @@ const TestWelcome = ({
               onChange={formik.handleChange}
               onBlur={formik.handleBlur}
               className={`w-full px-4 py-3 border rounded-lg focus:ring-2 focus:ring-[var(--Yellow)] focus:border-transparent ${formik.touched.phoneNumber && formik.errors.phoneNumber
-                  ? "border-red-500"
-                  : "border-[var(--Input)]"
+                ? "border-red-500"
+                : "border-[var(--Input)]"
                 }`}
-              placeholder={t("freeTest.form.enterPhoneNumber")}
+              placeholder={t("free-session", "enterPhoneNumber", "Enter phone number")}
               disabled={existingTest}
             />
             {formik.touched.phoneNumber && formik.errors.phoneNumber && (
@@ -212,10 +210,9 @@ const TestWelcome = ({
             )}
           </div>
 
-          {/* Country */}
           <div>
             <label className="block text-sm font-medium text-[var(--Main)] mb-2">
-              {t("freeTest.form.country")} *
+              {t("free-session", "country", "Country")} *
             </label>
             <select
               name="country"
@@ -223,15 +220,15 @@ const TestWelcome = ({
               onChange={formik.handleChange}
               onBlur={formik.handleBlur}
               className={`w-full px-4 py-3 border rounded-lg focus:ring-2 focus:ring-[var(--Yellow)] focus:border-transparent ${formik.touched.country && formik.errors.country
-                  ? "border-red-500"
-                  : "border-[var(--Input)]"
+                ? "border-red-500"
+                : "border-[var(--Input)]"
                 }`}
               disabled={existingTest}
             >
-              <option value="">{t("freeTest.form.chooseCountry")}</option>
+              <option value="">{t("free-session", "chooseCountry", "Choose country")}</option>
               {cntris.map((country) => (
                 <option key={country.nameEn} value={country.nameEn}>
-                  {i18n.language === "ar" ? country.nameAr : country.nameEn}
+                  {AR ? country.nameAr : country.nameEn}
                 </option>
               ))}
             </select>
@@ -246,19 +243,19 @@ const TestWelcome = ({
         {/* Submit Button */}
         <button
           type="submit"
-          disabled={formik.isSubmitting || isLoading}
+          disabled={formik.isSubmitting || isLoading || loading}
           className="w-full py-4 bg-[var(--Yellow)] text-white font-semibold rounded-lg hover:bg-opacity-90 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
         >
           {isLoading
-            ? t("freeTest.welcome.startingTest")
+            ? t("free-test", "startingTest", "Starting Test...")
             : existingTest
-              ? t("freeTest.welcome.continueTest")
-              : t("freeTest.welcome.startTestNow")}
+              ? t("free-test", "continueTest", "Continue Test")
+              : t("free-test", "startTestNow", "Start Test Now")}
         </button>
 
         {/* Privacy Note */}
         <p className="text-center text-sm text-[var(--SubText)]">
-          {t("freeTest.welcome.privacyNote")}
+          {t("free-test", "privacyNote")}
         </p>
       </form>
     </div>

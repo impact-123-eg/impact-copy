@@ -1,7 +1,4 @@
-import { useMemo } from "react";
-import { useLocation, Link } from "react-router-dom";
-import { useGetPaymentStatus } from "@/hooks/Actions/payment/useCurdsPayment";
-import { useTranslation } from "../../node_modules/react-i18next";
+import { useI18n } from "../hooks/useI18n";
 
 function useQuery() {
   const { search } = useLocation();
@@ -11,49 +8,54 @@ function useQuery() {
 const PaymentResult = () => {
   const query = useQuery();
   const bookingId = query.get("bookingId");
-  const { data, isPending, isFetching, error, refetchInterval } =
+  const { data, isPending, isFetching, error } =
     useGetPaymentStatus({
       bookingId,
       enabled: Boolean(bookingId),
       refetchInterval: 3000,
     });
 
-  const { t, i18n } = useTranslation();
+  const { t, initialize, loading: i18nLoading } = useI18n();
+
+  useEffect(() => {
+    initialize();
+  }, [initialize]);
 
   const booking = data?.data?.booking;
-  console.log(booking);
-  const loading = isPending || isFetching;
+  const loading = isPending || isFetching || i18nLoading;
   const errMsg = !bookingId ? "Missing bookingId" : error?.message || null;
 
   const title = loading
-    ? t("paymentResult.processingPayment")
+    ? t("free-session", "booking", "Processing...")
     : errMsg
-      ? t("paymentResult.unableToConfirmPayment")
+      ? t("free-session", "error", "Unable to confirm payment")
       : booking?.paymentStatus === "paid"
-        ? t("paymentResult.paymentSuccessful")
+        ? t("free-session", "bookingConfirmed", "Payment Successful")
         : booking?.paymentStatus === "failed" || booking?.status === "cancelled"
-          ? t("paymentResult.paymentFailed")
-          : t("paymentResult.paymentPending");
+          ? t("free-session", "bookingCancelled", "Payment Failed")
+          : t("free-session", "bookingPendingConfirmation", "Payment Pending");
+
+  if (loading) {
+    return (
+      <div className="flex justify-center items-center h-screen">
+        <div className="animate-spin rounded-full h-32 w-32 border-b-2 border-[var(--Yellow)]"></div>
+      </div>
+    );
+  }
 
   return (
     <main className="max-w-2xl mx-auto p-6 space-y-6">
       <h1 className="text-2xl font-bold text-[var(--Main)]">{title}</h1>
 
-      {loading && (
-        <p className="text-[var(--SubText)]">
-          {t("paymentResult.processingPayment")}
-        </p>
-      )}
-
       {errMsg && (
-        <div className="text-red-600 bg-red-50 p-4 rounded-xl">{t(errMsg)}</div>
+        <div className="text-red-600 bg-red-50 p-4 rounded-xl">{errMsg}</div>
       )}
 
       {!loading && !errMsg && booking && (
         <div className="bg-white rounded-xl shadow p-4 space-y-2">
           <div className="flex justify-between">
             <span className="text-[var(--SubText)]">
-              {t("paymentResult.amount")}
+              {t("free-session", "amount", "Amount")}
             </span>
             <span className="font-semibold" dir="ltr">
               {Number(booking.amount).toFixed(2)} {booking.currency || "EGP"}
@@ -61,19 +63,19 @@ const PaymentResult = () => {
           </div>
           <div className="flex justify-between">
             <span className="text-[var(--SubText)]">
-              {t("paymentResult.bookingId")}
+              {t("free-session", "bookingId", "Booking ID")}
             </span>
             <span className="font-semibold">{booking.id}</span>
           </div>
           <div className="flex justify-between">
             <span className="text-[var(--SubText)]">
-              {t("paymentResult.status")}
+              {t("free-session", "status", "Status")}
             </span>
             <span className="font-semibold capitalize">{booking.status}</span>
           </div>
           <div className="flex justify-between">
             <span className="text-[var(--SubText)]">
-              {t("paymentResult.payment")}
+              {t("free-session", "payment", "Payment")}
             </span>
             <span className="font-semibold capitalize">
               {booking.paymentStatus}
@@ -87,7 +89,7 @@ const PaymentResult = () => {
           to="/"
           className="px-4 py-2 rounded-xl bg-[var(--Yellow)] text-white"
         >
-          {t("paymentResult.home")}
+          {t("free-session", "backToHome", "Home")}
         </Link>
       </div>
     </main>

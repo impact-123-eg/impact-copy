@@ -27,19 +27,21 @@
 import React from "react";
 import { Link, Outlet } from "react-router-dom";
 import Footer from "../Components/Footer";
-import { I18nextProvider } from "../../node_modules/react-i18next";
+import { I18nextProvider } from "react-i18next";
 import i18n from "../i18n";
 import logo from "../assets/logoblue.png";
 import { AdminProvider } from "../AdminContext";
+import { useI18n } from "../hooks/useI18n";
 
 const LoginLayout = () => {
+  const { localizePath } = useI18n();
   return (
     <main className="min-h-screen flex flex-col w-full overflow-x-hidden">
       <I18nextProvider i18n={i18n}>
         <AdminProvider>
           {/* Header with logo */}
           <header className="flex justify-center items-center !pb-1 px-4 sm:py-10">
-            <Link to="" className="flex justify-center">
+            <Link to={localizePath("/")} className="flex justify-center">
               <img
                 src={logo}
                 data-aos="fade-down"

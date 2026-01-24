@@ -1,11 +1,13 @@
-// components/free-test/WarningNote.jsx
-import React from "react";
-import { useTranslation } from "../../../node_modules/react-i18next";
+import { useI18n } from "../../hooks/useI18n";
 
 const WarningNote = ({ show = true }) => {
-  const { t } = useTranslation();
+  const { t, initialize, loading } = useI18n();
 
-  if (!show) return null;
+  useEffect(() => {
+    initialize();
+  }, [initialize]);
+
+  if (!show || loading) return null;
 
   return (
     <div className="mb-6 p-4 bg-yellow-50 border border-yellow-200 rounded-xl">
@@ -23,12 +25,12 @@ const WarningNote = ({ show = true }) => {
             />
           </svg>
         </div>
-        <div className="flex-1">
+        <div className="flex-1 text-start">
           <h3 className="text-sm font-semibold text-yellow-800 mb-1">
-            {t("freeTest.warning.title")}
+            {t("free-test", "warningTitle", "Pre-Test Warning")}
           </h3>
           <p className="text-sm text-yellow-700">
-            {t("freeTest.warning.message")}
+            {t("free-test", "warningMessage", "Please do not use any external help or translators. This ensures your level is accurate.")}
           </p>
         </div>
       </div>
