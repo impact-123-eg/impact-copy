@@ -16,6 +16,9 @@ const PageManagement = () => {
   // Editing Mode: 'visual' or 'json'
   const [editMode, setEditMode] = useState('visual');
 
+  const isProd = import.meta.env.PROD || import.meta.env.VITE_ENV === 'production' || import.meta.env.VITE_ENV === 'proeutn';
+  const isOrientation = formData.slug === 'orientation';
+
   const [formData, setFormData] = useState({
     name: '',
     slug: '',
@@ -49,7 +52,7 @@ const PageManagement = () => {
   // Keyboard shortcut Ctrl+Q to toggle edit mode
   useEffect(() => {
     const handleKeyDown = (e) => {
-      if (e.ctrlKey && e.key.toLowerCase() === 'q') {
+      if (e.ctrlKey && e.key.toLowerCase() === 'q' && !isProd) {
         e.preventDefault();
         setEditMode(prev => prev === 'visual' ? 'json' : 'visual');
       }
@@ -246,13 +249,15 @@ const PageManagement = () => {
                 >
                   <FaEdit size={18} />
                 </button>
-                <button
-                  onClick={() => handleDelete(page._id)}
-                  className="p-2 text-red-500 hover:bg-red-50 rounded-lg transition-colors"
-                  title="Delete Page"
-                >
-                  <FaTrash size={18} />
-                </button>
+                {page.slug !== 'orientation' && (
+                  <button
+                    onClick={() => handleDelete(page._id)}
+                    className="p-2 text-red-500 hover:bg-red-50 rounded-lg transition-colors"
+                    title="Delete Page"
+                  >
+                    <FaTrash size={18} />
+                  </button>
+                )}
               </div>
             </div>
 
@@ -290,22 +295,24 @@ const PageManagement = () => {
                 </p>
               </div>
               <div className="flex items-center gap-4">
-                <div className="bg-white p-1 rounded-xl border flex shadow-sm">
-                  <button
-                    onClick={() => setEditMode('visual')}
-                    className={`px-4 py-1.5 rounded-lg flex items-center gap-2 text-sm font-semibold transition-all ${editMode === 'visual' ? 'bg-[var(--Yellow)] text-[var(--Main)]' : 'text-gray-500 hover:bg-gray-50'
-                      }`}
-                  >
-                    <FaEye /> Visual
-                  </button>
-                  <button
-                    onClick={() => setEditMode('json')}
-                    className={`px-4 py-1.5 rounded-lg flex items-center gap-2 text-sm font-semibold transition-all ${editMode === 'json' ? 'bg-[var(--Yellow)] text-[var(--Main)]' : 'text-gray-500 hover:bg-gray-50'
-                      }`}
-                  >
-                    <FaCode /> JSON
-                  </button>
-                </div>
+                {!isProd && (
+                  <div className="bg-white p-1 rounded-xl border flex shadow-sm">
+                    <button
+                      onClick={() => setEditMode('visual')}
+                      className={`px-4 py-1.5 rounded-lg flex items-center gap-2 text-sm font-semibold transition-all ${editMode === 'visual' ? 'bg-[var(--Yellow)] text-[var(--Main)]' : 'text-gray-500 hover:bg-gray-50'
+                        }`}
+                    >
+                      <FaEye /> Visual
+                    </button>
+                    <button
+                      onClick={() => setEditMode('json')}
+                      className={`px-4 py-1.5 rounded-lg flex items-center gap-2 text-sm font-semibold transition-all ${editMode === 'json' ? 'bg-[var(--Yellow)] text-[var(--Main)]' : 'text-gray-500 hover:bg-gray-50'
+                        }`}
+                    >
+                      <FaCode /> JSON
+                    </button>
+                  </div>
+                )}
                 <button
                   onClick={() => setIsModalOpen(false)}
                   className="p-2 hover:bg-gray-200 rounded-full text-gray-400 transition-colors"
@@ -340,6 +347,7 @@ const PageManagement = () => {
                       value={formData.slug}
                       onChange={handleInputChange}
                       required
+                      disabled={isOrientation && isEditing}
                       placeholder="e.g. hero-section"
                       className="w-full px-4 py-3 bg-white border border-gray-200 rounded-xl focus:ring-2 focus:ring-[var(--Yellow)] focus:border-transparent transition-all outline-none font-mono text-sm"
                     />
@@ -350,7 +358,7 @@ const PageManagement = () => {
                 <div className="space-y-4">
                   <div className="flex justify-between items-center">
                     <h4 className="text-xl font-bold text-gray-800">Translations Content</h4>
-                    {editMode === 'visual' && (
+                    {editMode === 'visual' && !isOrientation && (
                       <button
                         type="button"
                         onClick={handleAddKey}
@@ -371,14 +379,16 @@ const PageManagement = () => {
                         <div className="grid grid-cols-1 gap-6">
                           {allKeys.map((key) => (
                             <div key={key} className="bg-white p-6 rounded-2xl border border-gray-100 shadow-sm relative group">
-                              <button
-                                type="button"
-                                onClick={() => handleRemoveKey(key)}
-                                className="absolute -top-2 -right-2 bg-red-100 text-red-500 p-1.5 rounded-full opacity-0 group-hover:opacity-100 transition-opacity shadow-sm hover:scale-110"
-                                title="Remove Key"
-                              >
-                                <FaTrash size={12} />
-                              </button>
+                              {!isOrientation && (
+                                <button
+                                  type="button"
+                                  onClick={() => handleRemoveKey(key)}
+                                  className="absolute -top-2 -right-2 bg-red-100 text-red-500 p-1.5 rounded-full opacity-0 group-hover:opacity-100 transition-opacity shadow-sm hover:scale-110"
+                                  title="Remove Key"
+                                >
+                                  <FaTrash size={12} />
+                                </button>
+                              )}
 
                               <h5 className="text-[var(--Main)] font-mono text-sm font-bold mb-3 flex items-center gap-2 bg-blue-50 px-3 py-1.5 rounded-lg w-fit">
                                 <FaCode size={12} /> {key}
