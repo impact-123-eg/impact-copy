@@ -4,13 +4,15 @@ import logo from "../assets/Logo White 1.png";
 import logo2 from "../assets/logoblue.png";
 import { useI18n } from "../hooks/useI18n";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
-import { faEarth } from "@fortawesome/free-solid-svg-icons";
+import { faEarth, faUserCircle } from "@fortawesome/free-solid-svg-icons";
+import { useAuth } from "../context/AuthContext";
 
 function Navbar() {
   const { t, currentLocale, switchLanguage, localizePath } = useI18n();
   const [isOpen, setIsOpen] = useState(false);
   const activeTab = "text-[var(--Yellow)] text-sm md:text-xl font-bold";
   const tabStyle = "text-white text-sm md:text-xl hover:text-gray-200";
+  const { isLoggedIn, user, handleLogout: authLogout } = useAuth();
   const nav = useNavigate();
   const handleNavigate = (to) => {
     nav(localizePath(to));
@@ -113,6 +115,39 @@ function Navbar() {
                 <span>{t("navbar", "English", "English")}</span>
               )}
             </div>
+
+            {isLoggedIn ? (
+              <div className="flex items-center gap-4 ml-4">
+                <NavLink
+                  to={localizePath("/profile")}
+                  className={({ isActive }) => (isActive ? activeTab : tabStyle)}
+                >
+                  <FontAwesomeIcon icon={faUserCircle} className="mr-2" />
+                  {user?.name?.split(" ")[0]}
+                </NavLink>
+                <button
+                  onClick={authLogout}
+                  className="text-white hover:text-red-400 font-bold transition-colors"
+                >
+                  {t("logout", "Logout")}
+                </button>
+              </div>
+            ) : (
+              <div className="flex items-center gap-4 ml-4">
+                <NavLink
+                  to={localizePath("/login")}
+                  className={({ isActive }) => (isActive ? activeTab : tabStyle)}
+                >
+                  {t("login", "Login")}
+                </NavLink>
+                <NavLink
+                  to={localizePath("/register")}
+                  className="bg-[var(--Yellow)] text-[var(--Main)] px-6 py-2 rounded-3xl font-bold hover:brightness-110 transition"
+                >
+                  {t("register", "Register")}
+                </NavLink>
+              </div>
+            )}
           </div>
         </div>
       </div>

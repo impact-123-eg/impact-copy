@@ -1,11 +1,5 @@
-import React, { useState, useEffect } from "react";
-import { useLocation, useNavigate } from "react-router-dom";
+import React, { useState } from "react";
 import photo from "../../assets/login.png";
-import { db, collection } from "../../data/firebaseConfig";
-import { query, where, getDocs } from "firebase/firestore";
-import { useAuth } from "../../AuthContext";
-import Swal from "sweetalert2";
-import { useAdmin } from "../../AdminContext";
 import { FaEye, FaEyeSlash } from "react-icons/fa";
 import { useFormik } from "formik";
 import { loginValidationSchema } from "@/Validation";
@@ -32,11 +26,7 @@ function Login() {
     },
   });
 
-  useEffect(() => {
-    document.documentElement.dir = location.pathname.includes("-dash")
-      ? "ltr"
-      : "";
-  }, [location.pathname]);
+
 
   // const [formData, setFormData] = useState({ Email: "", Password: "" }),
   // const navigate = useNavigate();

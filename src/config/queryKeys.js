@@ -3,8 +3,12 @@ const queryKeys = {
   register: "register",
   forgotPassword: "forgotPassword",
   resetPassword: "resetPassword",
+  verifyOTP: "verifyOTP",
+  resendOTP: "resendOTP",
 
   userProfile: "usersProfileme",
+  updateMe: "updateMe",
+  history: "history",
 
   allEmployees: "allEmployees",
   allStudents: "allStudents",
@@ -50,6 +54,7 @@ const queryKeys = {
   dashboard: "dashboard",
   createPayment: "createPayment",
   suggestAgents: "suggestAgents",
+  adminAllUsers: "adminAllUsers",
 };
 
 export default queryKeys;

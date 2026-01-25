@@ -8,7 +8,7 @@ import {
   useUpdateStatusForFreeSessionBooking,
   useUpdateSalesAgentForFreeSessionBooking,
 } from "@/hooks/Actions/free-sessions/useFreeSessionBookingCruds";
-import { useGetAllEmployees } from "@/hooks/Actions/users/useCurdsUsers";
+import { useGetAllEmployees, useCreateUserFromBooking } from "@/hooks/Actions/users/useCurdsUsers";
 import { useAuth } from "@/context/AuthContext";
 import { useUpdateGroupTeacher, useMoveBooking } from "@/hooks/Actions/free-sessions/useFreeSessionCrudsForAdmin";
 import InlineSelect from "@/Components/ui/InlineSelect";
@@ -47,6 +47,8 @@ function StudentsBooking() {
   const { data: employeesData } = useGetAllEmployees();
   const { mutate: updateTeacher, isPending: isUpdatingTeacher } = useUpdateGroupTeacher();
   const { mutate: moveBooking, isPending: isMovingBooking } = useMoveBooking();
+  const { mutate: createUser } = useCreateUserFromBooking();
+  const [creatingUserId, setCreatingUserId] = useState(null);
 
   // Status & Sales Update Hooks
   const { mutate: updateStatus, isPending: isUpdatingStatus } = useUpdateStatusForFreeSessionBooking();
@@ -563,6 +565,33 @@ function StudentsBooking() {
                       <div className="text-[10px] text-[var(--SubText)] mt-2">
                         Joined: {new Date(b.createdAt).toLocaleDateString()}
                       </div>
+
+                      {/* Profile Actions */}
+                      <div className="mt-2">
+                        {b.userId ? (
+                          <Link
+                            to={`/dash/users/${b.userId}`}
+                            className="text-[10px] font-bold text-blue-600 hover:underline flex items-center gap-1"
+                          >
+                            View Profile ↗
+                          </Link>
+                        ) : (
+                          <button
+                            onClick={() => {
+                              if (confirm("Generate a verified profile for this user with password 'password123'?")) {
+                                setCreatingUserId(b._id);
+                                createUser({ id: b._id }, {
+                                  onSettled: () => setCreatingUserId(null)
+                                });
+                              }
+                            }}
+                            disabled={creatingUserId === b._id}
+                            className="text-[10px] font-bold text-[var(--Yellow)] hover:underline flex items-center gap-1 disabled:opacity-50"
+                          >
+                            {creatingUserId === b._id ? "Creating..." : "Generate Profile +"}
+                          </button>
+                        )}
+                      </div>
                     </td>
                     <td className="p-4 text-sm">
                       <div className="flex flex-col gap-2">
@@ -620,7 +649,9 @@ function StudentsBooking() {
                         )}
 
                         <InlineSelect
-                          value={b?.freeSessionGroupId?._id || ""}
+                          value={b?.freeSessionGroupId?._id ? `group:${b.freeSessionGroupId._id}`
+                            : b?.freeSessionGroupId?.instructor?._id ? `instructor:${b.freeSessionGroupId.instructor._id}`
+                              : ""}
                           options={(b?.availableInstructors || []).map((inst) => {
                             const isExistingGroup = !!inst.slotGroupId;
                             return {

@@ -4,7 +4,11 @@ const endPoints = {
   forgotPassword: "/auth/forgot-password/",
   resetPassword: "/auth/reset-password/",
   updatePassword: "/auth/update-password/",
+  verifyOTP: "/auth/verify-otp/",
+  resendOTP: "/auth/resend-otp/",
   userProfile: "/auth/me",
+  updateMe: "/users/profile",
+  history: "/users/history",
 
   allEmployees: "users/employees/",
   allStudents: "users/students/",
@@ -37,6 +41,10 @@ const endPoints = {
   getTest: "freetests/",
   bulkReassign: "/free-session-bookings/bulk-reassign",
   suggestAgents: "/free-session-bookings/suggest-agents",
+  // Admin User Management
+  adminAllUsers: "users/admin/all",
+  addUserNote: "users/admin/add-note",
+  toggleSubscription: "users/admin/toggle-subscription",
 };
 
 export default endPoints;

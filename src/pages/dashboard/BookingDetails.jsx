@@ -13,7 +13,7 @@ import {
   useMoveBooking,
   useGetFreeSessionSlotsByDate
 } from "@/hooks/Actions/free-sessions/useFreeSessionCrudsForAdmin";
-import { useGetAllEmployees } from "@/hooks/Actions/users/useCurdsUsers";
+import { useGetAllEmployees, useCreateUserFromBooking } from "@/hooks/Actions/users/useCurdsUsers";
 import { useAuth } from "@/context/AuthContext";
 import InlineSelect from "@/Components/ui/InlineSelect";
 import formatTime, { to12h } from "@/utilities/formatTime";
@@ -49,6 +49,7 @@ const BookingDetails = () => {
   const { mutate: updateSalesAgent, isPending: isUpdatingSalesAgent } = useUpdateSalesAgentForFreeSessionBooking();
   const { mutate: moveBooking, isPending: isMovingBooking } = useMoveBooking();
   const { data: employeesData } = useGetAllEmployees();
+  const { mutate: createUser, isPending: isCreatingUser } = useCreateUserFromBooking();
 
   const [noteText, setNoteText] = useState("");
 
@@ -108,6 +109,14 @@ const BookingDetails = () => {
           <div>
             <div className="flex items-center gap-3">
               <h1 className="text-3xl font-black text-gray-900">{booking?.name}</h1>
+              {booking?.userId && (
+                <Link
+                  to={`/dash/users/${typeof booking.userId === 'object' ? booking.userId._id : booking.userId}`}
+                  className="flex items-center gap-1.5 px-3 py-1 bg-blue-50 text-blue-600 rounded-full text-[10px] font-black uppercase tracking-wider hover:bg-blue-100 transition-colors"
+                >
+                  <User size={12} /> Registered Student
+                </Link>
+              )}
               <span className={`px-3 py-1 rounded-full text-[10px] font-black uppercase tracking-wider ${booking?.status === 'Confirmed' ? 'bg-green-100 text-green-700' : 'bg-amber-100 text-amber-700'
                 }`}>
                 {booking?.status}
@@ -211,10 +220,43 @@ const BookingDetails = () => {
                 </div>
               </div>
 
+              <div className="space-y-4">
+                <div className="flex items-center justify-between">
+                  <label className="text-[10px] uppercase font-bold text-gray-400 tracking-widest">Student Profile</label>
+                  {isCreatingUser ? (
+                    <span className="text-xs text-[var(--Yellow)] animate-pulse">Creating...</span>
+                  ) : booking?.userId ? (
+                    <Link
+                      to={`/dash/users/${typeof booking.userId === 'object' ? booking.userId._id : booking.userId}`}
+                      className="text-xs font-bold text-blue-600 hover:underline flex items-center gap-1"
+                    >
+                      View Profile <ChevronRight className="h-3 w-3" />
+                    </Link>
+                  ) : (
+                    <button
+                      onClick={() => createUser({ id })}
+                      disabled={isCreatingUser}
+                      className="text-xs font-bold text-[var(--Yellow)] hover:underline flex items-center gap-1"
+                    >
+                      Generate Verified Profile <UserCheck className="h-3 w-3" />
+                    </button>
+                  )}
+                </div>
+
+                {(!booking?.userId || booking?.userId.role !== 'student') && (
+                  <div className="bg-amber-50 text-amber-700 text-[10px] p-2 rounded-lg border border-amber-100 flex items-start gap-2">
+                    <Activity className="h-3 w-3 mt-0.5 shrink-0" />
+                    <span>Generates a profile with password <code className="font-mono font-bold">password123</code></span>
+                  </div>
+                )}
+              </div>
+
               <div className="space-y-2">
                 <label className="text-[10px] uppercase font-bold text-gray-400 tracking-widest">Teacher & Group</label>
                 <InlineSelect
-                  value={booking?.freeSessionGroupId?._id || ""}
+                  value={booking?.freeSessionGroupId?._id ? `group:${booking.freeSessionGroupId._id}`
+                    : booking?.freeSessionGroupId?.instructor?._id ? `instructor:${booking.freeSessionGroupId.instructor._id}`
+                      : ""}
                   options={(booking?.availableInstructors || []).map((inst) => {
                     const isExistingGroup = !!inst.slotGroupId;
                     return {

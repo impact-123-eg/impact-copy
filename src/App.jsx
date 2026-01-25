@@ -48,7 +48,12 @@ import AddCategory from "./Components/dashboard/AddCategory";
 import CoursesPlans from "./pages/dashboard/CoursesPlans";
 import AddEditPackage from "./Components/dashboard/AddEditPackage";
 import PageManagement from "./pages/dashboard/PageManagement";
+import UsersManagement from "./pages/dashboard/UsersManagement";
+import UserDetailedProfile from "./pages/dashboard/UserDetailedProfile";
 import Login from "./pages/dashboard/Login";
+import Register from "./pages/Register";
+import VerifyOTP from "./pages/VerifyOTP";
+import Profile from "./pages/Profile";
 
 const pixelId = import.meta.env.VITE_PIXEL_ID;
 
@@ -92,6 +97,7 @@ function App() {
               <Route path="about" element={<AboutUs />} />
               <Route path="courses" element={<Courses />} />
               <Route path="courses/:id" element={<CourseDetails />} />
+              <Route path="profile" element={<ProtectedRoute element={<Profile />} />} />
             </Route>
 
             {/* Checkout page with a different layout */}
@@ -112,6 +118,9 @@ function App() {
                 path="free-session-cancelled"
                 element={<FreeSessionCancelled />}
               />
+              <Route path="login" element={<Login />} />
+              <Route path="register" element={<Register />} />
+              <Route path="verify-otp" element={<VerifyOTP />} />
               <Route path="terms-of-use" element={<Terms />} />
               <Route path="privacy-policy" element={<Privacy />} />
               <Route path="refund-policy" element={<Refund />} />
@@ -246,6 +255,24 @@ function App() {
               element={
                 <ProtectedRoute
                   element={<AddEditPackage />}
+                  requiredRoles={["admin"]}
+                />
+              }
+            />
+            <Route
+              path="users"
+              element={
+                <ProtectedRoute
+                  element={<UsersManagement />}
+                  requiredRoles={["admin"]}
+                />
+              }
+            />
+            <Route
+              path="users/:id"
+              element={
+                <ProtectedRoute
+                  element={<UserDetailedProfile />}
                   requiredRoles={["admin"]}
                 />
               }

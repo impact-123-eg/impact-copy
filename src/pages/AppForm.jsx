@@ -1,5 +1,5 @@
 import React, { useEffect } from "react";
-import { useParams } from "react-router-dom";
+import { useParams, useNavigate, useLocation } from "react-router-dom";
 import { useFormik } from "formik";
 import { FaApple } from "react-icons/fa";
 import { IoCardSharp } from "react-icons/io5";
@@ -7,20 +7,44 @@ import Option from "../Components/Option";
 import { useI18n } from "../hooks/useI18n";
 import { useGetpackageById } from "@/hooks/Actions/packages/usePackageCruds";
 import { useCreatePayment } from "@/hooks/Actions/payment/useCurdsPayment";
+import { useGetUserProfile } from "@/hooks/Actions/users/useCurdsUsers";
 import useCurrencyExchange from "@/hooks/useCurrencyExchange";
 import { bookingApplicationValidationSchema } from "@/Validation";
 
+import { useAuth } from "../context/AuthContext";
+
 const AppForm = () => {
   const { id: packageId } = useParams();
-  const { t, initialize, loading: i18nLoading } = useI18n();
+  const navigate = useNavigate();
+  const location = useLocation();
+  const { t, initialize, loading: i18nLoading, currentLocale } = useI18n();
+  const { user, isLoggedIn, isLoading: authLoading } = useAuth();
+
+  // Fetch fresh user profile to ensure we have all data (especially email)
+  const { data: userProfileData, isPending: profileLoading } = useGetUserProfile();
+
+  // Determine the active user object
+  // API response structure seems to be { success: true, user: { ... } } based on logs
+  // We check data.user first, then data.data (standard convention), then fallback to auth user
+  const activeUser = userProfileData?.data?.user || userProfileData?.data?.data || user;
 
   useEffect(() => {
     initialize();
   }, [initialize]);
 
+  useEffect(() => {
+    if (!authLoading && !isLoggedIn) {
+      navigate(`/${currentLocale}/login`, {
+        state: { from: location.pathname },
+      });
+    }
+  }, [authLoading, isLoggedIn, navigate, currentLocale, location]);
+
   const { convert } = useCurrencyExchange();
 
-  const { data: packData, isLoading: packLoading } = useGetpackageById({ id: packageId });
+  const { data: packData, isLoading: packLoading } = useGetpackageById({
+    id: packageId,
+  });
   const coursePackage = packData?.data || {};
   const priceUSD = coursePackage?.priceAfter;
   const priceEGP = convert(priceUSD, "egp");
@@ -30,26 +54,29 @@ const AppForm = () => {
 
   const formik = useFormik({
     initialValues: {
-      name: "",
-      email: "",
-      phoneNumber: "",
+      name: activeUser?.name || "",
+      email: activeUser?.email || "",
+      phoneNumber: activeUser?.phoneNumber || "01000000000",
       package: coursePackage?.category?._id || "",
-      country: "EG",
+      country: activeUser?.country || "EG",
       paymentMethod: "card",
     },
-    validationSchema: bookingApplicationValidationSchema(t),
     enableReinitialize: true,
-    validateOnMount: true,
+    validateOnMount: false,
     onSubmit: (values) => {
       const bookingData = {
-        name: values.name,
-        email: values.email,
-        phoneNumber: values.phoneNumber,
-        country: values.country || "EG",
+        name: activeUser?.name || values.name,
+        email: activeUser?.email || values.email,
+        phoneNumber: activeUser?.phoneNumber || "01000000000",
+        country: activeUser?.country || "EG",
         packageId: coursePackage._id,
         paymentMethod: values.paymentMethod || "card",
         priceEGP: priceEGP,
       };
+      // Debug log to verify data being sent
+      console.log("Submitting booking data:", bookingData);
+      console.log("Active user data:", activeUser);
+
       createPayment(
         { data: bookingData },
         {
@@ -72,7 +99,7 @@ const AppForm = () => {
     formik.handleSubmit();
   };
 
-  if (i18nLoading || packLoading) {
+  if (i18nLoading || packLoading || authLoading || profileLoading) {
     return (
       <div className="flex justify-center items-center h-screen">
         <div className="animate-spin rounded-full h-32 w-32 border-b-2 border-[var(--Yellow)]"></div>
@@ -80,156 +107,52 @@ const AppForm = () => {
     );
   }
 
+  // If not logged in, we are redirecting, so return null or spinner
+  if (!isLoggedIn) return null;
+
   return (
-    <section className="md:px-20 lg:px-40 px-4 py-8">
-      <div className="flex flex-col lg:flex-row gap-10 lg:gap-16">
-        <div className="flex-1">
-          <form onSubmit={formik.handleSubmit} className="space-y-8">
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-6 md:gap-8">
-              <div className="space-y-6">
-                <div className="space-y-2">
-                  <label className="block text-base font-semibold text-gray-700">
-                    {t("free-session", "name", "Name")} *
-                  </label>
-                  <input
-                    id="name"
-                    name="name"
-                    type="text"
-                    onChange={formik.handleChange}
-                    onBlur={formik.handleBlur}
-                    value={formik.values.name}
-                    className={`w-full px-4 py-3 bg-gray-50 border rounded-lg focus:outline-none focus:ring-2 focus:ring-[var(--Yellow)] transition-colors ${(formik.touched.name || formik.submitCount > 0) &&
-                      formik.errors.name
-                      ? "border-red-500"
-                      : "border-gray-200"
-                      }`}
-                    placeholder={t("free-session", "enterName", "Enter your name")}
-                  />
-                  {(formik.touched.name || formik.submitCount > 0) &&
-                    formik.errors.name ? (
-                    <div className="text-red-500 text-sm">
-                      {formik.errors.name}
-                    </div>
-                  ) : null}
-                </div>
+    <section className="md:px-20 lg:px-40 px-4 py-8 flex flex-col items-center gap-8">
+      <div className="w-full max-w-md">
+        <Option option={coursePackage} isBooking={true} />
+      </div>
 
-                <div className="space-y-2">
-                  <label className="block text-base font-semibold text-gray-700">
-                    {t("free-session", "email", "Email")} *
-                  </label>
-                  <input
-                    id="email"
-                    name="email"
-                    type="email"
-                    onChange={formik.handleChange}
-                    onBlur={formik.handleBlur}
-                    value={formik.values.email}
-                    className={`w-full px-4 py-3 bg-gray-50 border rounded-lg focus:outline-none focus:ring-2 focus:ring-[var(--Yellow)] transition-colors ${(formik.touched.email || formik.submitCount > 0) &&
-                      formik.errors.email
-                      ? "border-red-500"
-                      : "border-gray-200"
-                      }`}
-                    placeholder={t("free-session", "enterEmail", "Enter your email")}
-                  />
-                  {(formik.touched.email || formik.submitCount > 0) &&
-                    formik.errors.email ? (
-                    <div className="text-red-500 text-sm">
-                      {formik.errors.email}
-                    </div>
-                  ) : null}
-                </div>
-              </div>
-
-              <div className="space-y-6">
-                <div className="space-y-2">
-                  <label className="block text-base font-semibold text-gray-700">
-                    {t("free-session", "phoneNumber", "Phone Number")} *
-                  </label>
-                  <input
-                    id="phoneNumber"
-                    name="phoneNumber"
-                    type="text"
-                    onChange={formik.handleChange}
-                    onBlur={formik.handleBlur}
-                    value={formik.values.phoneNumber}
-                    className={`w-full px-4 py-3 bg-gray-50 border rounded-lg focus:outline-none focus:ring-2 focus:ring-[var(--Yellow)] transition-colors ${(formik.touched.phoneNumber || formik.submitCount > 0) &&
-                      formik.errors.phoneNumber
-                      ? "border-red-500"
-                      : "border-gray-200"
-                      }`}
-                    placeholder={
-                      t("free-session", "enterPhoneNumber", "Enter your phone number")
-                    }
-                  />
-                  {(formik.touched.phoneNumber || formik.submitCount > 0) &&
-                    formik.errors.phoneNumber ? (
-                    <div className="text-red-500 text-sm">
-                      {formik.errors.phoneNumber}
-                    </div>
-                  ) : null}
-                </div>
-
-                <div className="space-y-2">
-                  <label className="block text-base font-semibold text-gray-700">
-                    {t("free-session", "country", "Country")} *
-                  </label>
-                  <input
-                    id="country"
-                    name="country"
-                    type="text"
-                    onChange={formik.handleChange}
-                    onBlur={formik.handleBlur}
-                    value={formik.values.country}
-                    className={`w-full px-4 py-3 bg-gray-50 border rounded-lg focus:outline-none focus:ring-2 focus:ring-[var(--Yellow)] transition-colors border-gray-200`}
-                    placeholder={t("free-session", "enterCountry", "Egypt")}
-                  />
-                </div>
+      <div className="w-full max-w-md">
+        <form onSubmit={formik.handleSubmit} className="w-full">
+          <div className="flex flex-col items-center gap-6 pt-4">
+            <div className="text-center w-full space-y-4">
+              <h3 className="text-lg font-semibold text-gray-800">
+                {t("free-session", "payment", "Payment")}
+              </h3>
+              <div className="flex justify-center gap-4">
+                <button
+                  type="button"
+                  disabled={createPaymentPending}
+                  onClick={handleApplePay}
+                  className="disabled:opacity-50 lg:hidden disabled:pointer-events-none p-4 rounded-xl bg-[var(--Yellow)] text-white hover:bg-yellow-600 transition-colors shadow-md hover:shadow-lg"
+                >
+                  <FaApple size={24} />
+                </button>
+                <button
+                  type="submit"
+                  disabled={createPaymentPending}
+                  onClick={handleCardPay}
+                  className="disabled:opacity-50 disabled:pointer-events-none px-8 py-3 rounded-xl bg-[var(--Yellow)] text-white font-medium hover:bg-yellow-600 transition-colors flex items-center gap-3 shadow-md hover:shadow-lg"
+                >
+                  <IoCardSharp size={24} />
+                  <span>{t("general", "payNow", "Pay Now")}</span>
+                </button>
               </div>
             </div>
 
-            <div className="flex flex-col-reverse md:flex-row justify-between items-center gap-6 pt-8 border-t border-gray-200">
-              <button
-                type="button"
-                className="px-8 py-3 rounded-xl border-2 border-[var(--Yellow)] text-[var(--Yellow)] font-medium hover:bg-[var(--Yellow)] hover:text-white transition-colors"
-                onClick={() => window.history.back()}
-              >
-                {t("general", "back", "Back")}
-              </button>
-
-              <div className="text-center">
-                <h3 className="text-lg font-semibold text-gray-800 mb-3">
-                  {t("free-session", "payment", "Payment")}
-                </h3>
-                <div className="flex gap-3 justify-center">
-                  <button
-                    type="button"
-                    disabled={
-                      !formik.isValid || !formik.dirty || createPaymentPending
-                    }
-                    onClick={handleApplePay}
-                    className="disabled:opacity-50 lg:hidden disabled:pointer-events-none p-3 rounded-xl bg-[var(--Yellow)] text-white hover:bg-yellow-600 transition-colors"
-                  >
-                    <FaApple size={22} />
-                  </button>
-                  <button
-                    type="submit"
-                    disabled={
-                      !formik.isValid || !formik.dirty || createPaymentPending
-                    }
-                    onClick={handleCardPay}
-                    className="disabled:opacity-50 disabled:pointer-events-none px-6 py-3 rounded-xl bg-[var(--Yellow)] text-white font-medium hover:bg-yellow-600 transition-colors flex items-center gap-2"
-                  >
-                    <IoCardSharp size={20} />
-                  </button>
-                </div>
-              </div>
-            </div>
-          </form>
-        </div>
-
-        <div className="lg:w-96">
-          <Option option={coursePackage} isBooking={true} />
-        </div>
+            <button
+              type="button"
+              className="px-6 py-2 rounded-lg text-gray-500 hover:text-gray-700 font-medium transition-colors"
+              onClick={() => window.history.back()}
+            >
+              {t("general", "back", "Back")}
+            </button>
+          </div>
+        </form>
       </div>
     </section>
   );

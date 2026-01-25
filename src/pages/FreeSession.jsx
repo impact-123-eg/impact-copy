@@ -9,6 +9,7 @@ import cntris from "@/data/Countries.json";
 import { formatDate } from "@/utilities/formatDateForApi";
 import FreeSessionCalendar from "@/Components/FreeSessionCalendar";
 import SEO from "@/Components/SEO";
+import { useAuth } from "@/context/AuthContext";
 
 const FreeSessionForm = () => {
   const { t, currentLocale, initialize, loading: i18nLoading, localizePath } = useI18n();
@@ -18,6 +19,7 @@ const FreeSessionForm = () => {
   const [selectedSlot, setSelectedSlot] = useState(null);
   const [step, setStep] = useState(1);
   const [loadingIp, setLoadingIp] = useState(false);
+  const { isLoggedIn, user } = useAuth();
   const { mutate: createBooking } = useCreateBooking();
 
   useEffect(() => {
@@ -57,9 +59,10 @@ const FreeSessionForm = () => {
     initialValues: {
       name: "",
       email: "",
-      phoneNumber: "",
+      phoneNumber: user?.phoneNumber || "",
       country: "",
       age: "",
+      password: "",
       freeSessionSlotId: "",
     },
     validationSchema: step === 1 ? freeSessionPersonalSchema(t) : freeSessionValidationSchema(t),
@@ -251,6 +254,28 @@ const FreeSessionForm = () => {
               <div className="text-red-500 text-sm mt-1">{formik.errors.age}</div>
             )}
           </div>
+
+          {!isLoggedIn && (
+            <div className="space-y-2">
+              <label htmlFor="password" padding className="block text-lg font-bold text-[var(--Main)]">
+                {t("free-session", "password", "Create Password")}
+              </label>
+              <input
+                id="password"
+                name="password"
+                type="password"
+                onChange={formik.handleChange}
+                onBlur={formik.handleBlur}
+                value={formik.values.password}
+                className={`mt-1 block w-full px-3 py-2 bg-[var(--Input)] rounded-md border ${formik.touched.password && formik.errors.password ? "border-red-500" : "border-transparent"}`}
+                placeholder={t("free-session", "enterPassword", "Min 6 characters")}
+              />
+              <p className="text-xs text-gray-500">Provided password will be used to create your account.</p>
+              {formik.touched.password && formik.errors.password && (
+                <div className="text-red-500 text-sm mt-1">{formik.errors.password}</div>
+              )}
+            </div>
+          )}
 
           <div className="flex flex-col sm:flex-row gap-4 justify-between items-center md:col-span-2 mt-8">
             <button

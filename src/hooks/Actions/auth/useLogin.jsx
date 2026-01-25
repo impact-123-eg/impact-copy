@@ -21,7 +21,7 @@ const useLogin = () => {
       setToken(data?.data?.token);
       switch (data?.data?.user?.role) {
         case "student":
-          navigate("/");
+          navigate("/profile");
           break;
         default:
           navigate("/dash/");

@@ -195,3 +195,8 @@ export const freeSessionPersonalSchema = (t) =>
       .oneOf(["kid", "teen", "adult"], "invalidAge")
       .required(t("validation.ageRequired")),
   });
+export const otpValidationSchema = Yup.object({
+  otp: Yup.string()
+    .length(6, "Code must be 6 digits")
+    .required("Verification code is required"),
+});

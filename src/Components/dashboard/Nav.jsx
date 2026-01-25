@@ -59,6 +59,11 @@ function Nav() {
       path: "/dash/settings",
     },
     isAdmin && {
+      name: "Students",
+      icon: <MdPersonOutline size={24} />,
+      path: "/dash/users",
+    },
+    isAdmin && {
       name: "Page Management",
       icon: <GiPapers size={24} />,
       path: "/dash/pages",
@@ -102,8 +107,8 @@ function Nav() {
             to={item.path}
             onClick={() => window.scroll(0, 0)}
             className={`flex items-center gap-4 text-lg rounded-xl py-3 px-4 transition-all duration-200 ${isActive(item.path)
-                ? "bg-white text-[var(--Main)] shadow-md"
-                : "text-white hover:bg-white/10"
+              ? "bg-white text-[var(--Main)] shadow-md"
+              : "text-white hover:bg-white/10"
               }`}
           >
             <span
