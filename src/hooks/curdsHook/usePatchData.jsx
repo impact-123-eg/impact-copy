@@ -27,7 +27,10 @@ const usePatchData = (url, mutationKeys, invalidateQueryKey) => {
         : [invalidateQueryKey];
 
       invalidateKeys.forEach((key) => {
-        queryClient.invalidateQueries({ queryKey: [key] });
+        // Invalidate all queries that start with this key (prefix matching)
+        queryClient.invalidateQueries({
+          predicate: (query) => query.queryKey[0] === key
+        });
       });
 
       if (context?.loadingToast) {

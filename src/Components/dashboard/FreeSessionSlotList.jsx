@@ -77,11 +77,10 @@ const FreeSessionSlotList = ({
           <div
             key={slot._id}
             onClick={() => onSlotSelect(slot)}
-            className={`p-4 border rounded-lg cursor-pointer transition-all ${
-              isSelected
+            className={`p-4 border rounded-lg cursor-pointer transition-all ${isSelected
                 ? "border-[var(--Yellow)] bg-yellow-50 ring-2 ring-[var(--Yellow)] ring-opacity-50"
                 : "border-[var(--Input)] hover:border-[var(--Yellow)] hover:shadow-sm"
-            } ${!isActive ? "opacity-60 grayscale" : ""}`}
+              } ${!isActive ? "opacity-60 grayscale" : ""}`}
           >
             {/* Slot Header */}
             <div className="flex justify-between items-start mb-2">
@@ -100,11 +99,10 @@ const FreeSessionSlotList = ({
               {isSelected && (
                 <div className="flex gap-2">
                   <span
-                    className={`text-sm px-2 py-1 rounded-full ${
-                      stats.availableSpots > 0
+                    className={`text-sm px-2 py-1 rounded-full ${stats.availableSpots > 0
                         ? "bg-green-100 text-green-700"
                         : "bg-red-100 text-red-700"
-                    }`}
+                      }`}
                   >
                     {stats.availableSpots} spot
                     {stats.availableSpots !== 1 ? "s" : ""} left
@@ -117,11 +115,10 @@ const FreeSessionSlotList = ({
                         e.stopPropagation();
                         onToggleStatus(slot._id, !isActive);
                       }}
-                      className={`p-2 rounded-lg transition-colors ${
-                        isActive
+                      className={`p-2 rounded-lg transition-colors ${isActive
                           ? "bg-[var(--Yellow)] text-white hover:bg-yellow-400"
                           : "bg-green-500 text-white hover:bg-green-700"
-                      }`}
+                        }`}
                       title={isActive ? "Disable Slot" : "Enable Slot"}
                     >
                       {isActive ? (
@@ -172,11 +169,10 @@ const FreeSessionSlotList = ({
               <div
                 className="bg-[var(--Yellow)] h-2 rounded-full transition-all"
                 style={{
-                  width: `${
-                    stats.totalCapacity > 0
+                  width: `${stats.totalCapacity > 0
                       ? (stats.totalBooked / stats.totalCapacity) * 100
                       : 0
-                  }%`,
+                    }%`,
                 }}
               ></div>
             </div>
@@ -215,13 +211,14 @@ const FreeSessionSlotList = ({
                     return (
                       <div
                         key={group._id}
-                        className={`flex justify-between items-center p-2 rounded text-xs ${
-                          isGroupFull
+                        className={`flex justify-between items-center p-2 rounded text-xs ${isGroupFull
                             ? "bg-red-50 text-red-700"
                             : "bg-green-50 text-green-700"
-                        }`}
+                          }`}
                       >
-                        <span className="font-medium">{group.name}</span>
+                        <span className="font-medium">
+                          {group.name} {group.teacher ? ` - ${group.teacher}` : ""}
+                        </span>
                         <span>
                           {groupBookings}/{group.maxParticipants}
                           {isGroupFull && " 🚫"}

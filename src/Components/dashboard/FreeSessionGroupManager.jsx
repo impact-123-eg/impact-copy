@@ -1,10 +1,35 @@
-import React from "react";
+import React, { useState } from "react";
 import { DragDropContext, Droppable, Draggable } from "@hello-pangea/dnd";
-import { useMoveBooking } from "@/hooks/Actions/free-sessions/useFreeSessionCrudsForAdmin";
+import {
+  useMoveBooking,
+  useAutoAssignInstructors,
+  useCancelFreeSessionBooking,
+  useUpdateGroupTeacher
+} from "@/hooks/Actions/free-sessions/useFreeSessionCrudsForAdmin";
+import { useGetAllEmployees } from "@/hooks/Actions/users/useCurdsUsers";
 import formatTime from "@/utilities/formatTime";
+import InlineSelect from "@/Components/ui/InlineSelect";
+import {
+  User,
+  UserX,
+  Trash2,
+  Wand2,
+  Users,
+  Calendar,
+  XCircle,
+  CheckCircle2,
+  AlertCircle
+} from "lucide-react";
+import BookingDetailsModal from "./BookingDetailsModal";
 
-const FreeSessionGroupManager = ({ slot, onBookingMoved }) => {
-  const { mutate: moveBooking, isPending: isMoving } = useMoveBooking();
+const FreeSessionGroupManager = ({ slot, onBookingMoved, isMoving, onMoveBooking, hideHeader = false }) => {
+  const [selectedBooking, setSelectedBooking] = useState(null);
+  const { mutate: autoAssign, isPending: isAssigning } = useAutoAssignInstructors();
+  const { mutate: cancelBooking, isPending: isCancelling } = useCancelFreeSessionBooking();
+  const { mutate: updateTeacher, isPending: isUpdatingTeacher } = useUpdateGroupTeacher();
+  const { data: employeesData } = useGetAllEmployees();
+
+  const instructors = employeesData?.data?.data?.filter(e => e.role === "instructor") || [];
 
   // Helper function to organize bookings by group
   const organizeBookingsByGroup = () => {
@@ -12,61 +37,44 @@ const FreeSessionGroupManager = ({ slot, onBookingMoved }) => {
 
     if (!slot?.groups) return grouped;
 
-    // Initialize empty arrays for each group
     slot.groups.forEach((group) => {
       grouped[group._id] = {
         groupInfo: group,
-        bookings: [],
+        bookings: group.bookings || [],
       };
-    });
-
-    // Assign bookings to their groups
-    slot.groups.forEach((group) => {
-      if (group.bookings && group.bookings.length > 0) {
-        grouped[group._id].bookings = group.bookings;
-      }
     });
 
     return grouped;
   };
 
-  const handleDragEnd = async (result) => {
-    if (!result.destination) return;
-
-    const sourceGroupId = result.source.droppableId;
-    const destGroupId = result.destination.droppableId;
-    const bookingId = result.draggableId;
-
-    if (sourceGroupId === destGroupId) return;
-
-    // Find the booking being moved
-    const allBookings = slot.groups.flatMap((group) => group.bookings || []);
-    const bookingToMove = allBookings.find((b) => b._id === bookingId);
-
-    if (!bookingToMove) return;
-
-    moveBooking(
-      {
-        bookingId,
-        fromGroupId: sourceGroupId,
-        toGroupId: destGroupId,
+  const handleAutoAssign = () => {
+    if (!slot?._id) return;
+    autoAssign(slot._id, {
+      onSuccess: () => {
+        onBookingMoved();
       },
-      {
-        onSuccess: () => {
-          onBookingMoved(); // Refresh the data
-        },
-        onError: (error) => {
-          console.error("Failed to move booking:", error);
-          alert("Failed to move booking. Please try again.");
-        },
+      onError: (error) => {
+        alert("Auto-assignment failed: " + error.message);
       }
-    );
+    });
+  };
+
+  const handleCancelBooking = (bookingId) => {
+    if (window.confirm("Are you sure you want to cancel this booking? The seat will be made available for others.")) {
+      cancelBooking(bookingId, {
+        onSuccess: () => {
+          onBookingMoved();
+        }
+      });
+    }
   };
 
   if (!slot || !slot.groups || slot.groups.length === 0) {
+    if (hideHeader) return null; // Don't show anything if no groups in a list of slots
     return (
-      <div className="text-center py-8 text-[var(--SubText)]">
-        No groups created for this time slot
+      <div className="text-center py-12 bg-gray-50 rounded-2xl border-2 border-dashed border-gray-200 text-[var(--SubText)]">
+        <Users className="mx-auto h-12 w-12 text-gray-300 mb-4" />
+        <p className="text-lg font-medium">No groups created for this time slot</p>
       </div>
     );
   }
@@ -76,219 +84,245 @@ const FreeSessionGroupManager = ({ slot, onBookingMoved }) => {
   return (
     <div className="space-y-6">
       {/* Slot Information Header */}
-      <div className="bg-blue-50 p-4 rounded-lg border border-blue-200">
-        <h3 className="font-semibold text-lg text-blue-800">
-          {formatTime(slot.startTime)} - {formatTime(slot.endTime)}
-        </h3>
-        <p className="text-sm text-blue-600">
-          Total Groups: {slot.groups.length} • Total Bookings:{" "}
-          {slot.groups.reduce(
-            (total, group) => total + (group.bookings?.length || 0),
-            0
-          )}
-        </p>
-      </div>
-
-      <DragDropContext onDragEnd={handleDragEnd}>
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4">
-          {slot.groups.map((group) => (
-            <Droppable key={group._id} droppableId={group._id}>
-              {(provided, snapshot) => (
-                <div
-                  {...provided.droppableProps}
-                  ref={provided.innerRef}
-                  className={`border rounded-lg p-4 min-h-[200px] transition-colors ${
-                    snapshot.isDraggingOver
-                      ? "bg-blue-50 border-blue-300 ring-2 ring-blue-200"
-                      : "bg-gray-50 border-gray-200 hover:border-gray-300"
-                  } ${
-                    (bookingsByGroup[group._id]?.bookings.length || 0) >=
-                    group.maxParticipants
-                      ? "opacity-75 cursor-not-allowed"
-                      : ""
-                  }`}
-                >
-                  {/* Group Header */}
-                  <div className="flex justify-between items-center mb-3 pb-2 border-b">
-                    <div>
-                      <h3 className="font-semibold text-gray-800">{group.name}</h3>
-                      <div className="text-xs text-gray-500 mt-0.5">
-                        Teacher: {group.teacher ? (
-                          <span className="font-medium text-gray-700">{group.teacher}</span>
-                        ) : (
-                          <span className="italic">Unassigned</span>
-                        )}
-                      </div>
-                    </div>
-                    <span
-                      className={`text-sm px-2 py-1 rounded-full ${
-                        (bookingsByGroup[group._id]?.bookings.length || 0) >=
-                        group.maxParticipants
-                          ? "bg-red-100 text-red-700"
-                          : "bg-green-100 text-green-700"
-                      }`}
-                    >
-                      {bookingsByGroup[group._id]?.bookings.length || 0}/
-                      {group.maxParticipants}
-                    </span>
-                  </div>
-
-                  {/* Bookings List */}
-                  <div className="space-y-2 min-h-[120px]">
-                    {bookingsByGroup[group._id]?.bookings.map(
-                      (booking, index) => (
-                        <Draggable
-                          key={booking._id}
-                          draggableId={booking._id}
-                          index={index}
-                          isDragDisabled={isMoving}
-                        >
-                          {(provided, snapshot) => (
-                            <div
-                              ref={provided.innerRef}
-                              {...provided.draggableProps}
-                              {...provided.dragHandleProps}
-                              className={`p-3 rounded border cursor-grab transition-all ${
-                                snapshot.isDragging
-                                  ? "bg-blue-100 border-blue-300 shadow-lg rotate-2"
-                                  : "bg-white border-gray-200 hover:shadow-md hover:border-blue-200"
-                              } ${
-                                booking.status === "Cancelled"
-                                  ? "opacity-50"
-                                  : ""
-                              }`}
-                            >
-                              <div className="font-medium text-sm text-gray-800">
-                                {booking.name}
-                              </div>
-                              <div className="text-xs text-gray-500 mb-1">
-                                {booking.email}
-                              </div>
-                              <div className="flex justify-between items-center">
-                                <span
-                                  className={`text-xs px-1.5 py-0.5 rounded ${
-                                    booking.level === "Beginner"
-                                      ? "bg-blue-100 text-blue-700"
-                                      : booking.level === "Intermediate"
-                                      ? "bg-purple-100 text-purple-700"
-                                      : "bg-orange-100 text-orange-700"
-                                  }`}
-                                >
-                                  {booking.level}
-                                </span>
-                                <span
-                                  className={`text-xs px-1.5 py-0.5 rounded ${
-                                    booking.status === "Confirmed"
-                                      ? "bg-green-100 text-green-700"
-                                      : booking.status === "Pending"
-                                      ? "bg-yellow-100 text-yellow-700"
-                                      : "bg-red-100 text-red-700"
-                                  }`}
-                                >
-                                  {booking.status}
-                                </span>
-                              </div>
-                              {booking.freeTest && (
-                                <div className="text-xs text-gray-400 mt-1">
-                                  ✓ Free Test Taken
-                                </div>
-                              )}
-                            </div>
-                          )}
-                        </Draggable>
-                      )
-                    )}
-                    {provided.placeholder}
-                  </div>
-
-                  {/* Group Status Message */}
-                  {(bookingsByGroup[group._id]?.bookings.length || 0) >=
-                    group.maxParticipants && (
-                    <div className="text-xs text-red-500 mt-2 text-center font-medium">
-                      🚫 Group Full
-                    </div>
-                  )}
-
-                  {(!bookingsByGroup[group._id]?.bookings ||
-                    bookingsByGroup[group._id].bookings.length === 0) && (
-                    <div className="text-xs text-gray-400 mt-4 text-center">
-                      No bookings yet
-                    </div>
-                  )}
-                </div>
-              )}
-            </Droppable>
-          ))}
-        </div>
-      </DragDropContext>
-
-      {/* Loading Overlay */}
-      {isMoving && (
-        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
-          <div className="bg-white p-6 rounded-lg shadow-xl">
-            <div className="flex items-center space-x-3">
-              <div className="animate-spin rounded-full h-5 w-5 border-b-2 border-blue-500"></div>
-              <span className="text-gray-700">Moving booking...</span>
+      {!hideHeader && (
+        <div className="bg-gradient-to-r from-blue-50 to-indigo-50 p-6 rounded-2xl border border-blue-100 flex flex-col md:flex-row justify-between items-center gap-4 shadow-sm">
+          <div className="flex items-center gap-4">
+            <div className="bg-white p-3 rounded-xl shadow-sm border border-blue-100">
+              <Calendar className="h-6 w-6 text-blue-600" />
+            </div>
+            <div>
+              <h3 className="font-bold text-xl text-blue-900 flex items-center gap-2">
+                {formatTime(slot.startTime)} - {formatTime(slot.endTime)}
+              </h3>
+              <p className="text-sm text-blue-600 font-medium">
+                {slot.groups.length} Groups • {slot.groups.reduce((sum, g) => sum + (g.bookings?.length || 0), 0)} Total Bookings
+              </p>
             </div>
           </div>
         </div>
       )}
 
-      {/* Statistics Footer */}
-      <div className="bg-gray-50 p-4 rounded-lg border">
-        <h4 className="font-medium text-gray-700 mb-2">Session Statistics</h4>
-        <div className="grid grid-cols-2 md:grid-cols-4 gap-4 text-sm">
-          <div>
-            <span className="text-gray-500">Total Capacity: </span>
-            <span className="font-medium">
-              {slot.groups.reduce(
-                (sum, group) => sum + group.maxParticipants,
-                0
+      {/* Grid of Groups */}
+      <div className={`grid gap-6 ${hideHeader ? "grid-cols-1" : "grid-cols-1 lg:grid-cols-2 xl:grid-cols-3"}`}>
+        {slot.groups.map((group) => {
+          const groupBookings = bookingsByGroup[group._id]?.bookings || [];
+          const activeBookings = groupBookings.filter(b => b.status !== 'Cancelled');
+          const cancelledBookings = groupBookings.filter(b => b.status === 'Cancelled');
+
+          // Generate visual "seats"
+          const seats = [];
+          for (let i = 0; i < group.maxParticipants; i++) {
+            seats.push(activeBookings[i] || null);
+          }
+
+          return (
+            <Droppable key={group._id} droppableId={group._id}>
+              {(provided, snapshot) => (
+                <div
+                  {...provided.droppableProps}
+                  ref={provided.innerRef}
+                  className={`bg-white rounded-2xl border-2 transition-all p-5 shadow-sm ${snapshot.isDraggingOver
+                    ? "border-blue-400 bg-blue-50/50 ring-4 ring-blue-100"
+                    : "border-gray-100 hover:border-gray-200"
+                    }`}
+                >
+                  {/* Group Header */}
+                  <div className="flex justify-between items-start mb-6">
+                    <div>
+                      <h3 className="font-bold text-lg text-gray-900">{group.name}</h3>
+                      <div className="flex items-center gap-2 mt-1 text-sm bg-gray-50/50 p-1 px-2 rounded-lg border border-gray-100">
+                        <User className="h-3.5 w-3.5 text-gray-400" />
+                        <InlineSelect
+                          value={group.instructor || instructors.find(i => i.name === group.teacher)?._id || ""}
+                          options={instructors.map(inst => ({ label: inst.name, value: inst._id }))}
+                          isLoading={isUpdatingTeacher}
+                          onChange={(val) => {
+                            updateTeacher({ groupId: group._id, teacherId: val }, {
+                              onSuccess: () => onBookingMoved()
+                            });
+                          }}
+                          placeholder="Select Teacher"
+                          className="border-none !p-0 shadow-none bg-transparent hover:bg-white/50"
+                        />
+                      </div>
+                    </div>
+                    <div className="flex flex-col items-end">
+                      <span className={`text-xs font-bold px-2.5 py-1 rounded-lg border ${activeBookings.length >= group.maxParticipants
+                        ? "bg-red-50 text-red-600 border-red-100"
+                        : "bg-emerald-50 text-emerald-600 border-emerald-100"
+                        }`}>
+                        {activeBookings.length} / {group.maxParticipants} Seats
+                      </span>
+                    </div>
+                  </div>
+
+                  {/* Visual Seats Grid */}
+                  <div className="grid grid-cols-4 gap-3 mb-6">
+                    {seats.map((booking, index) => (
+                      <div key={index}>
+                        {booking ? (
+                          <Draggable
+                            draggableId={booking._id}
+                            index={index}
+                            isDragDisabled={isMoving}
+                          >
+                            {(dragProvided, dragSnapshot) => (
+                              <div
+                                ref={dragProvided.innerRef}
+                                {...dragProvided.draggableProps}
+                                {...dragProvided.dragHandleProps}
+                                className={`relative group h-14 rounded-xl flex items-center justify-center transition-all border-2 ${dragSnapshot.isDragging
+                                  ? "bg-blue-100 border-blue-400 shadow-xl scale-110 z-10"
+                                  : "bg-white border-blue-100 hover:border-blue-300 hover:shadow-md cursor-grab active:cursor-grabbing"
+                                  }`}
+                                title={`Click to view details - ${booking.name} (${booking.level})`}
+                                onClick={() => {
+                                  console.log("Seat clicked:", booking);
+                                  setSelectedBooking(booking);
+                                }}
+                              >
+                                <button
+                                  className="text-center w-full h-full p-1"
+                                  onClick={(e) => {
+                                    e.stopPropagation();
+                                    setSelectedBooking(booking);
+                                  }}
+                                >
+                                  <User className={`h-6 w-6 mx-auto ${booking.level === "Beginner" ? "text-blue-500" :
+                                    booking.level === "Intermediate" ? "text-purple-500" : "text-orange-500"
+                                    }`} />
+                                  <div className="text-[9px] font-bold truncate max-w-[50px] mx-auto overflow-hidden">
+                                    {booking.name.split(' ')[0]}
+                                  </div>
+                                </button>
+
+                                {/* Quick Actions Hover Over */}
+                                <div className="absolute -top-2 -right-2 opacity-0 group-hover:opacity-100 transition-opacity flex gap-1">
+                                  <button
+                                    onClick={(e) => {
+                                      e.stopPropagation();
+                                      handleCancelBooking(booking._id);
+                                    }}
+                                    className="bg-white text-red-500 p-1.5 rounded-full shadow-lg border border-red-100 hover:bg-red-50 transition-colors"
+                                  >
+                                    <UserX className="h-3 w-3" />
+                                  </button>
+                                </div>
+
+                                {/* Confirmation Badge */}
+                                {booking.status === "Confirmed" && (
+                                  <div className="absolute -bottom-1 -right-1 bg-green-500 text-white rounded-full p-0.5 border-2 border-white shadow-sm">
+                                    <CheckCircle2 className="h-2.5 w-2.5" />
+                                  </div>
+                                )}
+                                {booking.status === "Pending" && (
+                                  <div className="absolute -bottom-1 -right-1 bg-amber-500 text-white rounded-full p-0.5 border-2 border-white shadow-sm">
+                                    <AlertCircle className="h-2.5 w-2.5" />
+                                  </div>
+                                )}
+                              </div>
+                            )}
+                          </Draggable>
+                        ) : (
+                          <div className="h-14 rounded-xl border-2 border-dashed border-gray-100 bg-gray-50/50 flex items-center justify-center text-gray-200">
+                            <div className="h-2 w-2 rounded-full bg-gray-200" />
+                          </div>
+                        )}
+                      </div>
+                    ))}
+                  </div>
+
+                  {/* Cancelled List (Still in group but not taking seat) */}
+                  {cancelledBookings.length > 0 && (
+                    <div className="mt-4 pt-4 border-t border-gray-50">
+                      <h4 className="text-[10px] font-bold uppercase text-gray-400 mb-2 tracking-wider">
+                        Cancelled Bookings
+                      </h4>
+                      <div className="flex flex-wrap gap-2">
+                        {cancelledBookings.map(b => (
+                          <div key={b._id} className="flex items-center gap-1.5 px-2 py-1 bg-gray-100 rounded-lg text-gray-400 border border-gray-200 opacity-75">
+                            <UserX className="h-3 w-3" />
+                            <span className="text-[10px] font-medium line-through decoration-1">{b.name}</span>
+                          </div>
+                        ))}
+                      </div>
+                    </div>
+                  )}
+
+                  {provided.placeholder}
+                </div>
               )}
-            </span>
-          </div>
-          <div>
-            <span className="text-gray-500">Booked: </span>
-            <span className="font-medium">
-              {slot.groups.reduce(
-                (sum, group) => sum + (group.bookings?.length || 0),
-                0
-              )}
-            </span>
-          </div>
-          <div>
-            <span className="text-gray-500">Available: </span>
-            <span className="font-medium">
-              {slot.groups.reduce(
-                (sum, group) =>
-                  sum + (group.maxParticipants - (group.bookings?.length || 0)),
-                0
-              )}
-            </span>
-          </div>
-          <div>
-            <span className="text-gray-500">Confirmation Rate: </span>
-            <span className="font-medium">
-              {(() => {
-                const totalBookings = slot.groups.reduce(
-                  (sum, group) => sum + (group.bookings?.length || 0),
-                  0
-                );
-                const confirmedBookings = slot.groups.reduce(
-                  (sum, group) =>
-                    sum +
-                    (group.bookings?.filter((b) => b.status === "Confirmed")
-                      .length || 0),
-                  0
-                );
-                return totalBookings > 0
-                  ? `${Math.round((confirmedBookings / totalBookings) * 100)}%`
-                  : "0%";
-              })()}
-            </span>
+            </Droppable>
+          );
+        })}
+      </div>
+
+      {/* Global Loading Overlays */}
+      {(isMoving || isCancelling) && (
+        <div className="fixed inset-0 bg-white/60 backdrop-blur-sm flex items-center justify-center z-50">
+          <div className="bg-white p-8 rounded-3xl shadow-2xl border border-gray-100 flex flex-col items-center gap-4">
+            <div className="relative">
+              <div className="h-12 w-12 border-4 border-blue-100 border-t-blue-600 animate-spin rounded-full" />
+              <div className="absolute inset-0 flex items-center justify-center">
+                <div className="h-4 w-4 bg-blue-600 rounded-full animate-pulse" />
+              </div>
+            </div>
+            <span className="font-bold text-gray-800">{isMoving ? "Updating student seat..." : "Cancelling booking..."}</span>
           </div>
         </div>
-      </div>
+      )}
+
+      {/* Modern Statistics Cards */}
+      {!hideHeader && (
+        <div className="grid grid-cols-2 md:grid-cols-4 gap-4 mt-8">
+          {[
+            {
+              label: "Total Capacity",
+              value: slot.groups.reduce((sum, g) => sum + g.maxParticipants, 0),
+              icon: Users,
+              color: "blue"
+            },
+            {
+              label: "Active Students",
+              value: slot.groups.reduce((sum, g) => sum + (g.bookings?.filter(b => b.status !== 'Cancelled').length || 0), 0),
+              icon: CheckCircle2,
+              color: "emerald"
+            },
+            {
+              label: "Free Seats",
+              value: slot.groups.reduce((sum, g) => sum + (g.maxParticipants - (g.bookings?.filter(b => b.status !== 'Cancelled').length || 0)), 0),
+              icon: User,
+              color: "indigo"
+            },
+            {
+              label: "Cancellations",
+              value: slot.groups.reduce((sum, g) => sum + (g.bookings?.filter(b => b.status === 'Cancelled').length || 0), 0),
+              icon: XCircle,
+              color: "rose"
+            }
+          ].map((stat, i) => (
+            <div key={i} className="bg-white p-4 rounded-2xl border border-gray-100 shadow-sm hover:shadow-md transition-shadow">
+              <div className="flex justify-between items-start">
+                <div>
+                  <p className="text-xs font-bold text-gray-500 uppercase tracking-wider">{stat.label}</p>
+                  <p className="text-2xl font-black mt-1 text-gray-900">{stat.value}</p>
+                </div>
+                <div className={`p-2 rounded-xl bg-${stat.color}-50 text-${stat.color}-600`}>
+                  <stat.icon className="h-5 w-5" />
+                </div>
+              </div>
+            </div>
+          ))}
+        </div>
+      )}
+
+      {/* Booking Details Modal */}
+      {selectedBooking && (
+        <BookingDetailsModal
+          booking={selectedBooking}
+          onClose={() => setSelectedBooking(null)}
+        />
+      )}
     </div>
   );
 };

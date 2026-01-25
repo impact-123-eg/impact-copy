@@ -1,7 +1,10 @@
-import React, { useState } from "react";
+import React, { useState, useMemo } from "react";
+import { useSearchParams } from "react-router-dom";
+import { DragDropContext } from "@hello-pangea/dnd";
 import {
   useAddFreeSessionSlot,
   useGetFreeSessionSlotsByDate,
+  useMoveBooking,
 } from "@/hooks/Actions/free-sessions/useFreeSessionCrudsForAdmin";
 import FreeSessionCalendar from "@/Components/FreeSessionCalendar";
 import FreeSessionSlotList from "@/Components/dashboard/FreeSessionSlotList";
@@ -11,9 +14,20 @@ import formatDateForAPI from "@/utilities/formatDateForApi";
 import formatTime from "@/utilities/formatTime";
 
 const FreeSessionManagement = () => {
-  const [selectedDate, setSelectedDate] = useState(new Date()); // Default to today
-  const [selectedSlot, setSelectedSlot] = useState(null); // Track selected time slot
+  const [searchParams, setSearchParams] = useSearchParams();
   const [showForm, setShowForm] = useState(false);
+
+  // Derive date and slot from URL
+  const selectedDate = useMemo(() => {
+    const dateStr = searchParams.get("date");
+    if (dateStr) {
+      const d = new Date(dateStr);
+      if (!isNaN(d.getTime())) return d;
+    }
+    return new Date(); // Default to today
+  }, [searchParams]);
+
+  const selectedSlotId = searchParams.get("slot");
 
   // Hook for creating slots
   const { mutate: mutateAddSlot, isPending: isAdding } =
@@ -26,20 +40,63 @@ const FreeSessionManagement = () => {
     refetch: refetchSlots,
   } = useGetFreeSessionSlotsByDate(formatDateForAPI(selectedDate));
 
+  const { mutate: moveBooking, isPending: isMoving } = useMoveBooking();
+
   const slots = slotsData?.data?.data || [];
+  const selectedSlot = slots.find((s) => s._id === selectedSlotId);
 
   const handleDateChange = (date) => {
-    setSelectedDate(date);
-    setSelectedSlot(null); // Reset selected slot when date changes
+    setSearchParams((prev) => {
+      const params = new URLSearchParams(prev);
+      params.set("date", formatDateForAPI(date));
+      params.delete("slot"); // Reset selected slot when date changes
+      return params;
+    });
   };
 
   const handleSlotSelect = (slot) => {
-    if (selectedSlot?._id === slot?._id) {
-      // Deselect if the same slot is clicked
-      setSelectedSlot(null);
-      return;
-    }
-    setSelectedSlot(slot);
+    setSearchParams((prev) => {
+      const params = new URLSearchParams(prev);
+      if (params.get("slot") === slot?._id) {
+        params.delete("slot");
+      } else {
+        params.set("slot", slot?._id);
+      }
+      return params;
+    });
+  };
+
+  const handleDragEnd = async (result) => {
+    if (!result.destination) return;
+
+    const sourceGroupId = result.source.droppableId;
+    const destGroupId = result.destination.droppableId;
+    const bookingId = result.draggableId;
+
+    if (sourceGroupId === destGroupId) return;
+
+    // Find the destinaton slot ID by looking up which slot contains the destination group
+    const destinationSlot = slots.find(s =>
+      s.groups.some(g => g._id === destGroupId)
+    );
+
+    moveBooking(
+      {
+        bookingId,
+        fromGroupId: sourceGroupId,
+        toGroupId: destGroupId,
+        slotId: destinationSlot?._id,
+      },
+      {
+        onSuccess: () => {
+          refetchSlots();
+        },
+        onError: (error) => {
+          console.error("Failed to move booking:", error);
+          alert("Failed to move booking. Please try again.");
+        },
+      }
+    );
   };
 
   const handleCreateSlot = (data) => {
@@ -64,8 +121,7 @@ const FreeSessionManagement = () => {
   };
 
   const handleBookingMoved = () => {
-    // Refresh the slot details after moving a booking
-    refetchSlots(); // Also refresh the slot list to update participant counts
+    refetchSlots();
   };
 
   return (
@@ -87,7 +143,6 @@ const FreeSessionManagement = () => {
               isAdmin={true}
               showSlots={false}
               externalDate={selectedDate}
-              setExternalDate={setSelectedDate}
               onDateSelect={handleDateChange}
             />
           </div>
@@ -130,20 +185,44 @@ const FreeSessionManagement = () => {
         </div>
       </div>
 
-      {/* Bottom Section: Group Management (Only shows when a slot is selected) */}
-      {selectedSlot && (
-        <div className="bg-white p-6 rounded-2xl shadow mt-6">
-          <h2 className="font-medium text-lg text-[var(--Main)] mb-6">
-            Manage Groups for: {formatTime(selectedSlot.startTime)} -{" "}
-            {formatTime(selectedSlot.endTime)}
-          </h2>
+      {/* Bottom Section: Group Management */}
+      <div className="bg-white p-6 rounded-2xl shadow mt-6">
+        <h2 className="font-medium text-lg text-[var(--Main)] mb-6 border-b pb-4">
+          {selectedSlotId
+            ? `Managing Groups for: ${selectedSlot ? `${formatTime(selectedSlot.startTime)} - ${formatTime(selectedSlot.endTime)}` : "Loading..."}`
+            : `Showing All Slots for ${selectedDate.toLocaleDateString()}`
+          }
+        </h2>
 
-          <FreeSessionGroupManager
-            slot={selectedSlot}
-            onBookingMoved={handleBookingMoved}
-          />
-        </div>
-      )}
+        <DragDropContext onDragEnd={handleDragEnd}>
+          <div className="flex gap-6 overflow-x-auto pb-6 custom-scrollbar min-h-[500px]">
+            {slots
+              .filter(s => !selectedSlotId || s._id === selectedSlotId)
+              .map(slot => (
+                <div key={slot._id} className="min-w-[400px] flex-shrink-0 p-4 border border-gray-100 rounded-2xl bg-gray-50/30 self-start">
+                  <div className="flex items-center gap-2 mb-4 sticky top-0 bg-transparent backdrop-blur-sm z-10 py-1">
+                    <div className="h-2 w-2 rounded-full bg-blue-500" />
+                    <h3 className="font-bold text-blue-900">
+                      {formatTime(slot.startTime)} - {formatTime(slot.endTime)}
+                    </h3>
+                  </div>
+                  <FreeSessionGroupManager
+                    slot={slot}
+                    onBookingMoved={handleBookingMoved}
+                    isMoving={isMoving}
+                    hideHeader={true}
+                  />
+                </div>
+              ))}
+
+            {slots.length === 0 && !isLoadingSlots && (
+              <div className="text-center py-12 text-[var(--SubText)] w-full">
+                No slots found for this date.
+              </div>
+            )}
+          </div>
+        </DragDropContext>
+      </div>
 
       {/* Slot Creation Form Modal */}
       {showForm && (

@@ -5,311 +5,346 @@ import {
   useAddNoteToFreeSessionBooking,
   useUpdateLeadStatusForFreeSessionBooking,
   useUpdateLevelForFreeSessionBooking,
+  useUpdateStatusForFreeSessionBooking,
+  useUpdateSalesAgentForFreeSessionBooking,
 } from "@/hooks/Actions/free-sessions/useFreeSessionBookingCruds";
+import {
+  useUpdateGroupTeacher,
+  useMoveBooking,
+  useGetFreeSessionSlotsByDate
+} from "@/hooks/Actions/free-sessions/useFreeSessionCrudsForAdmin";
+import { useGetAllEmployees } from "@/hooks/Actions/users/useCurdsUsers";
+import { useAuth } from "@/context/AuthContext";
+import InlineSelect from "@/Components/ui/InlineSelect";
+import formatTime, { to12h } from "@/utilities/formatTime";
+import formatDateForAPI from "@/utilities/formatDateForApi";
+import {
+  User,
+  Mail,
+  Phone,
+  MapPin,
+  Calendar,
+  UserCheck,
+  Clock,
+  Activity,
+  ArrowLeft,
+  ChevronRight,
+  ClipboardList
+} from "lucide-react";
 
-const renderSlot = (slotObjOrId) => {
-  const slot = slotObjOrId;
-  if (slot && typeof slot === "object") {
-    const hasISO =
-      typeof slot.startTime === "string" && typeof slot.endTime === "string";
-    if (hasISO) {
-      const start = new Date(slot.startTime);
-      const end = new Date(slot.endTime);
-      const dateStr = start.toLocaleDateString(undefined, {
-        weekday: "short",
-        year: "numeric",
-        month: "short",
-        day: "numeric",
-      });
-      const startTimeStr = start.toLocaleTimeString(undefined, {
-        hour: "2-digit",
-        minute: "2-digit",
-      });
-      const endTimeStr = end.toLocaleTimeString(undefined, {
-        hour: "2-digit",
-        minute: "2-digit",
-      });
-      return (
-        <>
-          <div className="text-sm">{dateStr}</div>
-          <div className="text-xs text-[var(--SubText)]">
-            {startTimeStr} - {endTimeStr}
-          </div>
-        </>
-      );
-    }
-    const dateStr = slot.date
-      ? new Date(slot.date).toLocaleDateString()
-      : "N/A";
-    const timeStr =
-      slot.startTime && slot.endTime
-        ? `${slot.startTime} - ${slot.endTime}`
-        : "";
-    return (
-      <>
-        <div className="text-sm">{dateStr}</div>
-        <div className="text-xs text-[var(--SubText)]">{timeStr}</div>
-      </>
-    );
-  }
-  if (typeof slot === "string") {
-    return <div className="text-sm">Slot #{slot.slice(-6)}</div>;
-  }
-  return <div className="text-sm">N/A</div>;
-};
-
-function BookingDetails() {
+const BookingDetails = () => {
   const { id } = useParams();
-  const { data, isPending } = useGetFreeSessionBookingById({ id });
+  const { user } = useAuth();
+  const isAdmin = user?.role === "admin";
+  const isSales = user?.role === "sales";
+  const isTeamLeader = user?.role === "team_leader";
+
+  const { data, isPending, refetch } = useGetFreeSessionBookingById({ id });
   const booking = data?.data || data || {};
 
-  const { mutate: addNote, isPending: isAddingNote } =
-    useAddNoteToFreeSessionBooking();
-  const { mutate: updateLeadStatus, isPending: isUpdatingLead } =
-    useUpdateLeadStatusForFreeSessionBooking();
-  const { mutate: updateLevel, isPending: isUpdatingLevel } =
-    useUpdateLevelForFreeSessionBooking();
+  const { mutate: addNote, isPending: isAddingNote } = useAddNoteToFreeSessionBooking();
+  const { mutate: updateLeadStatus, isPending: isUpdatingLead } = useUpdateLeadStatusForFreeSessionBooking();
+  const { mutate: updateLevel, isPending: isUpdatingLevel } = useUpdateLevelForFreeSessionBooking();
+  const { mutate: updateStatus, isPending: isUpdatingStatus } = useUpdateStatusForFreeSessionBooking();
+  const { mutate: updateSalesAgent, isPending: isUpdatingSalesAgent } = useUpdateSalesAgentForFreeSessionBooking();
+  const { mutate: moveBooking, isPending: isMovingBooking } = useMoveBooking();
+  const { data: employeesData } = useGetAllEmployees();
 
   const [noteText, setNoteText] = useState("");
-  const [lead, setLead] = useState(booking?.leadStatus || "New");
-  const [level, setLevel] = useState(booking?.level || "Pending");
 
-  useEffect(() => {
-    if (booking) {
-      setLead(booking?.leadStatus || "New");
-      setLevel(booking?.level || "Pending");
-    }
-  }, [booking?._id, booking?.leadStatus, booking?.level]);
+  const employees = employeesData?.data?.data || [];
+  const salesAgents = employees.filter(e => e.role === "sales");
+  const instructors = employees.filter(e => e.role === "instructor");
 
   const leadOptions = [
-    "New",
-    "Contacted",
-    "Interested",
-    "Following_up",
-    "Confirmed",
-    "2nd_Confirm",
-    "3rd_Confirm",
-    "Test_Completed",
-    "Attended",
-    "Subscribed",
-    "Cancelled",
-    "Not_Interested",
+    "New", "Contacted", "Interested", "Following_up", "Confirmed",
+    "2nd_Confirm", "3rd_Confirm", "Test_Completed", "Attended",
+    "Subscribed", "Cancelled", "Not_Interested", "Refunded"
   ];
+
+  const statusOptions = ["Pending", "Confirmed", "Cancelled", "Attended", "Completed"];
+
   const levelOptions = [
-    "Pending",
-    "Basic 1",
-    "Basic 2",
-    "Level 1",
-    "Level 2",
-    "Level 3",
-    "Level 4",
-    "Level 5",
-    "Level 6",
-    "Level 7",
-    "Level 8",
-    "Level 9",
+    "Pending", "Basic 1", "Basic 2", "Level 1", "Level 2", "Level 3",
+    "Level 4", "Level 5", "Level 6", "Level 7", "Level 8", "Level 9"
   ];
+
+  const renderSlotInfo = (b) => {
+    const slot = b?.freeSessionSlotId || b?.freeSessionSlot;
+    if (!slot || typeof slot !== "object") return "N/A";
+
+    const start = new Date(slot.startTime);
+    const end = new Date(slot.endTime);
+
+    return (
+      <div className="flex flex-col">
+        <span className="font-medium text-gray-900">
+          {start.toLocaleDateString("en-US", { weekday: 'short', month: 'short', day: 'numeric', year: 'numeric' })}
+        </span>
+        <span className="text-xs text-gray-500">
+          {to12h(start.toLocaleTimeString("en-US", { hour: '2-digit', minute: '2-digit', hour12: false }))} -
+          {to12h(end.toLocaleTimeString("en-US", { hour: '2-digit', minute: '2-digit', hour12: false }))}
+        </span>
+      </div>
+    );
+  };
+
+  if (isPending) {
+    return (
+      <div className="flex items-center justify-center min-h-[400px]">
+        <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-[var(--Yellow)]" />
+      </div>
+    );
+  }
 
   return (
-    <main className="space-y-6 max-w-5xl mx-auto">
-      <div className="flex items-center justify-between">
-        <h1 className="font-bold text-2xl text-[var(--Main)]">
-          Booking Details
-        </h1>
-        <Link
-          to="/dash/booking"
-          className="text-sm px-3 py-2 rounded bg-[var(--Input)]"
-        >
-          Back
-        </Link>
+    <main className="max-w-6xl mx-auto p-6 space-y-8 animate-in fade-in duration-500">
+      {/* Header */}
+      <div className="flex flex-col md:flex-row md:items-center justify-between gap-4 border-b pb-6">
+        <div className="flex items-center gap-4">
+          <Link to="/dash/booking" className="p-2 hover:bg-gray-100 rounded-full transition-colors">
+            <ArrowLeft className="h-6 w-6 text-gray-600" />
+          </Link>
+          <div>
+            <div className="flex items-center gap-3">
+              <h1 className="text-3xl font-black text-gray-900">{booking?.name}</h1>
+              <span className={`px-3 py-1 rounded-full text-[10px] font-black uppercase tracking-wider ${booking?.status === 'Confirmed' ? 'bg-green-100 text-green-700' : 'bg-amber-100 text-amber-700'
+                }`}>
+                {booking?.status}
+              </span>
+            </div>
+            <p className="text-gray-500 flex items-center gap-2 mt-1">
+              <ClipboardList className="h-4 w-4" />
+              File ID: <span className="font-mono text-xs">{id}</span>
+            </p>
+          </div>
+        </div>
+
+        <div className="flex items-center gap-3">
+          <div className="flex flex-col items-end">
+            <span className="text-[10px] uppercase font-bold text-gray-400 tracking-widest">Enrollment status</span>
+            <InlineSelect
+              value={booking?.status || "Pending"}
+              options={statusOptions}
+              isLoading={isUpdatingStatus}
+              onChange={(val) => updateStatus({ id, status: val })}
+              nonInteractive={isSales}
+              className="mt-1"
+            />
+          </div>
+        </div>
       </div>
 
-      {isPending ? (
-        <div className="text-center py-12">
-          <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-[var(--Yellow)] mx-auto"></div>
-          <p className="mt-4 text-[var(--SubText)]">Loading booking...</p>
-        </div>
-      ) : (
-        <div className="space-y-6">
-          <section className="bg-white p-6 rounded-2xl shadow grid grid-cols-1 md:grid-cols-2 gap-6">
-            <div>
-              <div className="text-sm text-[var(--SubText)]">Customer</div>
-              <div className="text-lg font-semibold text-[var(--Main)]">
-                {booking?.name}
+      <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
+        {/* Left Column: Details */}
+        <div className="lg:col-span-2 space-y-8">
+          {/* Main Info Card */}
+          <div className="bg-white rounded-3xl border border-gray-100 shadow-sm overflow-hidden">
+            <div className="bg-gray-50/50 p-6 border-b border-gray-100">
+              <h2 className="font-bold text-gray-900 flex items-center gap-2">
+                <UserCheck className="h-5 w-5 text-blue-500" />
+                Student Information
+              </h2>
+            </div>
+            <div className="p-8 grid grid-cols-1 md:grid-cols-2 gap-x-12 gap-y-8">
+              <div className="space-y-1">
+                <label className="text-[10px] uppercase font-bold text-gray-400 tracking-widest">Full Name</label>
+                <p className="text-lg font-semibold text-gray-900">{booking?.name}</p>
               </div>
-              {/* <div className="text-xs">#{booking?._id?.slice(-6)}</div> */}
+
+              <div className="space-y-1">
+                <label className="text-[10px] uppercase font-bold text-gray-400 tracking-widest">Contact Details</label>
+                <div className="space-y-2">
+                  <div className="flex items-center gap-2 text-sm text-gray-600">
+                    <Mail className="h-4 w-4 text-gray-400" />
+                    {booking?.email}
+                  </div>
+                  <div className="flex items-center gap-2 text-sm text-gray-600">
+                    <Phone className="h-4 w-4 text-gray-400" />
+                    {booking?.phoneNumber}
+                  </div>
+                </div>
+              </div>
+
+              <div className="space-y-1">
+                <label className="text-[10px] uppercase font-bold text-gray-400 tracking-widest">Location & Demographics</label>
+                <div className="flex gap-3">
+                  <div className="flex items-center gap-2 text-sm text-gray-600">
+                    <MapPin className="h-4 w-4 text-gray-400" />
+                    {booking?.country || "N/A"}
+                  </div>
+                  <span className="px-2 py-0.5 bg-purple-50 text-purple-600 rounded-md text-[10px] font-bold uppercase">
+                    {booking?.age}
+                  </span>
+                </div>
+              </div>
+
+              <div className="space-y-1">
+                <label className="text-[10px] uppercase font-bold text-gray-400 tracking-widest">Joined On</label>
+                <div className="flex items-center gap-2 text-sm text-gray-600">
+                  <Clock className="h-4 w-4 text-gray-400" />
+                  {new Date(booking?.createdAt).toLocaleString("en-UK")}
+                </div>
+              </div>
             </div>
-            <div>
-              <div className="text-sm text-[var(--SubText)]">Contact</div>
-              <div className="text-sm">{booking?.email}</div>
-              <div className="text-sm">{booking?.phoneNumber}</div>
+          </div>
+
+          {/* Interactive Management Card */}
+          <div className="bg-white rounded-3xl border border-gray-100 shadow-sm overflow-hidden">
+            <div className="bg-gray-50/50 p-6 border-b border-gray-100">
+              <h2 className="font-bold text-gray-900 flex items-center gap-2">
+                <Activity className="h-5 w-5 text-orange-500" />
+                Management & Assignment
+              </h2>
             </div>
-            <div>
-              <div className="text-sm text-[var(--SubText)]">Slot</div>
-              <div>
-                {renderSlot(
-                  booking?.freeSessionSlotId || booking?.freeSessionSlot
+            <div className="p-8 grid grid-cols-1 md:grid-cols-2 gap-x-12 gap-y-10">
+              <div className="space-y-2">
+                <label className="text-[10px] uppercase font-bold text-gray-400 tracking-widest">Current Slot</label>
+                <div className="bg-blue-50/50 border border-blue-100 p-4 rounded-2xl flex justify-between items-center group transition-colors hover:bg-blue-50">
+                  {renderSlotInfo(booking)}
+                  <Link
+                    to={`/dash/free-sessions?date=${formatDateForAPI(new Date(booking?.freeSessionSlotId?.startTime))}&slot=${booking?.freeSessionSlotId?._id}`}
+                    className="p-2 bg-white text-blue-600 rounded-full shadow-sm opacity-0 group-hover:opacity-100 transition-opacity"
+                  >
+                    <ChevronRight className="h-4 w-4" />
+                  </Link>
+                </div>
+              </div>
+
+              <div className="space-y-2">
+                <label className="text-[10px] uppercase font-bold text-gray-400 tracking-widest">Teacher & Group</label>
+                <InlineSelect
+                  value={booking?.freeSessionGroupId?._id || ""}
+                  options={(booking?.availableInstructors || []).map((inst) => {
+                    const isExistingGroup = !!inst.slotGroupId;
+                    return {
+                      label: `${inst.name} ${inst.groupName ? `(${inst.groupName})` : "(New Group)"}`,
+                      value: isExistingGroup ? `group:${inst.slotGroupId}` : `instructor:${inst._id}`,
+                    };
+                  })}
+                  isLoading={isMovingBooking}
+                  onChange={(val) => {
+                    if (val && booking?.freeSessionSlotId?._id) {
+                      const [type, teacherOrGroupId] = val.split(":");
+                      const moveData = {
+                        bookingId: id,
+                        fromGroupId: booking.freeSessionGroupId?._id,
+                        slotId: booking.freeSessionSlotId._id,
+                      };
+                      if (type === "group") moveData.toGroupId = teacherOrGroupId;
+                      else moveData.toInstructorId = teacherOrGroupId;
+                      moveBooking(moveData);
+                    }
+                  }}
+                  placeholder="Select Instructor/Group"
+                  nonInteractive={isSales || isTeamLeader}
+                  className="w-full"
+                />
+              </div>
+
+              <div className="space-y-2">
+                <label className="text-[10px] uppercase font-bold text-gray-400 tracking-widest">Lead Status</label>
+                <InlineSelect
+                  value={booking?.leadStatus || "New"}
+                  options={leadOptions.map(opt => ({ label: opt.replaceAll("_", " "), value: opt }))}
+                  isLoading={isUpdatingLead}
+                  onChange={(val) => updateLeadStatus({ id, leadStatus: val })}
+                  nonInteractive={isSales}
+                  className="w-full"
+                />
+              </div>
+
+              <div className="space-y-2">
+                <label className="text-[10px] uppercase font-bold text-gray-400 tracking-widest">Assigned Level</label>
+                <InlineSelect
+                  value={booking?.level || "Pending"}
+                  options={levelOptions}
+                  isLoading={isUpdatingLevel}
+                  onChange={(val) => updateLevel({ id, level: val })}
+                  nonInteractive={isSales}
+                  className="w-full"
+                />
+              </div>
+
+              <div className="space-y-2">
+                <label className="text-[10px] uppercase font-bold text-gray-400 tracking-widest">Responsible Sales</label>
+                <InlineSelect
+                  value={booking?.salesAgentId?._id || ""}
+                  options={salesAgents.map(ag => ({ label: ag.name, value: ag._id }))}
+                  isLoading={isUpdatingSalesAgent}
+                  onChange={(val) => updateSalesAgent({ id, salesAgentId: val })}
+                  placeholder="Assign Sales Agent"
+                  nonInteractive={isSales}
+                  className="w-full"
+                />
+              </div>
+            </div>
+          </div>
+        </div>
+
+        {/* Right Column: Notes */}
+        <div className="space-y-6">
+          <div className="bg-white rounded-3xl border border-gray-100 shadow-sm h-full flex flex-col min-h-[500px]">
+            <div className="bg-gray-50/50 p-6 border-b border-gray-100 shrink-0">
+              <h2 className="font-bold text-gray-900 flex items-center gap-2">
+                <ClipboardList className="h-5 w-5 text-indigo-500" />
+                Internal Notes
+              </h2>
+            </div>
+
+            <div className="p-6 flex flex-col gap-4 overflow-hidden h-full">
+              {/* Note Input */}
+              <div className="relative shrink-0">
+                <textarea
+                  className="w-full bg-gray-50 border-none rounded-2xl p-4 pr-12 text-sm focus:ring-2 focus:ring-[var(--Yellow)] transition-all resize-none h-24"
+                  placeholder="Add a detailed update..."
+                  value={noteText}
+                  onChange={(e) => setNoteText(e.target.value)}
+                />
+                <button
+                  disabled={isAddingNote || !noteText.trim()}
+                  onClick={() => {
+                    addNote({ id, note: noteText.trim() });
+                    setNoteText("");
+                  }}
+                  className="absolute bottom-4 right-4 p-2 bg-[var(--Main)] text-white rounded-xl shadow-lg hover:bg-opacity-90 disabled:opacity-30 transition-all"
+                >
+                  <ChevronRight className="h-5 w-5" />
+                </button>
+              </div>
+
+              {/* Note List */}
+              <div className="flex-1 overflow-y-auto space-y-4 pr-2 custom-scrollbar">
+                {(booking?.notes || []).length === 0 ? (
+                  <div className="flex flex-col items-center justify-center py-12 text-gray-400 opacity-50">
+                    <ClipboardList className="h-12 w-12 mb-2" />
+                    <p className="text-xs font-medium">No notes available</p>
+                  </div>
+                ) : (
+                  [...(booking.notes || [])].reverse().map((n) => (
+                    <div key={n._id || n.createdAt} className="bg-gray-50/50 p-4 rounded-2xl border border-gray-100 group relative">
+                      <p className="text-sm text-gray-800 leading-relaxed whitespace-pre-wrap">{n.text}</p>
+                      <div className="mt-3 flex items-center justify-between">
+                        <div className="flex items-center gap-2">
+                          <div className="h-5 w-5 bg-blue-100 rounded-lg flex items-center justify-center text-[10px] font-bold text-blue-600">
+                            {(n.createdBy || "S").charAt(0)}
+                          </div>
+                          <span className="text-[10px] font-bold text-gray-500">{n.createdBy || "System"}</span>
+                        </div>
+                        <span className="text-[10px] text-gray-400 font-medium">
+                          {n.createdAt ? new Date(n.createdAt).toLocaleDateString("en-UK", { month: 'short', day: 'numeric', hour: '2-digit', minute: '2-digit' }) : ""}
+                        </span>
+                      </div>
+                    </div>
+                  ))
                 )}
               </div>
             </div>
-            <div>
-              <div className="text-sm text-[var(--SubText)]">
-                Group / Teacher
-              </div>
-              <div className="text-sm">
-                {(() => {
-                  const group =
-                    booking?.freeSessionGroupId || booking?.freeSessionGroup;
-                  if (group && typeof group === "object") {
-                    const name =
-                      group.name || `Group #${(group._id || "").slice(-4)}`;
-                    const teacher = group.teacher || "Unassigned";
-                    return (
-                      <>
-                        <div className="font-medium ">{name}</div>
-                        <div className="text-xs text-[var(--SubText)]">
-                          Teacher: {teacher}
-                        </div>
-                      </>
-                    );
-                  }
-                  if (typeof group === "string") {
-                    return <div>Group #{group.slice(-6)}</div>;
-                  }
-                  return <div>N/A</div>;
-                })()}
-              </div>
-            </div>
-
-            <div>
-              <div className="text-sm text-[var(--SubText)]">Age / Level</div>
-              <div className="text-sm">
-                {booking?.age || "N/A"} • {booking?.level || "Pending"}
-              </div>
-            </div>
-            <div>
-              <div className="text-sm text-[var(--SubText)]">Status</div>
-              <div className="text-sm">{booking?.status}</div>
-            </div>
-            <div>
-              <div className="text-sm text-[var(--SubText)]">Lead Status</div>
-              <div className="flex gap-2 items-center">
-                <select
-                  className="bg-[var(--Input)] px-2 py-1 rounded"
-                  value={lead}
-                  onChange={(e) => setLead(e.target.value)}
-                >
-                  {leadOptions.map((opt) => (
-                    <option key={opt} value={opt}>
-                      {opt.replaceAll("_", " ")}
-                    </option>
-                  ))}
-                </select>
-                <button
-                  disabled={isUpdatingLead || lead === booking?.leadStatus}
-                  onClick={() => updateLeadStatus({ id, leadStatus: lead })}
-                  className="text-sm px-3 py-1 rounded bg-[var(--Yellow)] text-black disabled:opacity-50"
-                >
-                  {isUpdatingLead ? "Saving..." : "Update"}
-                </button>
-              </div>
-            </div>
-            <div>
-              <div className="text-sm text-[var(--SubText)]">Level</div>
-              <div className="flex gap-2 items-center">
-                <select
-                  className="bg-[var(--Input)] px-2 py-1 rounded"
-                  value={level}
-                  onChange={(e) => setLevel(e.target.value)}
-                >
-                  {levelOptions.map((opt) => (
-                    <option key={opt} value={opt}>
-                      {opt}
-                    </option>
-                  ))}
-                </select>
-                <button
-                  disabled={isUpdatingLevel || level === booking?.level}
-                  onClick={() => updateLevel({ id, level })}
-                  className="text-sm px-3 py-1 rounded bg-[var(--Yellow)] text-black disabled:opacity-50"
-                >
-                  {isUpdatingLevel ? "Saving..." : "Update"}
-                </button>
-              </div>
-            </div>
-            <div>
-              <div className="text-sm text-[var(--SubText)]">Country</div>
-              <div className="text-sm">{booking?.country || "N/A"}</div>
-            </div>
-            <div>
-              <div className="text-sm text-[var(--SubText)]">Created At</div>
-              <div className="text-sm">
-                {booking?.createdAt
-                  ? new Date(booking.createdAt).toLocaleString("en-UK")
-                  : "N/A"}
-              </div>
-            </div>
-          </section>
-
-          <section className="bg-white p-6 rounded-2xl shadow space-y-4">
-            <div className="flex items-center justify-between">
-              <h2 className="font-semibold text-[var(--Main)]">Notes</h2>
-            </div>
-            <div className="flex gap-2">
-              <input
-                className="bg-[var(--Input)] px-3 py-2 rounded w-full"
-                placeholder="Add a note"
-                value={noteText}
-                onChange={(e) => setNoteText(e.target.value)}
-              />
-              <button
-                disabled={isAddingNote || !noteText.trim()}
-                onClick={() => {
-                  const text = noteText.trim();
-                  if (!text) return;
-                  addNote({ id, note: text });
-                  setNoteText("");
-                }}
-                className="px-4 py-2 rounded bg-[var(--Yellow)] text-black disabled:opacity-50"
-              >
-                {isAddingNote ? "Adding..." : "Add Note"}
-              </button>
-            </div>
-            <div className="divide-y divide-[var(--Light)]">
-              {(booking?.notes || []).length === 0 && (
-                <div className="text-[var(--SubText)] text-sm">
-                  No notes yet.
-                </div>
-              )}
-              {(booking?.notes || []).map((n) => (
-                <div
-                  key={n._id || n.createdAt}
-                  className="flex items-center justify-between py-2"
-                >
-                  <div>
-                    <div className="text-sm">{n.text}</div>
-                    <div className="text-xs text-[var(--SubText)]">
-                      {n.createdBy || "System"} •{" "}
-                      {n.createdAt
-                        ? new Date(n.createdAt).toLocaleString("en-UK")
-                        : ""}
-                    </div>
-                  </div>
-                  {/* <button
-                    disabled
-                    title="Delete note requires backend endpoint"
-                    className="text-sm px-3 py-1 rounded bg-gray-200 text-gray-500 cursor-not-allowed"
-                  >
-                    Delete
-                  </button> */}
-                </div>
-              ))}
-            </div>
-          </section>
+          </div>
         </div>
-      )}
+      </div>
     </main>
   );
-}
+};
 
 export default BookingDetails;

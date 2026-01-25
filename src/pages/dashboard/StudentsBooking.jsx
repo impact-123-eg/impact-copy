@@ -10,9 +10,10 @@ import {
 } from "@/hooks/Actions/free-sessions/useFreeSessionBookingCruds";
 import { useGetAllEmployees } from "@/hooks/Actions/users/useCurdsUsers";
 import { useAuth } from "@/context/AuthContext";
-import { useUpdateGroupTeacher } from "@/hooks/Actions/free-sessions/useFreeSessionCrudsForAdmin";
+import { useUpdateGroupTeacher, useMoveBooking } from "@/hooks/Actions/free-sessions/useFreeSessionCrudsForAdmin";
 import InlineSelect from "@/Components/ui/InlineSelect";
 import { to12h } from "@/utilities/formatTime";
+import formatDateForAPI from "@/utilities/formatDateForApi";
 import FreeSessionCalendar from "@/Components/FreeSessionCalendar";
 import { useFormik } from "formik";
 import { freeSessionValidationSchema } from "@/Validation";
@@ -42,9 +43,10 @@ function StudentsBooking() {
   const { mutate: updateLevel, isPending: isUpdatingLevel } =
     useUpdateLevelForFreeSessionBooking();
 
-  // Teacher Update Hooks
+  // Teacher & Movement Hooks
   const { data: employeesData } = useGetAllEmployees();
   const { mutate: updateTeacher, isPending: isUpdatingTeacher } = useUpdateGroupTeacher();
+  const { mutate: moveBooking, isPending: isMovingBooking } = useMoveBooking();
 
   // Status & Sales Update Hooks
   const { mutate: updateStatus, isPending: isUpdatingStatus } = useUpdateStatusForFreeSessionBooking();
@@ -115,6 +117,7 @@ function StudentsBooking() {
   const [updatingStatusId, setUpdatingStatusId] = useState(null);
   const [updatingSalesId, setUpdatingSalesId] = useState(null);
   const [updatingTeacherId, setUpdatingTeacherId] = useState(null);
+  const [movingBookingId, setMovingBookingId] = useState(null);
 
   useEffect(() => {
     if (!isUpdatingLevel) setUpdatingLevelId(null);
@@ -125,6 +128,9 @@ function StudentsBooking() {
   useEffect(() => {
     if (!isUpdatingTeacher) setUpdatingTeacherId(null);
   }, [isUpdatingTeacher]);
+  useEffect(() => {
+    if (!isMovingBooking) setMovingBookingId(null);
+  }, [isMovingBooking]);
   useEffect(() => {
     if (!isUpdatingStatus) setUpdatingStatusId(null);
   }, [isUpdatingStatus]);
@@ -206,15 +212,19 @@ function StudentsBooking() {
 
   const renderSlot = (b) => {
     const slot = b?.freeSessionSlotId || b?.freeSessionSlot;
-    const instructorObj = b?.freeSessionGroupId?.instructor;
-    const teacherStr = b?.freeSessionGroupId?.teacher;
-    const teacherName = (typeof instructorObj === "object" ? instructorObj?.name : instructorObj) || teacherStr;
+    const group = b?.freeSessionGroupId;
 
-    const teacherDisplay = teacherName ? (
-      <div className="text-[10px] text-[var(--SubText)] mt-1">
-        Teacher: {teacherName}
-      </div>
-    ) : null;
+    // Preparation for deep linking
+    const dateParam = slot?.startTime ? formatDateForAPI(new Date(slot.startTime)) : "";
+    const slotId = slot?._id || "";
+    const deepLink = (children) => (
+      <Link
+        to={`/dash/free-sessions?date=${dateParam}&slot=${slotId}`}
+        className="hover:text-[var(--Yellow)] hover:underline decoration-[var(--Yellow)] transition-colors"
+      >
+        {children}
+      </Link>
+    );
 
     if (slot && typeof slot === "object") {
       const hasISO =
@@ -240,11 +250,10 @@ function StudentsBooking() {
         });
         return (
           <>
-            <div className="text-sm">{dateStr}</div>
+            <div className="text-sm font-medium">{deepLink(dateStr)}</div>
             <div className="text-xs text-[var(--SubText)]">
-              {startTimeStr} - {endTimeStr}
+              {deepLink(`${startTimeStr} - ${endTimeStr}`)}
             </div>
-            {teacherDisplay}
           </>
         );
       }
@@ -257,26 +266,17 @@ function StudentsBooking() {
           : "";
       return (
         <>
-          <div className="text-sm">{dateStr}</div>
-          <div className="text-xs text-[var(--SubText)]">{timeStr}</div>
-          {teacherDisplay}
+          <div className="text-sm font-medium">{deepLink(dateStr)}</div>
+          <div className="text-xs text-[var(--SubText)]">{deepLink(timeStr)}</div>
         </>
       );
     }
     if (typeof slot === "string") {
       return (
-        <>
-          <div className="text-sm">Slot #{slot.slice(-6)}</div>
-          {teacherDisplay}
-        </>
+        <div className="text-sm">{deepLink(`Slot #${slot.slice(-6)}`)}</div>
       );
     }
-    return (
-      <>
-        <div className="text-sm">N/A</div>
-        {teacherDisplay}
-      </>
-    );
+    return <div className="text-sm">N/A</div>;
   };
 
   return (
@@ -529,12 +529,9 @@ function StudentsBooking() {
             <table className="w-full">
               <thead className="bg-[var(--Light)]">
                 <tr className="text-left text-[var(--SubText)]">
-                  <th className="p-4 font-medium">Customer</th>
-                  <th className="p-4 font-medium">Contact</th>
+                  <th className="p-4 font-medium">Customer Details</th>
                   <th className="p-4 font-medium">Sales Agent</th>
-                  <th className="p-4 font-medium">Instructor</th>
-                  <th className="p-4 font-medium">Country</th>
-                  <th className="p-4 font-medium">Age</th>
+                  <th className="p-4 font-medium">Instructor & Group</th>
                   <th className="p-4 font-medium w-56">Slot</th>
                   <th className="p-4 font-medium">Status</th>
                   <th className="p-4 font-medium">Level</th>
@@ -544,7 +541,7 @@ function StudentsBooking() {
               <tbody className="divide-y divide-[var(--Light)]">
                 {filteredBookings.map((b) => (
                   <tr key={b._id} className="hover:bg-[var(--Light)]/40">
-                    <td className="p-4">
+                    <td className="p-4 min-w-[200px]">
                       <div className="font-semibold text-[var(--Main)]">
                         <Link
                           to={`/dash/booking/${b._id}`}
@@ -553,13 +550,19 @@ function StudentsBooking() {
                           {b?.name || "N/A"}
                         </Link>
                       </div>
-                      <div className="text-[10px] text-[var(--SubText)] mt-1">
+                      <div className="text-xs text-gray-600 mt-1">{b?.email || "N/A"}</div>
+                      <div className="text-xs text-gray-500">{b?.phoneNumber || "N/A"}</div>
+                      <div className="flex gap-2 mt-2 items-center">
+                        <span className="text-[10px] bg-blue-50 text-blue-600 px-1.5 py-0.5 rounded font-medium">
+                          {b?.country || "N/A"}
+                        </span>
+                        <span className="text-[10px] bg-purple-50 text-purple-600 px-1.5 py-0.5 rounded font-medium uppercase">
+                          {b?.age || "N/A"}
+                        </span>
+                      </div>
+                      <div className="text-[10px] text-[var(--SubText)] mt-2">
                         Joined: {new Date(b.createdAt).toLocaleDateString()}
                       </div>
-                    </td>
-                    <td className="p-4">
-                      <div className="text-sm">{b?.email || "N/A"}</div>
-                      <div className="text-sm">{b?.phoneNumber || "N/A"}</div>
                     </td>
                     <td className="p-4 text-sm">
                       <div className="flex flex-col gap-2">
@@ -584,9 +587,9 @@ function StudentsBooking() {
                         />
                       </div>
                     </td>
-                    <td className="p-4 text-sm">
-                      {/* Detailed Instructor Assignment */}
-                      <div className="flex flex-col gap-2">
+                    <td className="p-4 text-sm min-w-[220px]">
+                      <div className="flex flex-col gap-3">
+                        {/* Instructor Info */}
                         {b?.freeSessionGroupId?.instructor?.name ? (
                           <div className="flex flex-col gap-1">
                             <span className="font-medium text-[var(--Main)]">
@@ -602,23 +605,56 @@ function StudentsBooking() {
                         ) : (
                           <span className="text-[var(--SubText)]">Pending Group Assignment</span>
                         )}
+
+                        {/* Group Info */}
+                        {b?.freeSessionGroupId?.name && (
+                          <div className="flex items-center gap-1.5 text-xs text-[var(--SubText)]">
+                            <span className="font-medium text-gray-500">Group:</span>
+                            <Link
+                              to={`/dash/free-sessions?date=${formatDateForAPI(new Date(b?.freeSessionSlotId?.startTime))}&slot=${b?.freeSessionSlotId?._id}`}
+                              className="text-[var(--Main)] hover:text-[var(--Yellow)] hover:underline font-semibold"
+                            >
+                              {b.freeSessionGroupId.name}
+                            </Link>
+                          </div>
+                        )}
+
                         <InlineSelect
-                          value={b?.freeSessionGroupId?.instructor?._id || ""}
-                          options={instructors.map(inst => ({ label: inst.name, value: inst._id }))}
-                          isLoading={updatingTeacherId === b._id && isUpdatingTeacher}
+                          value={b?.freeSessionGroupId?._id || ""}
+                          options={(b?.availableInstructors || []).map((inst) => {
+                            const isExistingGroup = !!inst.slotGroupId;
+                            return {
+                              label: `${inst.name} ${inst.groupName ? `(${inst.groupName})` : "(New Group)"}`,
+                              // Using a composite value to distinguish between group and instructor
+                              value: isExistingGroup ? `group:${inst.slotGroupId}` : `instructor:${inst._id}`,
+                            };
+                          })}
+                          isLoading={movingBookingId === b._id && isMovingBooking}
                           onChange={(val) => {
-                            if (val && b?.freeSessionGroupId?._id) {
-                              setUpdatingTeacherId(b._id);
-                              updateTeacher({ groupId: b.freeSessionGroupId._id, teacherId: val });
+                            if (val && b?.freeSessionSlotId?._id) {
+                              setMovingBookingId(b._id);
+                              const [type, id] = val.split(":");
+                              const moveData = {
+                                bookingId: b._id,
+                                fromGroupId: b.freeSessionGroupId?._id,
+                                slotId: b.freeSessionSlotId._id,
+                              };
+
+                              if (type === "group") {
+                                moveData.toGroupId = id;
+                              } else {
+                                moveData.toInstructorId = id;
+                              }
+
+                              moveBooking(moveData);
                             }
                           }}
-                          placeholder="Assign Instructor"
+                          placeholder="Select Instructor/Group"
                           nonInteractive={isSales || isTeamLeader}
+                          className="mt-1"
                         />
                       </div>
                     </td>
-                    <td className="p-4">{b?.country || "N/A"}</td>
-                    <td className="p-4">{b?.age || "N/A"}</td>
                     <td className="p-4 min-w-[14rem]">{renderSlot(b)}</td>
                     <td className="p-4">
                       <InlineSelect

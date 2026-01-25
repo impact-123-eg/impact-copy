@@ -37,6 +37,8 @@ const queryKeys = {
   deleteFreeSessionSlot: "deleteFreeSessionSlot",
   moveFreeSessionBooking: "moveFreeSessionBooking",
   updateGroupTeacher: "updateGroupTeacher",
+  autoAssignInstructors: "autoAssignInstructors",
+  cancelFreeSessionBooking: "cancelFreeSessionBooking",
 
   getFreeSessionSlots: "getFreeSessionSlots",
   freeSessionBookings: "freeSessionBookings",

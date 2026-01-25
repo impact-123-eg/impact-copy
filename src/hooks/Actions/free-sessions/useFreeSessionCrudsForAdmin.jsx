@@ -40,12 +40,23 @@ export const useAddFreeSessionSlot = () => {
 };
 
 export const useMoveBooking = () => {
-  const { mutate, data, error, isPending, isSuccess, isError } = usePatchData(
+  const { mutate: patchMutate, ...rest } = usePatchData(
     endPoints.moveFreeSessionBooking,
     [queryKeys.moveFreeSessionBooking],
-    [queryKeys.freeSessionSlots]
+    [queryKeys.freeSessionSlotByDate, queryKeys.freeSessionBookings]
   );
-  return { mutate, data, error, isPending, isSuccess, isError };
+
+  const moveBooking = (moveData, options) => {
+    patchMutate(
+      {
+        data: moveData,
+        url: endPoints.moveFreeSessionBooking
+      },
+      options
+    );
+  };
+
+  return { mutate: moveBooking, ...rest };
 };
 
 export const useToggleSlotStatus = (id) => {
@@ -71,7 +82,7 @@ export const useUpdateGroupTeacher = () => {
   const { mutate: patchMutate, ...rest } = usePatchData(
     endPoints.updateGroupTeacher,
     [queryKeys.updateGroupTeacher],
-    [queryKeys.freeSessionBookings]
+    [queryKeys.freeSessionBookings, queryKeys.freeSessionSlotByDate]
   );
 
   const updateTeacher = ({ groupId, teacherId }) =>
@@ -81,4 +92,32 @@ export const useUpdateGroupTeacher = () => {
     });
 
   return { mutate: updateTeacher, ...rest };
+};
+
+export const useAutoAssignInstructors = () => {
+  const { mutate, ...rest } = usePostData(
+    endPoints.autoAssignInstructors,
+    [queryKeys.autoAssignInstructors],
+    [queryKeys.freeSessionSlotByDate]
+  );
+
+  const autoAssign = (slotId) => mutate({
+    url: `${endPoints.autoAssignInstructors}${slotId}`
+  });
+
+  return { mutate: autoAssign, ...rest };
+};
+
+export const useCancelFreeSessionBooking = () => {
+  const { mutate, ...rest } = usePatchData(
+    endPoints.cancelFreeSessionBooking,
+    [queryKeys.cancelFreeSessionBooking],
+    [queryKeys.freeSessionSlotByDate]
+  );
+
+  const cancelBooking = (bookingId) => mutate({
+    url: `${endPoints.cancelFreeSessionBooking}${bookingId}/cancel`
+  });
+
+  return { mutate: cancelBooking, ...rest };
 };

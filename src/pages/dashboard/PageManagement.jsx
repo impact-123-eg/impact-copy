@@ -16,9 +16,6 @@ const PageManagement = () => {
   // Editing Mode: 'visual' or 'json'
   const [editMode, setEditMode] = useState('visual');
 
-  const isProd = import.meta.env.PROD || import.meta.env.VITE_ENV === 'production' || import.meta.env.VITE_ENV === 'proeutn';
-  const isOrientation = formData.slug === 'orientation';
-
   const [formData, setFormData] = useState({
     name: '',
     slug: '',
@@ -27,6 +24,9 @@ const PageManagement = () => {
       en: {}
     }
   });
+
+  const isProd = import.meta.env.PROD || import.meta.env.VITE_ENV === 'production' || import.meta.env.VITE_ENV === 'proeutn';
+  const isOrientation = formData.slug === 'orientation';
 
   // Temporary strings for JSON editing mode to prevent parsing errors while typing
   const [jsonAr, setJsonAr] = useState('{}');

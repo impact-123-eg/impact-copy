@@ -22,6 +22,8 @@ const endPoints = {
   freeSessionAvailableDays: "/free-session-slots/available-days",
   moveFreeSessionBooking: "/free-session-groups/move-booking",
   updateGroupTeacher: "/free-session-groups/update-teacher",
+  autoAssignInstructors: "/free-session-groups/auto-assign/",
+  cancelFreeSessionBooking: "/free-session-bookings/",
   dashboard: "/dashboard/",
 
   //User
