@@ -55,6 +55,9 @@ const queryKeys = {
   createPayment: "createPayment",
   suggestAgents: "suggestAgents",
   adminAllUsers: "adminAllUsers",
+
+  // Roles
+  roles: "roles",
 };
 
 export default queryKeys;

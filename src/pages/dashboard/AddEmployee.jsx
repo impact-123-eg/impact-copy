@@ -1,7 +1,8 @@
-import React from "react";
+import React, { useEffect } from "react";
 import { useNavigate } from "react-router";
 import { useFormik } from "formik";
 import { useCreateUser, useGetAllEmployees } from "@/hooks/Actions/users/useCurdsUsers";
+import { useGetAllRoles } from "@/hooks/Actions/roles/useRoleCrud";
 import { addUserValidationSchema } from "@/Validation";
 import { toast } from "react-hot-toast";
 
@@ -12,8 +13,10 @@ function AddEmployee() {
   const navigate = useNavigate();
   const { mutate: createUser, isPending } = useCreateUser();
   const { data: employeesData } = useGetAllEmployees();
+  const { data: rolesData, refetch: refetchRoles } = useGetAllRoles();
 
   const employees = employeesData?.data?.data || [];
+  const roles = rolesData?.data?.data || [];
   const teamLeaders = employees.filter(e => e.role === "team_leader");
   const daysOfWeek = ["Sunday", "Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday"];
 
@@ -32,41 +35,52 @@ function AddEmployee() {
       teamId: "",
     },
     validationSchema: employeeValidationSchema,
-    onSubmit: (values) => {
-      handleAddEmployee(values);
+    onSubmit: async (values) => {
+      // Get the role ID based on the selected role
+      const selectedRole = roles.find(r => r.name === values.role);
+      if (!selectedRole) {
+        toast.error("Selected role not found");
+        return;
+      }
+
+      const userData = {
+        data: {
+          name: values.name,
+          email: values.email,
+          phoneNumber: values.phone,
+          password: values.password,
+          role: values.role,
+          roleId: selectedRole._id, // Add the role ID
+          isVerified: true, // Admin-created users are automatically verified
+          ...(values.role === "team_leader" && { managedRole: values.managedRole }),
+          ...((values.role === "sales" || values.role === "instructor") && {
+            shiftStart: values.shiftStart,
+            shiftEnd: values.shiftEnd,
+            daysOff: values.daysOff,
+          }),
+          ...(values.role === "sales" && {
+            teamId: values.teamId || null,
+          }),
+          // SEO role doesn't need additional fields
+        },
+      };
+
+      createUser(userData, {
+        onSuccess: () => {
+          toast.success("Employee added successfully");
+          navigate("/dash/settings");
+        },
+        onError: (error) => {
+          toast.error(error.message || "Error adding employee");
+        },
+      });
     },
   });
 
-  const handleAddEmployee = (values) => {
-    const userData = {
-      data: {
-        name: values.name,
-        email: values.email,
-        phoneNumber: values.phone,
-        password: values.password,
-        role: values.role,
-        ...(values.role === "team_leader" && { managedRole: values.managedRole }),
-        ...((values.role === "sales" || values.role === "instructor") && {
-          shiftStart: values.shiftStart,
-          shiftEnd: values.shiftEnd,
-          daysOff: values.daysOff,
-        }),
-        ...(values.role === "sales" && {
-          teamId: values.teamId || null,
-        }),
-      },
-    };
-
-    createUser(userData, {
-      onSuccess: () => {
-        toast.success("Employee added successfully");
-        navigate("/dash/settings");
-      },
-      onError: (error) => {
-        toast.error(error.message || "Error adding employee");
-      },
-    });
-  };
+  // Fetch roles on component mount
+  useEffect(() => {
+    refetchRoles();
+  }, [refetchRoles]);
 
   return (
     <main className="space-y-10">
@@ -156,6 +170,7 @@ function AddEmployee() {
                 <option value="cs">Customer Service</option>
                 <option value="sales">Sales Agent</option>
                 <option value="team_leader">Team Leader</option>
+                <option value="seo">SEO Specialist</option>
               </select>
               {formik.touched.role && formik.errors.role && <div className="text-red-500 text-sm">{formik.errors.role}</div>}
             </div>
@@ -241,6 +256,14 @@ function AddEmployee() {
                     </div>
                   </>
                 )}
+              </div>
+            )}
+
+            {/* SEO role doesn't need shifts or team assignments */}
+            {formik.values.role === "seo" && (
+              <div className="p-6 bg-green-50 rounded-2xl border-2 border-dashed border-green-200">
+                <h4 className="font-semibold text-lg text-green-800">SEO Specialist Role</h4>
+                <p className="text-sm text-green-600">SEO specialists have access only to Page Management and cannot view other admin sections.</p>
               </div>
             )}
           </article>

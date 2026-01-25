@@ -19,6 +19,7 @@ function Nav() {
   const isTeamLeader = user?.role === "team_leader";
   const isSales = user?.role === "sales";
   const isInstructor = user?.role === "instructor";
+  const isSeo = user?.role === "seo";
   const [modalOpen, setModalOpen] = useState(false);
 
   const menuItems = [
@@ -74,7 +75,7 @@ function Nav() {
       icon: <MdPersonOutline size={24} />,
       path: "/dash/users",
     },
-    isAdmin && {
+    (isAdmin || isSeo) && {
       name: "Page Management",
       icon: <GiPapers size={24} />,
       path: "/dash/pages",

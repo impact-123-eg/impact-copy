@@ -141,6 +141,34 @@ function HomePage() {
     )
   }
 
+  if (user?.role === "seo") {
+    return (
+      <main className="w-full space-y-10 p-4 sm:p-0">
+        <section className="bg-[var(--Main)] text-white p-6 sm:p-10 rounded-2xl">
+          <h1 className="text-xl sm:text-2xl font-bold mb-2">Welcome, {user.name}!</h1>
+          <p className="text-sm opacity-90">You have access to Page Management only. Click on "Page Management" in the sidebar to manage website content.</p>
+        </section>
+
+        <section className="bg-yellow-50 border-l-4 border-yellow-500 p-6 rounded-r-2xl shadow-sm">
+          <div className="flex items-center gap-4">
+            <div className="p-3 bg-yellow-100 text-yellow-600 rounded-xl">
+              <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
+              </svg>
+            </div>
+            <div>
+              <h2 className="text-lg font-bold text-yellow-800">Page Management Access</h2>
+              <p className="text-sm text-yellow-600">As an SEO specialist, you can only manage website pages and content.</p>
+              <Link to="/dash/pages" className="mt-2 inline-block bg-yellow-600 text-white px-4 py-2 rounded-lg text-sm font-medium hover:bg-yellow-700 transition-all">
+                Go to Page Management
+              </Link>
+            </div>
+          </div>
+        </section>
+      </main>
+    )
+  }
+
   const changeRequests = (bookingsResp?.data?.data || []).filter(b => b.instructorAssignmentStatus === 'change_requested');
 
   return (

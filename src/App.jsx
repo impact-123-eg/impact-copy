@@ -138,7 +138,7 @@ function App() {
 
           {/* Dashboard layout */}
           <Route path="/dash" element={<DashLayout />}>
-            <Route index element={<ProtectedRoute element={<HomePage />} />} />
+            <Route index element={<ProtectedRoute element={<HomePage />} requiredRoles={["admin", "seo"]} />} />
             <Route
               path="free-sessions"
               element={
@@ -287,7 +287,7 @@ function App() {
               element={
                 <ProtectedRoute
                   element={<PageManagement />}
-                  requiredRoles={["admin"]}
+                  requiredRoles={["admin", "seo"]}
                 />
               }
             />

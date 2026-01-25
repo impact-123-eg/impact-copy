@@ -45,6 +45,9 @@ const endPoints = {
   adminAllUsers: "users/admin/all",
   addUserNote: "users/admin/add-note",
   toggleSubscription: "users/admin/toggle-subscription",
+
+  // Roles
+  roles: "roles/",
 };
 
 export default endPoints;
