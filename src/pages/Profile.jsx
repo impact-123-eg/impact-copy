@@ -14,7 +14,8 @@ import {
     FaCalendarCheck,
     FaClock,
     FaMoneyBillWave,
-    FaLock
+    FaLock,
+    FaChalkboardTeacher
 } from "react-icons/fa";
 
 const Profile = () => {
@@ -33,8 +34,8 @@ const Profile = () => {
         confirmPassword: "",
     });
 
-    const studentHistory = historyData?.data?.data || { freeSessions: [], packageBookings: [] };
-    const { freeSessions, packageBookings } = studentHistory;
+    const studentHistory = historyData?.data?.data || { freeSessions: [], packageBookings: [], groups: [], attendanceHistory: [] };
+    const { freeSessions, packageBookings, groups, attendanceHistory } = studentHistory;
 
     const handleUpdate = (e) => {
         e.preventDefault();
@@ -98,6 +99,7 @@ const Profile = () => {
     const tabs = [
         { id: "overview", label: "Overview", icon: FaUser },
         { id: "packages", label: "My Packages", icon: FaBoxOpen },
+        { id: "classes", label: "My Classes", icon: FaChalkboardTeacher },
         { id: "sessions", label: "My Sessions", icon: FaCalendarCheck },
         { id: "payments", label: "My Payments", icon: FaCreditCard },
         { id: "settings", label: "Settings", icon: FaCog },
@@ -269,6 +271,42 @@ const Profile = () => {
                         </div>
                     )}
 
+                    {activeTab === "classes" && (
+                        <div className="space-y-6 animate-in fade-in slide-in-from-bottom-4 duration-500">
+                            <h2 className="text-2xl font-bold text-gray-800">My Classes</h2>
+                            {isLoadingHistory ? (
+                                <div className="flex justify-center py-12">
+                                    <div className="animate-spin rounded-full h-10 w-10 border-b-2 border-blue-600"></div>
+                                </div>
+                            ) : groups?.length > 0 ? (
+                                <div className="grid gap-6">
+                                    {groups.map((group) => (
+                                        <div key={group._id} className="bg-white rounded-2xl shadow-sm border border-gray-100 p-6">
+                                            <div className="flex justify-between items-start mb-4">
+                                                <div>
+                                                    <h3 className="text-xl font-bold text-gray-800">{group.name}</h3>
+                                                    <p className="text-gray-500">{group.package?.name}</p>
+                                                    <p className="text-gray-500 text-sm mt-1">Instructor: {group.instructor?.name}</p>
+                                                </div>
+                                                <span className={`px-2 py-1 text-xs rounded-full font-bold ${group.status === 'active' ? 'bg-green-100 text-green-700' : 'bg-yellow-100 text-yellow-700'}`}>
+                                                    {group.status}
+                                                </span>
+                                            </div>
+                                            <div className="text-sm text-gray-600">
+                                                <p><span className="font-semibold">Schedule:</span> {group.schedule.map(s => `${s.day} ${s.startTime}-${s.endTime}`).join(", ")}</p>
+                                                <p className="mt-2"><span className="font-semibold">Zoom Link:</span> {group.zoomLink ? <a href={group.zoomLink} target="_blank" rel="noreferrer" className="text-blue-600 underline">Join Class</a> : "No link available"}</p>
+                                            </div>
+                                        </div>
+                                    ))}
+                                </div>
+                            ) : (
+                                <div className="text-center py-12 bg-gray-50 rounded-3xl border border-dashed border-gray-200">
+                                    <p className="text-gray-500">You are not enrolled in any active classes.</p>
+                                </div>
+                            )}
+                        </div>
+                    )}
+
                     {activeTab === "sessions" && (
                         <div className="space-y-6 animate-in fade-in slide-in-from-bottom-4 duration-500">
                             <h2 className="text-2xl font-bold text-gray-800">My Sessions History</h2>
@@ -276,44 +314,48 @@ const Profile = () => {
                                 <div className="flex justify-center py-12">
                                     <div className="animate-spin rounded-full h-10 w-10 border-b-2 border-blue-600"></div>
                                 </div>
-                            ) : freeSessions?.length > 0 ? (
+                            ) : (freeSessions?.length > 0 || attendanceHistory?.length > 0) ? (
                                 <div className="bg-white rounded-3xl shadow-sm border border-gray-100 overflow-hidden">
                                     <div className="divide-y divide-gray-100">
-                                        {freeSessions.map((session) => (
-                                            <div key={session._id} className="p-6 hover:bg-gray-50 transition-colors">
-                                                <div className="flex flex-col md:flex-row justify-between gap-4">
-                                                    <div className="flex items-start gap-4">
-                                                        <div className="p-3 bg-purple-50 text-purple-600 rounded-xl">
-                                                            <FaCalendarCheck size={20} />
-                                                        </div>
-                                                        <div>
-                                                            <h4 className="font-bold text-gray-800 text-lg mb-1">
-                                                                {session.level} Level Assessment
-                                                            </h4>
-                                                            <div className="flex items-center gap-4 text-sm text-gray-500">
-                                                                <span className="flex items-center gap-1">
-                                                                    <FaClock size={14} />
-                                                                    {session.freeSessionSlotId ? new Date(session.freeSessionSlotId.startTime).toLocaleString() : 'Date TBD'}
-                                                                </span>
+                                        {[...(attendanceHistory || []).map(s => ({ ...s, type: 'regular' })), ...(freeSessions || []).map(s => ({ ...s, type: 'free' }))]
+                                            .sort((a, b) => new Date(b.date || b.createdAt) - new Date(a.date || a.createdAt))
+                                            .map((session) => (
+                                                <div key={session._id} className="p-6 hover:bg-gray-50 transition-colors">
+                                                    <div className="flex flex-col md:flex-row justify-between gap-4">
+                                                        <div className="flex items-start gap-4">
+                                                            <div className={`p-3 rounded-xl ${session.type === 'regular' ? 'bg-blue-50 text-blue-600' : 'bg-purple-50 text-purple-600'}`}>
+                                                                <FaCalendarCheck size={20} />
                                                             </div>
-                                                            {session.notes && (
-                                                                <p className="mt-2 text-sm bg-yellow-50 text-yellow-800 p-2 rounded-lg border border-yellow-100">
-                                                                    Note: {session.notes}
-                                                                </p>
+                                                            <div>
+                                                                <h4 className="font-bold text-gray-800 text-lg mb-1">
+                                                                    {session.type === 'regular' ? `${session.groupName} - ${session.topic || 'Class Session'}` : `${session.level} Level Assessment`}
+                                                                </h4>
+                                                                <div className="flex items-center gap-4 text-sm text-gray-500">
+                                                                    <span className="flex items-center gap-1">
+                                                                        <FaClock size={14} />
+                                                                        {session.type === 'regular'
+                                                                            ? `${new Date(session.date).toLocaleDateString()} ${session.startTime}`
+                                                                            : (session.freeSessionSlotId ? new Date(session.freeSessionSlotId.startTime).toLocaleString() : 'Date TBD')}
+                                                                    </span>
+                                                                </div>
+                                                                {(session.notes || session.note) && (
+                                                                    <p className="mt-2 text-sm bg-yellow-50 text-yellow-800 p-2 rounded-lg border border-yellow-100">
+                                                                        Note: {session.notes || session.note}
+                                                                    </p>
+                                                                )}
+                                                            </div>
+                                                        </div>
+                                                        <div className="flex flex-col items-end gap-2">
+                                                            <StatusBadge status={session.status} />
+                                                            {session.type === 'free' && session.instructor && (
+                                                                <span className="text-sm text-gray-500">
+                                                                    Instructor Assigned
+                                                                </span>
                                                             )}
                                                         </div>
                                                     </div>
-                                                    <div className="flex flex-col items-end gap-2">
-                                                        <StatusBadge status={session.status} />
-                                                        {session.instructor && (
-                                                            <span className="text-sm text-gray-500">
-                                                                Instructor Assigned
-                                                            </span>
-                                                        )}
-                                                    </div>
                                                 </div>
-                                            </div>
-                                        ))}
+                                            ))}
                                     </div>
                                 </div>
                             ) : (

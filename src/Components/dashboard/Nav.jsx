@@ -10,7 +10,7 @@ import { PiBooksBold } from "react-icons/pi";
 import { MdPersonOutline } from "react-icons/md";
 import { useAuth } from "@/context/AuthContext";
 import ConfirmModal from "../ConfirmModal";
-import { FaFileInvoice } from "react-icons/fa";
+import { FaFileInvoice, FaChalkboardTeacher } from "react-icons/fa";
 
 function Nav() {
   const location = useLocation();
@@ -18,6 +18,7 @@ function Nav() {
   const isAdmin = user?.role === "admin";
   const isTeamLeader = user?.role === "team_leader";
   const isSales = user?.role === "sales";
+  const isInstructor = user?.role === "instructor";
   const [modalOpen, setModalOpen] = useState(false);
 
   const menuItems = [
@@ -46,6 +47,16 @@ function Nav() {
       name: "Student Booking",
       icon: <RxCalendar size={24} />,
       path: "/dash/booking",
+    },
+    isInstructor && {
+      name: "Groups & Classes",
+      icon: <FaChalkboardTeacher size={24} />,
+      path: "/dash/groups",
+    },
+    isInstructor && {
+      name: "Pending Assignments",
+      icon: <BiSolidTime size={24} />,
+      path: "/dash/pending-assignments",
     },
     // { name: "Requests", icon: <GiPapers size={24} />, path: "/dash/requests" },
     isAdmin && {
@@ -80,10 +91,9 @@ function Nav() {
   return (
     <nav className="bg-[var(--Main)] flex flex-col h-full py-8 px-6">
       {/* Logo */}
-      <div className="mb-12 px-2">
+      <Link to="/dash" className="mb-12 px-2">
         <img src={logo} className="w-40" alt="Logo" />
-      </div>
-
+      </Link>
       {/* User Profile Section */}
       <section className="flex items-center gap-4 text-white mb-10 px-2">
         <div className="flex items-center justify-center w-12 h-12 bg-white/10 rounded-full">

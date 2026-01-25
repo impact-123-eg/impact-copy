@@ -55,6 +55,11 @@ import Register from "./pages/Register";
 import VerifyOTP from "./pages/VerifyOTP";
 import Profile from "./pages/Profile";
 
+import Groups from "./pages/dashboard/Groups";
+import GroupDetails from "./pages/dashboard/GroupDetails";
+import SessionAttendance from "./pages/dashboard/SessionAttendance";
+import InstructorPendingRequests from "./pages/dashboard/InstructorPendingRequests";
+
 const pixelId = import.meta.env.VITE_PIXEL_ID;
 
 const options = {
@@ -285,6 +290,23 @@ function App() {
                   requiredRoles={["admin"]}
                 />
               }
+            />
+            {/* Absence / Teacher Module */}
+            <Route
+              path="groups"
+              element={<ProtectedRoute element={<Groups />} requiredRoles={["admin", "instructor", "supervisor"]} />}
+            />
+            <Route
+              path="groups/:id"
+              element={<ProtectedRoute element={<GroupDetails />} requiredRoles={["admin", "instructor", "supervisor", "student"]} />}
+            />
+            <Route
+              path="sessions/:sessionId"
+              element={<ProtectedRoute element={<SessionAttendance />} requiredRoles={["admin", "instructor", "supervisor"]} />}
+            />
+            <Route
+              path="pending-assignments"
+              element={<ProtectedRoute element={<InstructorPendingRequests />} requiredRoles={["instructor", "admin"]} />}
             />
           </Route>
 

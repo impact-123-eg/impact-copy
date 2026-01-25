@@ -12,6 +12,8 @@ import {
 import { Link, useLocation } from "react-router-dom";
 import useDashboardStats from "@/hooks/Actions/dashboard/useDashboardStats";
 import { useGetAllFreeSessionBookings } from "@/hooks/Actions/free-sessions/useFreeSessionBookingCruds";
+import { useAuth } from "@/context/AuthContext";
+import InstructorWeeklySchedule from "@/Components/dashboard/InstructorWeeklySchedule";
 
 ChartJS.register(
   CategoryScale,
@@ -23,6 +25,7 @@ ChartJS.register(
 );
 
 function HomePage() {
+  const { user } = useAuth();
   const { data: statsResp, isPending: statsLoading } = useDashboardStats();
   const stats = statsResp?.data?.data || statsResp || null;
 
@@ -125,8 +128,45 @@ function HomePage() {
 
   const date = new Date();
   const year = date.getFullYear();
+
+  if (user?.role === "instructor") {
+    return (
+      <main className="w-full space-y-10 p-4 sm:p-0">
+        <section className="bg-[var(--Main)] text-white p-6 sm:p-10 rounded-2xl">
+          <h1 className="text-xl sm:text-2xl font-bold mb-2">Welcome back, {user.name}!</h1>
+          <p className="text-sm opacity-90">Here is your schedule for this week. Keep up the great work!</p>
+        </section>
+        <InstructorWeeklySchedule />
+      </main>
+    )
+  }
+
+  const changeRequests = (bookingsResp?.data?.data || []).filter(b => b.instructorAssignmentStatus === 'change_requested');
+
   return (
     <main className="w-full space-y-10 p-4 sm:p-0">
+      {/* Admin Alerts Section */}
+      {user?.role === 'admin' && stats?.changeRequestsCount > 0 && (
+        <section className="bg-red-50 border-l-4 border-red-500 p-6 rounded-r-2xl shadow-sm">
+          <div className="flex justify-between items-center">
+            <div className="flex items-center gap-4">
+              <div className="p-3 bg-red-100 text-red-600 rounded-xl animate-pulse">
+                <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z" />
+                </svg>
+              </div>
+              <div>
+                <h2 className="text-lg font-bold text-red-800">Instructor Replacement Requested</h2>
+                <p className="text-sm text-red-600 font-medium">There are {stats.changeRequestsCount} active requests from instructors who need to be replaced for their sessions.</p>
+              </div>
+            </div>
+            <Link to="/dash/pending-assignments" className="bg-red-600 text-white px-6 py-2.5 rounded-xl text-sm font-black hover:bg-red-700 hover:shadow-lg transition-all uppercase tracking-wider">
+              Manage Requests
+            </Link>
+          </div>
+        </section>
+      )}
+
       {/* Dashboard Insights Section */}
       <section className="bg-[var(--Main)] text-white p-6 sm:p-10 grid grid-cols-1 sm:grid-cols-3 gap-6 rounded-2xl">
         <article className="space-y-5 col-span-1">

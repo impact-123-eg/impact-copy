@@ -29,7 +29,7 @@ function Navbar() {
   }, [currentLocale]);
 
   return (
-    <nav className="relative lg:bg-[var(--Main)] w-full md:w-[850px] lg:w-[1050px] xl:w-[1400px] px-4 sm:px-6 lg:px-8 py-4 my-5 mx-auto rounded-none md:rounded-full">
+    <nav className="relative lg:bg-[var(--Main)] w-full md:w-[850px] lg:w-[1050px] xl:w-[1600px] px-4 sm:px-6 lg:px-8 py-4 my-5 mx-auto rounded-none md:rounded-full">
       <div className="h-full w-full flex justify-between items-center">
         {/* Logo */}
         <div className="hidden lg:flex items-center">
