@@ -7,11 +7,14 @@ import {
 
 import InlineSelect from "@/Components/ui/InlineSelect";
 import { useAuth } from "@/context/AuthContext";
+import FreeSessionSeatsView from "@/Components/dashboard/FreeSessionSeatsView";
+import { ClipboardList, Users } from "lucide-react";
 
 function StudentsFreeTests() {
   const { user } = useAuth();
   const isSales = user?.role === "sales";
   const isTeamLeader = user?.role === "team_leader";
+  const [viewMode, setViewMode] = useState("tests"); // "tests" or "seats"
   const [searchQuery, setSearchQuery] = useState("");
   const [completedFilter, setCompletedFilter] = useState("");
   const [levelFilter, setLevelFilter] = useState("");
@@ -90,7 +93,45 @@ function StudentsFreeTests() {
 
   return (
     <main className="space-y-6 max-w-7xl mx-auto">
-      <h1 className="font-bold text-2xl text-[var(--Main)]">Free Tests</h1>
+      {/* Header with View Toggle */}
+      <div className="flex justify-between items-center">
+        <h1 className="font-bold text-2xl text-[var(--Main)]">Free Tests & Sessions</h1>
+
+        {/* View Toggle */}
+        <div className="flex items-center bg-gray-100 rounded-xl p-1">
+          <button
+            onClick={() => setViewMode("tests")}
+            className={`flex items-center gap-2 px-4 py-2 rounded-lg transition-all ${
+              viewMode === "tests"
+                ? "bg-white text-[var(--Main)] shadow-sm"
+                : "text-gray-500 hover:text-gray-700"
+            }`}
+          >
+            <ClipboardList size={18} />
+            Tests List
+          </button>
+          <button
+            onClick={() => setViewMode("seats")}
+            className={`flex items-center gap-2 px-4 py-2 rounded-lg transition-all ${
+              viewMode === "seats"
+                ? "bg-white text-[var(--Main)] shadow-sm"
+                : "text-gray-500 hover:text-gray-700"
+            }`}
+          >
+            <Users size={18} />
+            Seats View
+          </button>
+        </div>
+      </div>
+
+      {/* Seats View */}
+      {viewMode === "seats" && (
+        <FreeSessionSeatsView />
+      )}
+
+      {/* Tests List View */}
+      {viewMode === "tests" && (
+      <>
 
       <section className="bg-white p-6 rounded-2xl shadow space-y-6">
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
@@ -256,6 +297,8 @@ function StudentsFreeTests() {
           </div>
         )}
       </section>
+      </>
+      )}
     </main>
   );
 }

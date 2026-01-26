@@ -1,4 +1,7 @@
+import { useState, useEffect, useRef } from "react";
 import { useI18n } from "../../hooks/useI18n";
+import TestProgress from "./TestProgress";
+import AudioPlayer from "./AudioPlayer";
 
 const TestQuestion = ({
   question,

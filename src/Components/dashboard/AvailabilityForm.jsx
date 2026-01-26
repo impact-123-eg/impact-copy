@@ -1,39 +1,41 @@
 import React, { useState } from "react";
 import { useFormik } from "formik";
 import * as Yup from "yup";
+import { useI18n } from "../../../hooks/useI18n";
 
-const validationSchema = Yup.object({
-  slots: Yup.array()
-    .of(
-      Yup.object({
-        start: Yup.string().required("Start time is required"),
-        end: Yup.string()
-          .required("End time is required")
-          .test(
-            "is-after-start",
-            "End time must be after start time",
-            function (value) {
-              const { start } = this.parent;
-              return !start || !value || value > start;
-            }
-          ),
-        groups: Yup.array()
-          .of(
-            Yup.object({
-              level: Yup.string()
-                .oneOf(
-                  ["Starter", "Beginner", "Intermediate", "Advanced"],
-                  "Please select a valid level"
-                )
-                .required("Level is required"),
-              instructor: Yup.string().optional(),
-            })
-          )
-          .min(1, "At least one group is required"),
-      })
-    )
-    .min(1, "At least one time slot is required"),
-});
+const validationSchema = (t) =>
+  Yup.object({
+    slots: Yup.array()
+      .of(
+        Yup.object({
+          start: Yup.string().required(t("validation", "startTimeRequired", "Start time is required")),
+          end: Yup.string()
+            .required(t("validation", "endTimeRequired", "End time is required"))
+            .test(
+              "is-after-start",
+              t("validation", "endTimeAfterStart", "End time must be after start time"),
+              function (value) {
+                const { start } = this.parent;
+                return !start || !value || value > start;
+              }
+            ),
+          groups: Yup.array()
+            .of(
+              Yup.object({
+                level: Yup.string()
+                  .oneOf(
+                    ["Starter", "Beginner", "Intermediate", "Advanced"],
+                    t("validation", "levelRequired", "Level is required")
+                  )
+                  .required(t("validation", "levelRequired", "Level is required")),
+                instructor: Yup.string().optional(),
+              })
+            )
+            .min(1, t("validation", "groupRequired", "At least one group is required")),
+        })
+      )
+      .min(1, t("validation", "timeSlotRequired", "At least one time slot is required")),
+  });
 
 // Generate time options in 30-minute intervals
 const generateTimeOptions = () => {
@@ -52,6 +54,8 @@ const generateTimeOptions = () => {
 const timeOptions = generateTimeOptions();
 
 const AvailabilityForm = ({ date, day, onSubmit, onCancel }) => {
+  const { t } = useI18n();
+
   const formik = useFormik({
     initialValues: {
       slots: [
@@ -62,7 +66,7 @@ const AvailabilityForm = ({ date, day, onSubmit, onCancel }) => {
         },
       ],
     },
-    validationSchema,
+    validationSchema: validationSchema(t),
     onSubmit: (values) => {
       const availabilityData = {
         date,

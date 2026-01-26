@@ -1,4 +1,11 @@
+import { useState, useEffect } from "react";
 import { useI18n } from "../../hooks/useI18n";
+import { useFreeTest } from "../../hooks/Actions/freeTest/useFreeTest";
+import TestWelcome from "./TestWelcome";
+import TestQuestion from "./TestQuestion";
+import LevelTransition from "./LevelTransition";
+import TestCompletion from "./TestCompletion";
+import WarningNote from "./WarningNote";
 
 const FreeTestContainer = () => {
   const { t, initialize, loading: i18nLoading } = useI18n();

@@ -1,4 +1,8 @@
+import React  , { useEffect } from "react";
 import { useI18n } from "../../hooks/useI18n";
+import * as Yup from "yup";
+import { useFormik } from "formik";
+import cntris from "../../data/Countries.json";
 
 const TestWelcome = ({
   onStartTest,
@@ -15,12 +19,12 @@ const TestWelcome = ({
   }, [initialize]);
 
   const validationSchema = Yup.object({
-    name: Yup.string().required(t("free-test", "nameRequired", "Name is required")),
+    name: Yup.string().required(t("validation", "nameRequired", "Name is required")),
     email: Yup.string()
-      .email(t("free-test", "invalidEmail", "Invalid email"))
-      .required(t("free-test", "emailRequired", "Email is required")),
-    phoneNumber: Yup.string().required(t("free-test", "phoneRequired", "Phone number is required")),
-    country: Yup.string().required(t("free-test", "countryRequired", "Country is required")),
+      .email(t("validation", "invalidEmail", "Invalid email"))
+      .required(t("validation", "emailRequired", "Email is required")),
+    phoneNumber: Yup.string().required(t("validation", "phoneRequired", "Phone number is required")),
+    country: Yup.string().required(t("validation", "countryRequired", "Country is required")),
   });
 
   const formik = useFormik({

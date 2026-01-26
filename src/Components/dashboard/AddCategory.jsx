@@ -2,6 +2,7 @@ import React, { useEffect, useState } from "react";
 import { useNavigate, useParams } from "react-router-dom";
 import { useFormik } from "formik";
 import * as Yup from "yup";
+import { useI18n } from "@/hooks/useI18n";
 import {
   useAddCategory,
   useGetcategoryById,
@@ -12,6 +13,7 @@ import { categorySchema } from "@/Validation";
 // Updated validation schema with new fields
 
 function AddCategory() {
+  const { t } = useI18n();
   const navigate = useNavigate();
   const { id: categoryId } = useParams();
   const [mode, setMode] = useState(categoryId ? "edit" : "add");
@@ -60,7 +62,7 @@ function AddCategory() {
       arTitle: "",
       arDescription: "",
     },
-    validationSchema: categorySchema,
+    validationSchema: categorySchema(t),
     onSubmit: (values) => {
       const categoryData = {
         name: values.name,

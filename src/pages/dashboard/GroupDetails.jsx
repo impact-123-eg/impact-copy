@@ -312,7 +312,7 @@ const GroupDetails = () => {
                                 )}
                             </div>
                         </div>
-                        {(user?.role === 'admin' || user?.role === 'instructor') && (
+                        {(user?.role === 'admin' || user?.role === 'cs') && (
                             <div className="flex flex-wrap gap-3">
                                 <button
                                     onClick={openGroupEditModal}
@@ -332,6 +332,22 @@ const GroupDetails = () => {
                                     className="bg-white text-blue-700 hover:bg-blue-50 px-5 py-2.5 rounded-xl font-black transition-all shadow-xl shadow-blue-900/20 flex items-center gap-2 disabled:opacity-50"
                                 >
                                     <CalendarIcon size={18} /> {generating ? "Scheduling..." : "Plan Session"}
+                                </button>
+                            </div>
+                        )}
+                        {user?.role === 'instructor' && (
+                            <div className="flex flex-wrap gap-3">
+                                <button
+                                    onClick={openGroupEditModal}
+                                    className="bg-white/10 hover:bg-white/20 text-white px-5 py-2.5 rounded-xl font-bold transition-all border border-white/20 backdrop-blur-sm flex items-center gap-2"
+                                >
+                                    <Settings size={18} /> Edit Group
+                                </button>
+                                <button
+                                    onClick={() => setIsAddStudentModalOpen(true)}
+                                    className="bg-white/10 hover:bg-white/20 text-white px-5 py-2.5 rounded-xl font-bold transition-all border border-white/20 backdrop-blur-sm flex items-center gap-2"
+                                >
+                                    <Users size={18} /> Add Student
                                 </button>
                             </div>
                         )}
@@ -434,14 +450,18 @@ const GroupDetails = () => {
                                             <button onClick={() => openEditModal(session)} className="p-2 text-gray-400 hover:text-indigo-600 transition-colors">
                                                 <Activity size={18} />
                                             </button>
-                                            {session.status !== 'cancelled' ? (
-                                                <button onClick={() => handleUpdateSessionStatus(session._id, 'cancelled')} className="p-2 text-gray-400 hover:text-red-600 transition-colors">
-                                                    <XCircle size={18} />
-                                                </button>
-                                            ) : (
-                                                <button onClick={() => handleUpdateSessionStatus(session._id, 'scheduled')} className="p-2 text-gray-400 hover:text-green-600 transition-colors">
-                                                    <CheckCircle size={18} />
-                                                </button>
+                                            {(user?.role === 'admin' || user?.role === 'cs') && (
+                                                <>
+                                                    {session.status !== 'cancelled' ? (
+                                                        <button onClick={() => handleUpdateSessionStatus(session._id, 'cancelled')} className="p-2 text-gray-400 hover:text-red-600 transition-colors">
+                                                            <XCircle size={18} />
+                                                        </button>
+                                                    ) : (
+                                                        <button onClick={() => handleUpdateSessionStatus(session._id, 'scheduled')} className="p-2 text-gray-400 hover:text-green-600 transition-colors">
+                                                            <CheckCircle size={18} />
+                                                        </button>
+                                                    )}
+                                                </>
                                             )}
                                         </div>
                                     </td>

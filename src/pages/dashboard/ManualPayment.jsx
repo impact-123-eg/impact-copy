@@ -2,28 +2,31 @@ import React from "react";
 import { useFormik } from "formik";
 import * as Yup from "yup";
 import { useNavigate, Link } from "react-router-dom";
+import { useI18n } from "@/hooks/useI18n";
 import useGetData from "@/hooks/curdsHook/useGetData";
 import usePostData from "@/hooks/curdsHook/usePostData";
 import endPoints from "@/config/endPoints";
 import { toast } from "react-hot-toast";
 
-const validationSchema = Yup.object({
-  name: Yup.string().trim().required("Name is required"),
-  email: Yup.string().email("Invalid email").required("Email is required"),
-  phoneNumber: Yup.string().trim().required("Phone is required"),
-  country: Yup.string().trim().required("Country is required"),
-  packageId: Yup.string().required("Package is required"),
-  amount: Yup.number()
-    .typeError("Amount must be a number")
-    .required("Amount is required")
-    .min(0, "Amount cannot be negative"),
-  paidAt: Yup.date().nullable(),
-  manualReference: Yup.string().trim().optional(),
-  recordedBy: Yup.string().trim().optional(),
-  method: Yup.string().trim().optional(),
-});
+const validationSchema = (t) =>
+  Yup.object({
+    name: Yup.string().trim().required(t("validation", "nameRequired", "Name is required")),
+    email: Yup.string().email(t("validation", "invalidEmail", "Invalid email")).required(t("validation", "emailRequired", "Email is required")),
+    phoneNumber: Yup.string().trim().required(t("validation", "phoneRequired", "Phone is required")),
+    country: Yup.string().trim().required(t("validation", "countryRequired", "Country is required")),
+    packageId: Yup.string().required(t("validation", "packageIdRequired", "Package is required")),
+    amount: Yup.number()
+      .typeError(t("validation", "amountMustBeNumber", "Amount must be a number"))
+      .required(t("validation", "amountRequired", "Amount is required"))
+      .min(0, t("validation", "amountMustBePositive", "Amount cannot be negative")),
+    paidAt: Yup.date().nullable(),
+    manualReference: Yup.string().trim().optional(),
+    recordedBy: Yup.string().trim().optional(),
+    method: Yup.string().trim().optional(),
+  });
 
 export default function ManualPayment() {
+  const { t } = useI18n();
   const navigate = useNavigate();
 
   const { data: packagesRes } = useGetData({
@@ -50,7 +53,6 @@ export default function ManualPayment() {
       phoneNumber: "",
       country: "",
       packageId: "",
-      packageId: "",
       amount: "",
       paymentType: "full", // Default to full
       paidAt: "",
@@ -58,7 +60,7 @@ export default function ManualPayment() {
       recordedBy: "",
       method: "",
     },
-    validationSchema,
+    validationSchema: validationSchema(t),
     onSubmit: (values) => {
       const payload = {
         name: values.name.trim(),

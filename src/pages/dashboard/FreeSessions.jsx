@@ -10,12 +10,15 @@ import FreeSessionCalendar from "@/Components/FreeSessionCalendar";
 import FreeSessionSlotList from "@/Components/dashboard/FreeSessionSlotList";
 import FreeSessionSlotForm from "@/Components/dashboard/FreeSessionSlotForm";
 import FreeSessionGroupManager from "@/Components/dashboard/FreeSessionGroupManager";
+import FreeSessionSeatsView from "@/Components/dashboard/FreeSessionSeatsView";
 import formatDateForAPI from "@/utilities/formatDateForApi";
 import formatTime from "@/utilities/formatTime";
+import { Calendar, Grid3x3 } from "lucide-react";
 
 const FreeSessionManagement = () => {
   const [searchParams, setSearchParams] = useSearchParams();
   const [showForm, setShowForm] = useState(false);
+  const [viewMode, setViewMode] = useState("calendar"); // "calendar" or "seats"
 
   // Derive date and slot from URL
   const selectedDate = useMemo(() => {
@@ -126,9 +129,47 @@ const FreeSessionManagement = () => {
 
   return (
     <main className="space-y-6 max-w-7xl mx-auto p-6">
-      <h1 className="font-bold text-2xl text-[var(--Main)]">
-        Free Session Management
-      </h1>
+      {/* Header with View Toggle */}
+      <div className="flex justify-between items-center">
+        <h1 className="font-bold text-2xl text-[var(--Main)]">
+          Free Session Management
+        </h1>
+
+        {/* View Toggle */}
+        <div className="flex items-center bg-gray-100 rounded-xl p-1">
+          <button
+            onClick={() => setViewMode("calendar")}
+            className={`flex items-center gap-2 px-4 py-2 rounded-lg transition-all ${
+              viewMode === "calendar"
+                ? "bg-white text-[var(--Main)] shadow-sm"
+                : "text-gray-500 hover:text-gray-700"
+            }`}
+          >
+            <Calendar size={18} />
+            Calendar View
+          </button>
+          <button
+            onClick={() => setViewMode("seats")}
+            className={`flex items-center gap-2 px-4 py-2 rounded-lg transition-all ${
+              viewMode === "seats"
+                ? "bg-white text-[var(--Main)] shadow-sm"
+                : "text-gray-500 hover:text-gray-700"
+            }`}
+          >
+            <Grid3x3 size={18} />
+            Seats View
+          </button>
+        </div>
+      </div>
+
+      {/* Seats View */}
+      {viewMode === "seats" && (
+        <FreeSessionSeatsView />
+      )}
+
+      {/* Calendar View */}
+      {viewMode === "calendar" && (
+      <>
 
       {/* Top Section: Calendar + Slot Creation */}
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
@@ -231,6 +272,8 @@ const FreeSessionManagement = () => {
           onSubmit={handleCreateSlot}
           onCancel={() => setShowForm(false)}
         />
+      )}
+      </>
       )}
     </main>
   );

@@ -4,14 +4,25 @@ import logo from "../assets/Logo White 1.png";
 import logo2 from "../assets/logoblue.png";
 import { useI18n } from "../hooks/useI18n";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
-import { faEarth, faUserCircle } from "@fortawesome/free-solid-svg-icons";
+import {
+  faEarth,
+  faUserCircle,
+  faChalkboardUser,
+  faHome,
+  faBookOpen,
+  faInfoCircle,
+  faRightToBracket,
+  faUserPlus,
+  faFlask,
+  faCalendarCheck,
+} from "@fortawesome/free-solid-svg-icons";
 import { useAuth } from "../context/AuthContext";
 
 function Navbar() {
   const { t, currentLocale, switchLanguage, localizePath } = useI18n();
   const [isOpen, setIsOpen] = useState(false);
-  const activeTab = "text-[var(--Yellow)] text-sm md:text-xl font-bold";
-  const tabStyle = "text-white text-sm md:text-xl hover:text-gray-200";
+  const activeTab = "text-[var(--Yellow)] text-xs font-semibold";
+  const tabStyle = "text-white text-xs hover:text-gray-200 transition-colors";
   const { isLoggedIn, user, handleLogout: authLogout } = useAuth();
   const nav = useNavigate();
   const handleNavigate = (to) => {
@@ -29,17 +40,17 @@ function Navbar() {
   }, [currentLocale]);
 
   return (
-    <nav className="relative lg:bg-[var(--Main)] w-full md:w-[850px] lg:w-[1050px] xl:w-[1600px] px-4 sm:px-6 lg:px-8 py-4 my-5 mx-auto rounded-none md:rounded-full">
+    <nav className="relative lg:bg-[var(--Main)] w-full md:w-[850px] lg:w-[1050px] xl:w-[1200px] px-3 sm:px-4 lg:px-6 py-2 my-3 mx-auto rounded-none md:rounded-full">
       <div className="h-full w-full flex justify-between items-center">
         {/* Logo */}
         <div className="hidden lg:flex items-center">
           <NavLink to={localizePath("/")}>
-            <img src={logo} alt="logo" className="h-10 w-auto object-contain flex-shrink-0" />
+            <img src={logo} alt="logo" className="h-7 w-auto object-contain flex-shrink-0" />
           </NavLink>
         </div>
         <div className="lg:hidden flex items-center">
           <NavLink to={localizePath("/")}>
-            <img src={logo2} alt="logo" className="h-10 w-auto object-contain flex-shrink-0" />
+            <img src={logo2} alt="logo" className="h-7 w-auto object-contain flex-shrink-0" />
           </NavLink>
         </div>
 
@@ -47,11 +58,11 @@ function Navbar() {
         <div className="lg:hidden flex items-center">
           <button
             onClick={() => setIsOpen(!isOpen)}
-            className="text-[var(--Main)] focus:outline-none"
+            className="text-[var(--Main)] focus:outline-none p-1"
             aria-label="Toggle menu"
           >
             <svg
-              className="w-6 h-6"
+              className="w-5 h-5"
               fill="none"
               stroke="currentColor"
               viewBox="0 0 24 24"
@@ -68,83 +79,88 @@ function Navbar() {
         </div>
 
         {/* Desktop Menu */}
-        <div className="hidden lg:flex items-center">
-          <div className="flex gap-x-8 whitespace-nowrap">
+        <div className="hidden lg:flex items-center justify-between w-full">
+          <div className="flex gap-x-5 whitespace-nowrap w-full justify-center items-center">
             <NavLink
               to={localizePath("/")}
               className={({ isActive }) => (isActive ? activeTab : tabStyle)}
               end
             >
+              {/* <FontAwesomeIcon icon={faHome} className="mr-1" /> */}
               {t("navbar", "Home", "Home")}
             </NavLink>
             <NavLink
               to={localizePath("/courses")}
               className={({ isActive }) => (isActive ? activeTab : tabStyle)}
             >
+              {/* <FontAwesomeIcon icon={faBookOpen} className="mr-1" /> */}
               {t("navbar", "Courses", "Courses")}
             </NavLink>
             <NavLink
               to={localizePath("/about")}
               className={({ isActive }) => (isActive ? activeTab : tabStyle)}
             >
-              {t("navbar", "AboutUs", "About Us")}
+              {/* <FontAwesomeIcon icon={faInfoCircle} className="mr-1" /> */}
+              {t("navbar", "AboutUs", "About")}
             </NavLink>
           </div>
 
-          <div className="flex gap-2 items-center space-x-4 lg:space-x-6 ms-7 lg:ms-20 whitespace-nowrap">
+          <div className="flex gap-1.5 items-center space-x-2 lg:space-x-3 ms-4 lg:ms-8 whitespace-nowrap">
             <button
               onClick={() => handleNavigate("/free-test")}
-              className={`border border-white text-white px-4 py-2 rounded-3xl hover:brightness-95 transition`}
+              className={`border border-white text-white px-2.5 py-1.5 rounded-full hover:brightness-95 transition text-xs flex items-center gap-1`}
             >
-              {t("navbar", "BookFreeTest", "Book Free Test")}
+              <FontAwesomeIcon icon={faFlask} />
+              {t("navbar", "BookFreeTest", "Test")}
             </button>
             <button
               onClick={() => handleNavigate("/free-session")}
-              className={`bg-white p-3 rounded-3xl hover:bg-gray-100 mx-4`}
+              className={`bg-white px-2.5 py-1.5 rounded-full hover:bg-gray-100 text-xs text-[var(--Main)] flex items-center gap-1`}
             >
-              {t("navbar", "BookFree", "Book Free Session")}
+              <FontAwesomeIcon icon={faCalendarCheck} />
+              {t("navbar", "BookFree", "Session")}
             </button>
-            <div
+            <button
               onClick={toggleLanguage}
-              className="flex cursor-pointer mx-4 text-white items-center space-x-2"
+              className="flex cursor-pointer text-white items-center justify-center w-7 h-7 rounded-full hover:bg-white/10 transition"
+              title={currentLocale === "en" ? "Switch to Arabic" : "Switch to English"}
             >
-              <FontAwesomeIcon icon={faEarth} />
-              {currentLocale === "en" ? (
-                <span className=" mx-2">{t("navbar", "Arabic", "Arabic")}</span>
-              ) : (
-                <span>{t("navbar", "English", "English")}</span>
-              )}
-            </div>
+              <FontAwesomeIcon icon={faEarth} className="text-xs" />
+            </button>
 
             {isLoggedIn ? (
-              <div className="flex items-center gap-4 ml-4">
-                <NavLink
-                  to={localizePath("/profile")}
-                  className={({ isActive }) => (isActive ? activeTab : tabStyle)}
-                >
-                  <FontAwesomeIcon icon={faUserCircle} className="mr-2" />
-                  {user?.name?.split(" ")[0]}
-                </NavLink>
-                <button
-                  onClick={authLogout}
-                  className="text-white hover:text-red-400 font-bold transition-colors"
-                >
-                  {t("logout", "Logout")}
-                </button>
+              <div className="flex items-center gap-2 ml-2">
+                {user?.role === "student" ? (
+                  <NavLink
+                    to={localizePath("/profile")}
+                    className={({ isActive }) => (isActive ? activeTab : tabStyle)}
+                  >
+                    <FontAwesomeIcon icon={faUserCircle} className="text-sm" />
+                  </NavLink>
+                ) : (
+                  <NavLink
+                    to="/dash"
+                    className={({ isActive }) => (isActive ? activeTab : tabStyle)}
+                  >
+                    <FontAwesomeIcon icon={faChalkboardUser} className="text-sm" />
+                  </NavLink>
+                )}
               </div>
             ) : (
-              <div className="flex items-center gap-4 ml-4">
+              <div className="flex items-center gap-2 ml-2">
                 <NavLink
                   to={localizePath("/login")}
                   className={({ isActive }) => (isActive ? activeTab : tabStyle)}
+                  title={t("login", "Login")}
                 >
-                  {t("login", "Login")}
+                  <FontAwesomeIcon icon={faRightToBracket} className="text-sm" />
                 </NavLink>
                 <NavLink
                   to={localizePath("/register")}
-                  className="bg-[var(--Yellow)] text-[var(--Main)] px-6 py-2 rounded-3xl font-bold hover:brightness-110 transition"
+                  className="bg-[var(--Yellow)] text-[var(--Main)] w-6 h-6 rounded-full flex items-center justify-center hover:brightness-110 transition"
+                  title={t("register", "Register")}
                 >
-                  {t("register", "Register")}
+                  <FontAwesomeIcon icon={faUserPlus} className="text-xs" />
                 </NavLink>
               </div>
             )}
@@ -162,21 +178,21 @@ function Navbar() {
           />
           <div
             className={`fixed z-50 top-0 ${currentLocale === "ar" ? "left-0" : "right-0"
-              } h-full w-72 max-w-[85vw] bg-white shadow-xl transition-transform duration-200 ease-out`}
+              } h-full w-64 max-w-[80vw] bg-white shadow-xl transition-transform duration-200 ease-out`}
             role="dialog"
             aria-modal="true"
           >
-            <div className="flex items-center justify-between p-4 border-b">
+            <div className="flex items-center justify-between p-3 border-b">
               <div className="flex items-center">
-                <img src={logo2} alt="logo" className="h-8 w-auto object-contain flex-shrink-0" />
+                <img src={logo2} alt="logo" className="h-6 w-auto object-contain flex-shrink-0" />
               </div>
               <button
                 onClick={() => setIsOpen(false)}
                 aria-label="Close menu"
-                className="text-[var(--Main)] p-2 hover:bg-gray-100 rounded-full"
+                className="text-[var(--Main)] p-1.5 hover:bg-gray-100 rounded-full"
               >
                 <svg
-                  className="w-5 h-5"
+                  className="w-4 h-4"
                   viewBox="0 0 24 24"
                   fill="none"
                   stroke="currentColor"
@@ -188,14 +204,14 @@ function Navbar() {
                 </svg>
               </button>
             </div>
-            <div className="p-4 space-y-3">
+            <div className="p-3 space-y-1.5">
               <button
                 onClick={toggleLanguage}
-                className="w-full flex items-center justify-center gap-2 text-[var(--Main)] py-2 px-3 border rounded-xl"
+                className="w-full flex items-center justify-center gap-2 text-[var(--Main)] py-2 px-3 border rounded-lg text-xs"
               >
                 <FontAwesomeIcon icon={faEarth} />
                 {currentLocale === "en" ? (
-                  <span>{t("navbar", "Arabic", "Arabic")}</span>
+                  <span>{t("navbar", "Arabic", "العربية")}</span>
                 ) : (
                   <span>{t("navbar", "English", "English")}</span>
                 )}
@@ -205,50 +221,111 @@ function Navbar() {
                 onClick={() => setIsOpen(false)}
                 end
                 className={({ isActive }) =>
-                  `block rounded-xl py-3 px-4 text-base ${isActive
+                  `flex items-center gap-2 rounded-lg py-2 px-3 text-xs ${isActive
                     ? "bg-[var(--Main)]/10 text-[var(--Main)] font-semibold"
-                    : "text-[var(--Main)] hover:bg-gray-100"
+                    : "text-[var(--Main)] hover:bg-gray-50"
                   }`
                 }
               >
+                <FontAwesomeIcon icon={faHome} />
                 {t("navbar", "Home", "Home")}
               </NavLink>
               <NavLink
                 to={localizePath("/courses")}
                 onClick={() => setIsOpen(false)}
                 className={({ isActive }) =>
-                  `block rounded-xl py-3 px-4 text-base ${isActive
+                  `flex items-center gap-2 rounded-lg py-2 px-3 text-xs ${isActive
                     ? "bg-[var(--Main)]/10 text-[var(--Main)] font-semibold"
-                    : "text-[var(--Main)] hover:bg-gray-100"
+                    : "text-[var(--Main)] hover:bg-gray-50"
                   }`
                 }
               >
+                <FontAwesomeIcon icon={faBookOpen} />
                 {t("navbar", "Courses", "Courses")}
               </NavLink>
               <NavLink
                 to={localizePath("/about")}
                 onClick={() => setIsOpen(false)}
                 className={({ isActive }) =>
-                  `block rounded-xl py-3 px-4 text-base ${isActive
+                  `flex items-center gap-2 rounded-lg py-2 px-3 text-xs ${isActive
                     ? "bg-[var(--Main)]/10 text-[var(--Main)] font-semibold"
-                    : "text-[var(--Main)] hover:bg-gray-100"
+                    : "text-[var(--Main)] hover:bg-gray-50"
                   }`
                 }
               >
-                {t("navbar", "AboutUs", "About Us")}
+                <FontAwesomeIcon icon={faInfoCircle} />
+                {t("navbar", "AboutUs", "About")}
               </NavLink>
               <button
                 onClick={() => handleNavigate("/free-test")}
-                className="w-full bg-[var(--Yellow)] text-[var(--Main)] py-3 px-4 rounded-2xl font-semibold hover:brightness-95"
+                className="w-full flex items-center justify-center gap-2 bg-[var(--Yellow)] text-[var(--Main)] py-2 px-3 rounded-lg font-semibold hover:brightness-95 text-xs"
               >
+                <FontAwesomeIcon icon={faFlask} />
                 {t("navbar", "FreeTest", "Free Test")}
               </button>
               <button
                 onClick={() => handleNavigate("/free-session")}
-                className="w-full bg-white text-[var(--Main)] py-3 px-4 rounded-2xl border hover:bg-gray-50"
+                className="w-full flex items-center justify-center gap-2 bg-white text-[var(--Main)] py-2 px-3 rounded-lg border hover:bg-gray-50 text-xs"
               >
-                {t("navbar", "BookFree", "Book Free Session")}
+                <FontAwesomeIcon icon={faCalendarCheck} />
+                {t("navbar", "BookFree", "Book Session")}
               </button>
+
+              {/* Auth Section for Mobile */}
+              {isLoggedIn ? (
+                <>
+                  {user?.role === "student" ? (
+                    <NavLink
+                      to={localizePath("/profile")}
+                      onClick={() => setIsOpen(false)}
+                      className={({ isActive }) =>
+                        `flex items-center gap-2 rounded-lg py-2 px-3 text-xs ${isActive
+                          ? "bg-[var(--Main)]/10 text-[var(--Main)] font-semibold"
+                          : "text-[var(--Main)] hover:bg-gray-50"
+                        }`
+                      }
+                    >
+                      <FontAwesomeIcon icon={faUserCircle} />
+                      {user?.name?.split(" ")[0]}
+                    </NavLink>
+                  ) : (
+                    <NavLink
+                      to="/dash"
+                      onClick={() => setIsOpen(false)}
+                      className="flex items-center gap-2 rounded-lg py-2 px-3 text-xs bg-[var(--Main)]/10 text-[var(--Main)] font-semibold"
+                    >
+                      <FontAwesomeIcon icon={faChalkboardUser} />
+                      Dashboard
+                    </NavLink>
+                  )}
+                  <button
+                    onClick={authLogout}
+                    className="w-full flex items-center gap-2 rounded-lg py-2 px-3 text-xs text-red-500 hover:bg-gray-50"
+                  >
+                    <FontAwesomeIcon icon={faRightToBracket} />
+                    {t("logout", "Logout")}
+                  </button>
+                </>
+              ) : (
+                <div className="flex gap-2 pt-2">
+                  <NavLink
+                    to={localizePath("/login")}
+                    onClick={() => setIsOpen(false)}
+                    className="flex-1 flex items-center justify-center gap-2 rounded-lg py-2 px-3 text-xs text-[var(--Main)] border hover:bg-gray-50"
+                  >
+                    <FontAwesomeIcon icon={faRightToBracket} />
+                    {t("login", "Login")}
+                  </NavLink>
+                  <NavLink
+                    to={localizePath("/register")}
+                    onClick={() => setIsOpen(false)}
+                    className="flex-1 flex items-center justify-center gap-2 bg-[var(--Yellow)] text-[var(--Main)] rounded-lg py-2 px-3 text-xs font-semibold hover:brightness-95"
+                  >
+                    <FontAwesomeIcon icon={faUserPlus} />
+                    {t("register", "Register")}
+                  </NavLink>
+                </div>
+              )}
             </div>
           </div>
         </div>

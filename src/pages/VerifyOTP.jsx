@@ -13,7 +13,7 @@ import { useAuth } from "../context/AuthContext";
 
 const VerifyOTP = () => {
     const { t } = useTranslation();
-    const { localizePath } = useI18n();
+    const { localizePath, t: tValid } = useI18n();
     const navigate = useNavigate();
     const location = useLocation();
     const { setToken, setUser, setIsLoggedIn } = useAuth();
@@ -30,7 +30,7 @@ const VerifyOTP = () => {
 
     const formik = useFormik({
         initialValues: { otp: "" },
-        validationSchema: otpValidationSchema,
+        validationSchema: otpValidationSchema(tValid),
         onSubmit: (values) => {
             verifyMutate(
                 { data: { email, otp: values.otp } },

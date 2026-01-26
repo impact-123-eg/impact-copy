@@ -121,3 +121,13 @@ export const useCancelFreeSessionBooking = () => {
 
   return { mutate: cancelBooking, ...rest };
 };
+
+export const useGetUpcomingFreeSessionSlots = (days = 14) => {
+  const { data, isPending, isSuccess, refetch } = useGetData({
+    url: `${endPoints.freeSessionSlots}/upcoming-full?days=${days}`,
+    queryKeys: [queryKeys.getFreeSessionSlots, "upcoming-full", days],
+    enabled: true,
+  });
+
+  return { data, isPending, isSuccess, refetch };
+};

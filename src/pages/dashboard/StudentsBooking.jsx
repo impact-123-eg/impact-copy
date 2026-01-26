@@ -30,6 +30,10 @@ function StudentsBooking() {
   const [leadStatusFilter, setLeadStatusFilter] = useState("");
   const [teamLeaderFilter, setTeamLeaderFilter] = useState("");
 
+  // Date range filters - must be declared before useGetAllFreeSessionBookings
+  const [startDate, setStartDate] = useState("");
+  const [endDate, setEndDate] = useState("");
+
   const [page, setPage] = useState(1);
   const [limit, setLimit] = useState(10); // Default limit
 
@@ -84,10 +88,6 @@ function StudentsBooking() {
   const getLeadStatusCount = (status) =>
     bookings.filter((b) => b.leadStatus === status).length;
 
-  // Date range filters should be declared before using in filteredBookings
-  const [startDate, setStartDate] = useState("");
-  const [endDate, setEndDate] = useState("");
-
   // Use server-side filtered bookings directly
   const filteredBookings = bookings;
 
@@ -134,8 +134,16 @@ function StudentsBooking() {
     },
     // Simple validation or re-use schema? Attempting simple for dash
     onSubmit: (values) => {
+      console.log("Submitting form values:", values);
+      if (!values.age) {
+        alert("Please select an age");
+        return;
+      }
+      const payload = { ...values, freeSessionSlotId: manualSlot?._id };
+      console.log("Payload to server:", payload);
+
       createManualBooking(
-        { ...values, freeSessionSlotId: manualSlot?._id },
+        { data: payload },
         {
           onSuccess: () => {
             setIsManualOpen(false);
@@ -289,7 +297,16 @@ function StudentsBooking() {
             </div>
 
             {manualStep === 1 ? (
-              <form onSubmit={(e) => { e.preventDefault(); setManualStep(2); }} className="space-y-4">
+              <form onSubmit={(e) => {
+                e.preventDefault();
+                // Validate required fields before moving to step 2
+                if (!manualFormik.values.age) {
+                  alert("Please select an age category");
+                  return;
+                }
+                console.log("Moving to step 2 with values:", manualFormik.values);
+                setManualStep(2);
+              }} className="space-y-4">
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                   <div>
                     <label className="block text-sm font-bold text-[var(--Main)]">Name</label>
@@ -328,6 +345,7 @@ function StudentsBooking() {
                       name="country"
                       required
                       className="w-full border p-2 rounded"
+                      // data-no-select2="true"
                       onChange={manualFormik.handleChange}
                       value={manualFormik.values.country}
                     >
@@ -343,7 +361,9 @@ function StudentsBooking() {
                       name="age"
                       required
                       className="w-full border p-2 rounded"
+                      // data-no-select2="true"
                       onChange={manualFormik.handleChange}
+                      onBlur={manualFormik.handleBlur}
                       value={manualFormik.values.age}
                     >
                       <option value="">Select Age</option>
@@ -364,6 +384,18 @@ function StudentsBooking() {
               </form>
             ) : (
               <div className="space-y-4">
+                {/* Summary of step 1 data */}
+                <div className="bg-blue-50 p-4 rounded border border-blue-200 mb-4">
+                  <h3 className="font-bold text-sm text-blue-800 mb-2">Booking Details:</h3>
+                  <div className="grid grid-cols-2 gap-2 text-sm text-blue-700">
+                    <div><span className="font-medium">Name:</span> {manualFormik.values.name}</div>
+                    <div><span className="font-medium">Email:</span> {manualFormik.values.email}</div>
+                    <div><span className="font-medium">Phone:</span> {manualFormik.values.phoneNumber}</div>
+                    <div><span className="font-medium">Country:</span> {manualFormik.values.country}</div>
+                    <div><span className="font-medium">Age:</span> {manualFormik.values.age || "NOT SET"}</div>
+                  </div>
+                </div>
+
                 <FreeSessionCalendar
                   onSlotSelect={(slot) => {
                     setManualSlot(slot);
@@ -417,6 +449,7 @@ function StudentsBooking() {
             <select
               value={statusFilter}
               onChange={(e) => setStatusFilter(e.target.value)}
+              data-no-select2="true"
               className="w-full bg-[var(--Input)] py-3 px-4 rounded-xl border border-transparent focus:outline-none focus:ring-2 focus:ring-[var(--Yellow)]"
             >
               <option value="">All Status ({bookings.length})</option>
@@ -445,6 +478,7 @@ function StudentsBooking() {
             <select
               value={leadStatusFilter}
               onChange={(e) => setLeadStatusFilter(e.target.value)}
+              data-no-select2="true"
               className="w-full bg-[var(--Input)] py-3 px-4 rounded-xl border border-transparent focus:outline-none focus:ring-2 focus:ring-[var(--Yellow)]"
             >
               <option value="">All Leads ({bookings.length})</option>
@@ -486,6 +520,7 @@ function StudentsBooking() {
             <select
               value={teamLeaderFilter}
               onChange={(e) => setTeamLeaderFilter(e.target.value)}
+              data-no-select2="true"
               className="w-full bg-[var(--Input)] py-3 px-4 rounded-xl border border-transparent focus:outline-none focus:ring-2 focus:ring-[var(--Yellow)]"
             >
               <option value="">All Team Leaders</option>
@@ -572,16 +607,8 @@ function StudentsBooking() {
                     </td>
                     <td className="p-4 text-sm">
                       <div className="flex flex-col gap-2">
-                        {/* <div className="group relative">
-                          <span className="font-medium text-[var(--Main)] cursor-help border-b border-dotted border-gray-400">
-                            {b.salesAgentId?.name || "Unassigned"}
-                          </span>
-                          <div className="invisible group-hover:visible absolute z-10 bg-gray-800 text-white text-[10px] p-2 rounded shadow-lg -top-8 left-0 min-w-max">
-                            {b.assignmentReason || "Round Robin"}
-                          </div>
-                        </div> */}
                         <InlineSelect
-                          value={b.salesAgentId?._id ?? ""}
+                          value={(b?.salesAgentId && typeof b.salesAgentId === 'object' ? b.salesAgentId._id : b?.salesAgentId) ?? ""}
                           options={salesAgents.map(ag => ({ label: ag.name, value: ag._id }))}
                           isLoading={updatingSalesId === b._id && isUpdatingSalesAgent}
                           onChange={(val) => {

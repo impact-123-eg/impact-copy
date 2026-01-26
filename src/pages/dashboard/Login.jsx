@@ -5,8 +5,10 @@ import { useFormik } from "formik";
 import { loginValidationSchema } from "@/Validation";
 import ErrorMsg from "@/Components/auth/ErrorMsg";
 import useLogin from "@/hooks/Actions/auth/useLogin";
+import { useI18n } from "@/hooks/useI18n";
 
 function Login() {
+  const { t } = useI18n();
   const [showPassword, setShowPassword] = useState(false);
   const { mutate, isPending } = useLogin();
   const initialValues = {
@@ -15,7 +17,7 @@ function Login() {
   };
   const formik = useFormik({
     initialValues,
-    validationSchema: loginValidationSchema,
+    validationSchema: loginValidationSchema(t),
     enableReinitialize: true,
     onSubmit: async (values) => {
       const userData = {

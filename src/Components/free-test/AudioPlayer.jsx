@@ -1,9 +1,13 @@
-// components/free-test/AudioPlayer.jsx (UPDATED)
+// components/free-test/AudioPlayer.jsx
 import React, { useState, useRef, useEffect } from "react";
-import { useTranslation } from "react-i18next";
+import { useI18n } from "../../hooks/useI18n";
 
 const AudioPlayer = ({ src, className = "", storageKey, maxPlays = 2 }) => {
-  const { t } = useTranslation();
+  const { t, initialize } = useI18n();
+
+  useEffect(() => {
+    initialize();
+  }, [initialize]);
 
   const audioRef = useRef(null);
   const [isPlaying, setIsPlaying] = useState(false);
@@ -16,7 +20,7 @@ const AudioPlayer = ({ src, className = "", storageKey, maxPlays = 2 }) => {
   useEffect(() => {
     const audio = audioRef.current;
     if (!audio || !src) {
-      setError(t("freeTest.audio.noAudioAvailable"));
+      setError(t("free-test", "audioNoAudioAvailable", "No audio available"));
       setIsLoading(false);
       return;
     }
@@ -41,7 +45,7 @@ const AudioPlayer = ({ src, className = "", storageKey, maxPlays = 2 }) => {
     };
 
     const handleError = (e) => {
-      setError(t("freeTest.audio.audioError"));
+      setError(t("free-test", "audioError", "Audio error"));
       setIsLoading(false);
     };
 
@@ -79,7 +83,7 @@ const AudioPlayer = ({ src, className = "", storageKey, maxPlays = 2 }) => {
       audio.pause();
       audio.src = "";
     };
-  }, [src, t, storageKey]);
+  }, [src, storageKey]);
 
   const canPlayMore = () => playCount < maxPlays;
   const incrementPlay = () => {
@@ -100,7 +104,7 @@ const AudioPlayer = ({ src, className = "", storageKey, maxPlays = 2 }) => {
         setIsPlaying(false);
       } else {
         if (!canPlayMore()) {
-          setError(t("freeTest.audio.playLimitReached", "Play limit reached"));
+          setError(t("free-test", "audioPlayLimitReached", "Play limit reached"));
           return;
         }
         await audioRef.current.play();
@@ -108,7 +112,7 @@ const AudioPlayer = ({ src, className = "", storageKey, maxPlays = 2 }) => {
         incrementPlay();
       }
     } catch (err) {
-      setError("Failed to play audio");
+      setError(t("free-test", "audioError", "Failed to play audio"));
     }
   };
 
@@ -117,7 +121,7 @@ const AudioPlayer = ({ src, className = "", storageKey, maxPlays = 2 }) => {
 
     try {
       if (!canPlayMore()) {
-        setError(t("freeTest.audio.playLimitReached", "Play limit reached"));
+        setError(t("free-test", "audioPlayLimitReached", "Play limit reached"));
         return;
       }
       audioRef.current.currentTime = 0;
@@ -126,7 +130,7 @@ const AudioPlayer = ({ src, className = "", storageKey, maxPlays = 2 }) => {
       setIsPlaying(true);
       incrementPlay();
     } catch (err) {
-      setError("Failed to replay audio");
+      setError(t("free-test", "audioError", "Failed to replay audio"));
     }
   };
 
@@ -143,7 +147,7 @@ const AudioPlayer = ({ src, className = "", storageKey, maxPlays = 2 }) => {
         className={`bg-gray-50 border border-gray-200 rounded-xl p-4 text-center ${className}`}
       >
         <p className="text-gray-500 text-sm">
-          {t("freeTest.audio.noAudioAvailable")}
+          {t("free-test", "audioNoAudioAvailable", "No audio available")}
         </p>
       </div>
     );
@@ -172,7 +176,7 @@ const AudioPlayer = ({ src, className = "", storageKey, maxPlays = 2 }) => {
           onClick={handleReplay}
           className="text-red-600 hover:text-red-800 text-sm underline"
         >
-          {t("freeTest.audio.tryAgain")}
+          {t("free-test", "audioTryAgain", "Try again")}
         </button>
       </div>
     );
@@ -189,7 +193,7 @@ const AudioPlayer = ({ src, className = "", storageKey, maxPlays = 2 }) => {
         crossOrigin="anonymous"
       >
         <source src={src} type="audio/mpeg" />
-        {t("freeTest.audio.audioNotSupported")}
+        {t("free-test", "audioNotSupported", "Audio not supported")}
       </audio>
 
       <div className="flex items-center justify-between space-x-4 rtl:space-x-reverse">
@@ -239,7 +243,7 @@ const AudioPlayer = ({ src, className = "", storageKey, maxPlays = 2 }) => {
           onClick={handleReplay}
           disabled={isLoading || !canPlayMore()}
           className="flex-shrink-0 w-10 h-10 text-[var(--SubText)] hover:text-[var(--Main)] transition-colors disabled:opacity-50"
-          title={t("freeTest.audio.replayAudio")}
+          title={t("free-test", "audioReplayAudio", "Replay audio")}
         >
           <svg className="w-5 h-5" fill="currentColor" viewBox="0 0 20 20">
             <path
@@ -255,20 +259,17 @@ const AudioPlayer = ({ src, className = "", storageKey, maxPlays = 2 }) => {
       <div className="text-center mt-2 space-y-1">
         <p className="text-sm text-[var(--SubText)]">
           {isLoading
-            ? t("freeTest.audio.audioLoading")
+            ? t("free-test", "audioLoading", "Loading...")
             : isPlaying
-              ? t("freeTest.audio.playingAudio")
-              : t("freeTest.audio.playAudio")}
+              ? t("free-test", "audioPlaying", "Playing...")
+              : t("free-test", "audioPlay", "Play")}
         </p>
         <p className="text-xs text-[var(--SubText)]">
-          {t("freeTest.audio.playLimitNote", {
-            defaultValue: "Audio can be played twice only.   Remaining: {{n}}",
-            n: Math.max(0, maxPlays - playCount),
-          })}
+          {t("free-test", "audioPlayLimitNote", "Audio can be played twice only. Remaining: {n}").replace("{n}", Math.max(0, maxPlays - playCount))}
         </p>
         {!canPlayMore() && (
           <p className="text-xs text-red-600">
-            {t("freeTest.audio.playLimitReached", "Play limit reached (2/2)")}
+            {t("free-test", "audioPlayLimitReached", "Play limit reached")}
           </p>
         )}
       </div>

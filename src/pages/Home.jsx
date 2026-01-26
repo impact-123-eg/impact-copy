@@ -168,66 +168,77 @@ function Home() {
         </div>
       </section>
 
-      <section className="px-10 md:px-12 lg:px-60">
-        <h1 className="font-bold text-center text-xl sm:text-3xl py-5 mb-8">
+      <section className="max-w-6xl mx-auto px-4 py-12">
+        <h1 className="font-bold text-center text-2xl sm:text-3xl md:text-4xl mb-12 text-[var(--Main)]">
           {t("home-trial", "bookFreeTrialLesson", "Book Your Free Trial Lesson")}
         </h1>
 
-        <article className="grid grid-cols-1 gap-4 lg:grid-cols-8 md:gap-8 relative">
-          <div
-            data-aos="fade-right"
-            data-aos-duration="3000"
-            data-aos-delay="1000"
-            className="border-2 border-[var(--SubTextBorder)] text-start rounded-4xl px-3 py-3 md:px-5 md:py-14 space-y-6 md:space-y-10 z-0 md:col-span-4"
-          >
-            <h3 className="font-semibold text-2xl md:text-xl md:w-72">
-              {t("home-trial", "firstStep1", "Take the First Step Towards")}{" "}
-              <span className="text-[var(--Yellow)]">{t("home-trial", "firstStep2", "English Fluency")}</span>{" "}
-              {t("home-trial", "firstStep3", "– It’s Free!")}
-            </h3>
-            <p className="text-sm md:text-lg md:w-72">{t("home-trial", "freeSession", "Get a free one-on-one session with our expert instructors")}</p>
-          </div>
+        <article className="bg-gradient-to-br from-[var(--Light)] to-white rounded-3xl shadow-xl p-6 md:p-10">
+          {/* Three Column Row Layout */}
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-6 items-center mb-10">
+            {/* Left Card - First Step */}
+            <div
+              data-aos="fade-right"
+              data-aos-duration="1000"
+              className="bg-white rounded-2xl p-6 shadow-md border border-[var(--SubTextBorder)]"
+            >
+              <h3 className="font-semibold text-lg md:text-xl mb-3">
+                {t("home-trial", "firstStep1", "Take the First Step Towards")}{" "}
+                <span className="text-[var(--Yellow)]">{t("home-trial", "firstStep2", "English Fluency")}</span>
+                {t("home-trial", "firstStep3", " – It's Free!")}
+              </h3>
+              <p className="text-gray-600 text-sm md:text-base">
+                {t("home-trial", "freeSession", "Get a free one-on-one session with our expert instructors")}
+              </p>
+            </div>
 
-          <div className="hidden lg:block"></div>
+            {/* Center - Offer Image */}
+            <div
+              data-aos="fade-up"
+              data-aos-duration="1000"
+              className="flex justify-center"
+            >
+              <img
+                src={offer}
+                className="w-40 h-40 md:w-56 md:h-56 object-contain drop-shadow-xl"
+                alt="Special Offer"
+              />
+            </div>
 
-          <img
-            src={offer}
-            className={`absolute hidden lg:block w - 72 h - 72 z - 10 end - full md: end - [31 %]`}
-            alt="offer"
-          />
-
-          <div
-            data-aos="fade-left"
-            data-aos-duration="3000"
-            data-aos-delay="1000"
-            className="text-start flex flex-col space-y-6 md:space-y-8 z-0 col-span-3"
-          >
-            <h2 className="font-bold text-2xl md:text-3xl">{t("home-trial", "benefits", "Benefits")}</h2>
-            <div className="flex flex-col space-y-6 md:space-y-8">
-              <Bnfts text={t("home-trial", "freeTrialSession", "Free 30-minute Trial Session")} />
-              <Bnfts text={t("home-trial", "personalizedFeedback", "Personalized feedback")} />
-              <Bnfts text={t("home-trial", "noObligations", "No obligations")} />
+            {/* Right Card - Benefits */}
+            <div
+              data-aos="fade-left"
+              data-aos-duration="1000"
+              className="bg-white rounded-2xl p-6 shadow-md"
+            >
+              <h2 className="font-bold text-lg md:text-xl mb-4 text-[var(--Main)]">
+                {t("home-trial", "benefits", "Benefits")}
+              </h2>
+              <div className="space-y-3">
+                <Bnfts text={t("home-trial", "freeTrialSession", "Free 30-minute Trial Session")} />
+                <Bnfts text={t("home-trial", "personalizedFeedback", "Personalized feedback")} />
+                <Bnfts text={t("home-trial", "noObligations", "No obligations")} />
+              </div>
             </div>
           </div>
-        </article>
 
-        <div
-          data-aos="fade-left"
-          data-aos-duration="3000"
-          data-aos-delay="1000"
-          className="flex justify-end my-8"
-        >
-          <button
-            onClick={() => {
-              navigate(localizePath("/free-session"), { state: { option: "Free Session" } });
-              window.scroll(0, 0);
-            }}
-            className={`p - 3 sm: p - 4 rounded - 3xl bg - [var(--Yellow)] ${currentLocale === "ar" ? "w-[150px]" : "w-[200px]"
-              } text - sm sm: text - base`}
+          {/* CTA Button */}
+          <div
+            data-aos="fade-up"
+            data-aos-duration="1000"
+            className="flex justify-center"
           >
-            {t("home-hero", "bookFreeTrial", "Book Free Trial")}
-          </button>
-        </div>
+            <button
+              onClick={() => {
+                navigate(localizePath("/free-session"), { state: { option: "Free Session" } });
+                window.scroll(0, 0);
+              }}
+              className="px-8 py-4 rounded-2xl bg-[var(--Yellow)] hover:bg-opacity-90 text-white font-semibold text-base md:text-lg shadow-lg hover:shadow-xl transition-all duration-300 transform hover:scale-105"
+            >
+              {t("home-hero", "bookFreeTrial", "Book Free Trial")}
+            </button>
+          </div>
+        </article>
       </section>
 
       <section className="px-10 md:px-12 lg:px-60">

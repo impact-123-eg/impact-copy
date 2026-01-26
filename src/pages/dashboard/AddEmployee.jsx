@@ -5,11 +5,13 @@ import { useCreateUser, useGetAllEmployees } from "@/hooks/Actions/users/useCurd
 import { useGetAllRoles } from "@/hooks/Actions/roles/useRoleCrud";
 import { addUserValidationSchema } from "@/Validation";
 import { toast } from "react-hot-toast";
+import { useI18n } from "@/hooks/useI18n";
 
 // Validation Schema
 const employeeValidationSchema = addUserValidationSchema;
 
 function AddEmployee() {
+  const { t } = useI18n();
   const navigate = useNavigate();
   const { mutate: createUser, isPending } = useCreateUser();
   const { data: employeesData } = useGetAllEmployees();
@@ -34,7 +36,7 @@ function AddEmployee() {
       daysOff: [],
       teamId: "",
     },
-    validationSchema: employeeValidationSchema,
+    validationSchema: employeeValidationSchema(t),
     onSubmit: async (values) => {
       // Get the role ID based on the selected role
       const selectedRole = roles.find(r => r.name === values.role);

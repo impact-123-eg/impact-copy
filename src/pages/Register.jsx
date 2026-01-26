@@ -24,10 +24,10 @@ const Register = () => {
             preferredLanguage: "english",
         },
         validationSchema: Yup.object({
-            name: Yup.string().required(t("validation.nameRequired") || "Name is required"),
-            email: Yup.string().email("Invalid email").required(t("validation.emailRequired")),
-            password: Yup.string().min(6, "Min 6 characters").required(t("validation.passwordRequired")),
-            phoneNumber: Yup.string().required(t("validation.phoneRequired")),
+            name: Yup.string().required(t("validation", "nameRequired", "Name is required")),
+            email: Yup.string().email(t("validation", "invalidEmail", "Invalid email")).required(t("validation", "emailRequired", "Email is required")),
+            password: Yup.string().min(6, t("validation", "min6", "Password must be at least 6 characters")).required(t("validation", "passwordRequired", "Password is required")),
+            phoneNumber: Yup.string().required(t("validation", "phoneRequired", "Phone number is required")),
         }),
         onSubmit: (values) => {
             mutate(

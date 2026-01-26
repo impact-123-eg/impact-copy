@@ -2,6 +2,7 @@ import React, { useEffect, useState } from "react";
 import { useNavigate, useParams } from "react-router-dom";
 import { useFormik } from "formik";
 import { packageValidationSchema } from "@/Validation";
+import { useI18n } from "@/hooks/useI18n";
 import {
   useAddpackage,
   useGetpackageById,
@@ -12,6 +13,7 @@ import { useGetAllcategories } from "@/hooks/Actions/categories/useCategoryCruds
 // Validation Schema
 
 function AddEditPackage() {
+  const { t } = useI18n();
   const navigate = useNavigate();
   const { id: packageId } = useParams();
   const [mode, setMode] = useState(packageId ? "edit" : "add");
@@ -81,7 +83,7 @@ function AddEditPackage() {
   // Formik setup
   const formik = useFormik({
     initialValues: getInitialValues(),
-    validationSchema: packageValidationSchema,
+    validationSchema: packageValidationSchema(t),
     onSubmit: (values) => {
       if (mode === "edit") {
         handleUpdatePackage(values);

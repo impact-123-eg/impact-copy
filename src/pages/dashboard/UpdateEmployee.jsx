@@ -3,6 +3,7 @@ import { useNavigate, useParams } from "react-router";
 import { FaEye, FaEyeSlash } from "react-icons/fa";
 import { useFormik } from "formik";
 import { userUpdateValidationSchema } from "@/Validation";
+import { useI18n } from "@/hooks/useI18n";
 import {
   useGetEmployeeById,
   useUpdateUser,
@@ -12,6 +13,7 @@ import ReassignConflictModal from "@/Components/dashboard/ReassignConflictModal"
 import { toast } from "react-hot-toast";
 
 function EditAdmin() {
+  const { t } = useI18n();
   const navigate = useNavigate();
   const { id } = useParams();
   const { data: userData } = useGetEmployeeById(id);
@@ -42,7 +44,7 @@ function EditAdmin() {
       dailyLeadQuota: 10,
       teamId: "",
     },
-    validationSchema: userUpdateValidationSchema,
+    validationSchema: userUpdateValidationSchema(t),
     onSubmit: (values) => {
       handleUpdate(values);
     },
