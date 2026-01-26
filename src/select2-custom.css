@@ -1,0 +1,196 @@
+/* Select2 Custom Styles to match InlineSelect.jsx */
+
+:root {
+    --select-border-color: #e5e7eb;
+    /* gray-200 */
+    --select-border-hover: var(--Yellow, #FFD700);
+    /* Fallback if var not defined */
+    --select-focus-ring: rgba(255, 215, 0, 0.2);
+    --select-bg: white;
+    --select-text: #1f2937;
+    /* gray-800 */
+    --select-radius: 0.75rem;
+    /* rounded-xl */
+    --dropdown-radius: 1rem;
+    /* rounded-2xl */
+    --dropdown-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.25);
+    /* shadow-2xl */
+    --option-hover-bg: #f9fafb;
+    /* gray-50 */
+    --option-selected-bg: rgba(255, 215, 0, 0.1);
+    /* Yellow/10 */
+    --option-selected-text: var(--Main, #000);
+}
+
+/* Main Container */
+.select2-container {
+    width: 100% !important;
+    font-family: inherit;
+}
+
+/* Single Selection Box */
+.select2-container .select2-selection--single {
+    height: 60px !important;
+    min-height: 60px !important;
+    /* Sufficient tap target */
+    background-color: var(--select-bg);
+    border: 1px solid var(--select-border-color);
+    border-radius: var(--select-radius);
+    display: flex !important;
+    align-items: center;
+    transition: all 0.2s;
+    box-shadow: 0 1px 2px 0 rgba(0, 0, 0, 0.05);
+    /* shadow-sm */
+    padding: 0 8px;
+    /* Extra padding */
+    box-sizing: border-box;
+}
+
+/* Hover State */
+.select2-container .select2-selection--single:hover {
+    border-color: var(--select-border-hover);
+    box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06);
+    /* hover:shadow-md */
+}
+
+/* Focus State */
+.select2-container.select2-container--open .select2-selection--single,
+.select2-container.select2-container--focus .select2-selection--single {
+    border-color: var(--select-border-hover);
+    outline: none;
+    /* ring property removed, using box-shadow instead */
+    box-shadow: 0 0 0 2px var(--select-focus-ring);
+}
+
+/* Rendered Text */
+.select2-container .select2-selection--single .select2-selection__rendered {
+    padding-left: 0.5rem !important;
+    /* px-4 equivalent roughly */
+    padding-right: 3.5rem !important;
+    /* Space for arrow + clear button */
+    color: var(--select-text) !important;
+    font-weight: 500;
+    /* font-medium */
+    font-size: 1rem;
+    /* text-base */
+    line-height: normal !important;
+    display: block;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    width: 100%;
+}
+
+/* Clear Button */
+.select2-container--default .select2-selection--single .select2-selection__clear {
+    cursor: pointer;
+    float: none !important;
+    position: absolute !important;
+    right: 36px !important;
+    /* Positioned to the left of the dropdown arrow */
+    top: 50% !important;
+    transform: translateY(-50%);
+    color: #9ca3af !important;
+    /* gray-400 */
+    font-weight: bold;
+    font-size: 18px;
+    z-index: 10;
+    padding: 2px 6px;
+    line-height: 1;
+    height: auto !important;
+    margin: 0 !important;
+    transition: color 0.2s;
+}
+
+.select2-container--default .select2-selection--single .select2-selection__clear:hover {
+    color: var(--Red, #f56565) !important;
+
+}
+
+/* Arrow Icon */
+.select2-container--default .select2-selection--single .select2-selection__arrow {
+    height: 100% !important;
+    position: absolute !important;
+    top: 0 !important;
+    right: 12px !important;
+    width: 20px !important;
+    display: flex !important;
+    align-items: center !important;
+    justify-content: center !important;
+}
+
+/* Dropdown Container */
+.select2-dropdown {
+    background-color: var(--select-bg);
+    border: 1px solid #f3f4f6;
+    /* gray-100 */
+    border-radius: var(--dropdown-radius) !important;
+    box-shadow: var(--dropdown-shadow);
+    padding: 8px 0;
+    /* py-2 */
+    margin-top: 8px;
+    /* space between input and dropdown */
+    z-index: 60;
+    /* z-[60] */
+    overflow: hidden;
+}
+
+/* Remove default borders around search box if present */
+.select2-search--dropdown {
+    padding: 8px 12px;
+}
+
+.select2-search__field {
+    border-radius: 8px !important;
+    border: 1px solid var(--select-border-color) !important;
+    padding: 6px 12px !important;
+}
+
+.select2-search__field:focus {
+    outline: none;
+    border-color: var(--select-border-hover) !important;
+}
+
+/* Options */
+.select2-results__option {
+    padding: 12px 20px !important;
+    /* px-5 py-3 */
+    font-size: 1rem;
+    /* text-base */
+    color: #4b5563;
+    /* text-gray-600 */
+    transition: all 0.15s ease-in-out;
+    border-radius: 0;
+    margin: 0;
+    cursor: pointer;
+}
+
+/* Hover/Highlight State */
+.select2-container--default .select2-results__option--highlighted[aria-selected] {
+    background-color: var(--option-hover-bg) !important;
+    color: #000 !important;
+    font-weight: 500;
+    /* font-medium */
+}
+
+/* Selected State */
+.select2-container--default .select2-results__option[aria-selected=true] {
+    background-color: var(--option-selected-bg) !important;
+    color: var(--option-selected-text) !important;
+    font-weight: 700 !important;
+    /* font-bold */
+}
+
+/* Scrollbar Customization (Optional, to match custom-scrollbar class) */
+.select2-results__options::-webkit-scrollbar {
+    width: 6px;
+}
+
+.select2-results__options::-webkit-scrollbar-track {
+    background: transparent;
+}
+
+.select2-results__options::-webkit-scrollbar-thumb {
+    background-color: #d1d5db;
+    border-radius: 20px;
+}

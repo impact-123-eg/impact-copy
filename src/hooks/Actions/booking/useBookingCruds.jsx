@@ -5,10 +5,13 @@ import useGetData from "@/hooks/curdsHook/useGetData";
 import usePatchData from "@/hooks/curdsHook/usePatchData";
 import usePostData from "@/hooks/curdsHook/usePostData";
 
-export const useGetAllBookings = () => {
+export const useGetAllBookings = (params = {}) => {
+  const { page = 1, limit = 10, ...otherParams } = params;
+  const queryString = new URLSearchParams({ page, limit, ...otherParams }).toString();
+
   const { data, isPending, refetch, ...rest } = useGetData({
-    url: endPoints.bookings,
-    queryKeys: [queryKeys.bookings],
+    url: `${endPoints.bookings}?${queryString}`,
+    queryKeys: [queryKeys.bookings, page, limit, JSON.stringify(otherParams)],
     other: { refetchInterval: 30000 }, // Auto-refresh every 30s
   });
 

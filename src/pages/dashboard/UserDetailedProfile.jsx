@@ -17,6 +17,8 @@ const UserDetailedProfile = () => {
     // The hook returns all users (paginated), we filter for our specific one (which should be the only one if ID is passed and handled)
     const student = usersData?.data?.data?.data?.find(u => u._id === id);
 
+    const activeEnrollment = student?.packageHistory?.find(pkg => pkg.status === "confirmed" && pkg.group);
+
     const handleToggleSub = () => {
         const currentStatus = student?.isSubscribed;
         Swal.fire({
@@ -95,12 +97,12 @@ const UserDetailedProfile = () => {
                     >
                         {student.isSubscribed ? "Deactivate Account" : "Activate Subscription"}
                     </button>
-                    <Link
+                    {/* <Link
                         to={`/dash/requests?search=${student.email}`}
                         className="px-6 py-2 bg-blue-600 text-white rounded-xl font-bold transition-all shadow-lg shadow-blue-500/20 hover:bg-blue-700 flex items-center gap-2"
                     >
                         <ExternalLink size={16} /> View All Requests
-                    </Link>
+                    </Link> */}
                 </div>
             </div>
 
@@ -147,6 +149,25 @@ const UserDetailedProfile = () => {
                                     {student.history?.length || 0} Free Sessions | {student.packageHistory?.length || 0} Package Bookings
                                 </div>
                             </div>
+                            {activeEnrollment && (
+                                <div className="md:col-span-2 p-6 bg-gradient-to-r from-blue-50 to-indigo-50 rounded-[2rem] border border-blue-100 flex items-center justify-between group">
+                                    <div className="flex items-center gap-4">
+                                        <div className="h-12 w-12 bg-white rounded-2xl flex items-center justify-center text-blue-600 shadow-sm">
+                                            <Users size={24} />
+                                        </div>
+                                        <div>
+                                            <p className="text-[10px] uppercase font-black text-blue-400 tracking-widest">Currently Enrolled In</p>
+                                            <p className="text-xl font-black text-blue-900">{activeEnrollment.group?.name}</p>
+                                        </div>
+                                    </div>
+                                    <Link
+                                        to={`/dash/groups/${activeEnrollment.group?._id}`}
+                                        className="bg-blue-600 text-white px-6 py-3 rounded-2xl font-black text-xs uppercase tracking-widest flex items-center gap-2 hover:bg-blue-700 transition-all shadow-lg shadow-blue-500/20 active:scale-95"
+                                    >
+                                        View Group Details <ExternalLink size={14} />
+                                    </Link>
+                                </div>
+                            )}
                         </div>
                     </div>
 
@@ -163,6 +184,8 @@ const UserDetailedProfile = () => {
                                 <thead className="bg-gray-50 text-[10px] uppercase font-black text-gray-400">
                                     <tr>
                                         <th className="px-6 py-4">Package Name</th>
+                                        <th className="px-6 py-4">Group</th>
+                                        <th className="px-6 py-4">Progress</th>
                                         <th className="px-6 py-4">Status</th>
                                         <th className="px-6 py-4">Payment</th>
                                         <th className="px-6 py-4">Amount</th>
@@ -177,6 +200,27 @@ const UserDetailedProfile = () => {
                                             <tr key={pkg._id} className="hover:bg-gray-50 transition-colors">
                                                 <td className="px-6 py-4">
                                                     <span className="font-bold text-gray-800">{pkg.package?.title || "Unknown Package"}</span>
+                                                </td>
+                                                <td className="px-6 py-4">
+                                                    {pkg.group ? (
+                                                        <Link to={`/dash/groups/${pkg.group._id}`} className="text-blue-600 hover:underline font-bold text-xs flex items-center gap-1">
+                                                            {pkg.group?.name || "View Group"}
+                                                            <ExternalLink size={12} />
+                                                        </Link>
+                                                    ) : (
+                                                        <span className="text-gray-400 text-xs">—</span>
+                                                    )}
+                                                </td>
+                                                <td className="px-6 py-4">
+                                                    <div className="flex flex-col gap-1">
+                                                        <div className="w-24 h-1.5 bg-gray-100 rounded-full overflow-hidden">
+                                                            <div
+                                                                className="h-full bg-blue-500 rounded-full"
+                                                                style={{ width: `${Math.min((pkg.attendedSessions / (pkg.group?.maxSessions || 12)) * 100, 100)}%` }}
+                                                            />
+                                                        </div>
+                                                        <span className="text-[10px] font-black text-gray-500">{pkg.attendedSessions || 0} Sessions</span>
+                                                    </div>
                                                 </td>
                                                 <td className="px-6 py-4 text-xs font-bold">
                                                     <span className={`px-2 py-1 rounded-md ${pkg.status === "confirmed" ? "bg-green-50 text-green-600" : "bg-amber-50 text-amber-600"

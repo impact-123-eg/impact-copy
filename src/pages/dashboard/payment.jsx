@@ -11,13 +11,19 @@ function Payment() {
   const [startDate, setStartDate] = useState("");
   const [endDate, setEndDate] = useState("");
 
-  const { data: bookingData, isPending } = useGetAllBookings();
-  const bookings = bookingData?.data || [];
+  const { data: bookingData, isPending } = useGetAllBookings({
+    search: searchQuery,
+    status: statusFilter,
+    paymentStatus: paymentStatusFilter,
+    paymentMethod: paymentMethodFilter,
+    startDate,
+    endDate,
+  });
+  const bookings = bookingData?.data?.data || [];
 
   const paymentMethodOptions = [
     { value: "card", label: "Card" },
     { value: "apple", label: "Apple Pay" },
-    // { value: "wallet", label: "Wallet" },
     { value: "taptap_send", label: "TapTap Send" },
     { value: "bank_account", label: "Bank Account" },
     { value: "instapay", label: "Instapay" },
@@ -29,48 +35,8 @@ function Payment() {
   const handleSearchChange = (e) =>
     setSearchQuery(e.target.value.toLowerCase());
 
-  const isWithinDateRange = (booking) => {
-    if (!startDate && !endDate) return true;
-    const referenceDate = booking?.paidAt || booking?.createdAt;
-    const parsedReferenceDate = referenceDate ? new Date(referenceDate) : null;
-    if (!parsedReferenceDate) return false;
-    const start = startDate ? new Date(startDate) : null;
-    const end = endDate ? new Date(endDate) : null;
-    if (start && parsedReferenceDate < start) return false;
-    if (end) {
-      const endOfDay = new Date(end);
-      endOfDay.setHours(23, 59, 59, 999);
-      if (parsedReferenceDate > endOfDay) return false;
-    }
-    return true;
-  };
-
-  const filteredBookings = bookings?.filter((booking) => {
-    const matchesSearch =
-      booking?.name?.toLowerCase().includes(searchQuery) ||
-      booking?.email?.toLowerCase().includes(searchQuery) ||
-      booking?.phoneNumber?.includes(searchQuery);
-
-    const matchesStatus = statusFilter
-      ? booking?.status === statusFilter
-      : true;
-    const matchesPaymentStatus = paymentStatusFilter
-      ? booking?.paymentStatus === paymentStatusFilter
-      : true;
-    const matchesPaymentMethod = paymentMethodFilter
-      ? booking?.paymentMethod === paymentMethodFilter
-      : true;
-
-    const inDateRange = isWithinDateRange(booking);
-
-    return (
-      matchesSearch &&
-      matchesStatus &&
-      matchesPaymentStatus &&
-      matchesPaymentMethod &&
-      inDateRange
-    );
-  });
+  // Use server-side filtered bookings directly
+  const filteredBookings = bookings;
 
   // Get counts for filter badges
   const getStatusCount = (status) =>

@@ -1,6 +1,7 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { useAuth } from "../context/AuthContext";
 import { useUpdateMe, useGetStudentHistory } from "../hooks/Actions/users/useCurdsUsers";
+import { useI18n } from "../hooks/useI18n";
 import Swal from "sweetalert2";
 import {
     FaUser,
@@ -20,6 +21,11 @@ import {
 
 const Profile = () => {
     const { user, setUser } = useAuth();
+    const { t, initialize } = useI18n();
+
+    useEffect(() => {
+        initialize();
+    }, [initialize]);
 
     const { mutate: updateMe, isPending: isUpdating } = useUpdateMe();
     const { data: historyData, isLoading: isLoadingHistory } = useGetStudentHistory();
@@ -34,8 +40,8 @@ const Profile = () => {
         confirmPassword: "",
     });
 
-    const studentHistory = historyData?.data?.data || { freeSessions: [], packageBookings: [], groups: [], attendanceHistory: [] };
-    const { freeSessions, packageBookings, groups, attendanceHistory } = studentHistory;
+    const studentHistory = historyData?.data?.data || { freeSessions: [], packageBookings: [], groups: [], attendanceHistory: [], stats: { total: 0, attended: 0, excused: 0, absent: 0, late: 0 } };
+    const { freeSessions, packageBookings, groups, attendanceHistory, stats } = studentHistory;
 
     const handleUpdate = (e) => {
         e.preventDefault();
@@ -43,8 +49,8 @@ const Profile = () => {
         if (formData.password && formData.password !== formData.confirmPassword) {
             Swal.fire({
                 icon: "error",
-                title: "Error",
-                text: "Passwords do not match",
+                title: t("profile", "error", "Error"),
+                text: t("profile", "passwordsDoNotMatch", "Passwords do not match"),
             });
             return;
         }
@@ -66,8 +72,8 @@ const Profile = () => {
                     setFormData(prev => ({ ...prev, password: "", confirmPassword: "" }));
                     Swal.fire({
                         icon: "success",
-                        title: "Updated",
-                        text: "Profile updated successfully",
+                        title: t("profile", "updated", "Updated"),
+                        text: t("profile", "profileUpdatedSuccess", "Profile updated successfully"),
                         timer: 2000,
                         showConfirmButton: false,
                     });
@@ -75,8 +81,8 @@ const Profile = () => {
                 onError: (err) => {
                     Swal.fire({
                         icon: "error",
-                        title: "Error",
-                        text: err.response?.data?.message || "Failed to update profile",
+                        title: t("profile", "error", "Error"),
+                        text: err.response?.data?.message || t("profile", "updateFailed", "Failed to update profile"),
                     });
                 }
             }
@@ -97,12 +103,13 @@ const Profile = () => {
     };
 
     const tabs = [
-        { id: "overview", label: "Overview", icon: FaUser },
-        { id: "packages", label: "My Packages", icon: FaBoxOpen },
-        { id: "classes", label: "My Classes", icon: FaChalkboardTeacher },
-        { id: "sessions", label: "My Sessions", icon: FaCalendarCheck },
-        { id: "payments", label: "My Payments", icon: FaCreditCard },
-        { id: "settings", label: "Settings", icon: FaCog },
+        { id: "overview", label: t("profile", "tabOverview", "Overview"), icon: FaUser },
+        { id: "current_group", label: t("profile", "tabCurrentGroup", "Current Group"), icon: FaChalkboardTeacher },
+        { id: "packages", label: t("profile", "tabPackages", "My Packages"), icon: FaBoxOpen },
+        { id: "classes", label: t("profile", "tabGroupHistory", "Group History"), icon: FaHistory },
+        { id: "sessions", label: t("profile", "tabSessions", "My Sessions"), icon: FaCalendarCheck },
+        { id: "payments", label: t("profile", "tabPayments", "My Payments"), icon: FaCreditCard },
+        { id: "settings", label: t("profile", "tabSettings", "Settings"), icon: FaCog },
     ];
 
     return (
@@ -120,11 +127,11 @@ const Profile = () => {
                             <div className="mt-3">
                                 {user?.isSubscribed ? (
                                     <span className="bg-green-100 text-green-700 px-3 py-1 rounded-full text-xs font-bold flex items-center gap-1">
-                                        <FaCheckCircle /> Active Student
+                                        <FaCheckCircle /> {t("profile", "activeStudent", "Active Student")}
                                     </span>
                                 ) : (
                                     <span className="bg-gray-100 text-gray-500 px-3 py-1 rounded-full text-xs font-bold flex items-center gap-1">
-                                        <FaExclamationCircle /> No Active Plan
+                                        <FaExclamationCircle /> {t("profile", "noActivePlan", "No Active Plan")}
                                     </span>
                                 )}
                             </div>
@@ -160,7 +167,7 @@ const Profile = () => {
                                             <FaBoxOpen size={20} />
                                         </div>
                                         <div>
-                                            <p className="text-sm text-gray-500">Active Packages</p>
+                                            <p className="text-sm text-gray-500">{t("profile", "activePackages", "Active Packages")}</p>
                                             <h3 className="text-2xl font-bold text-gray-800">
                                                 {packageBookings?.filter(p => p.status === 'confirmed').length || 0}
                                             </h3>
@@ -173,7 +180,7 @@ const Profile = () => {
                                             <FaCalendarCheck size={20} />
                                         </div>
                                         <div>
-                                            <p className="text-sm text-gray-500">Total Sessions</p>
+                                            <p className="text-sm text-gray-500">{t("profile", "totalSessions", "Total Sessions")}</p>
                                             <h3 className="text-2xl font-bold text-gray-800">
                                                 {freeSessions?.length || 0}
                                             </h3>
@@ -186,7 +193,7 @@ const Profile = () => {
                                             <FaMoneyBillWave size={20} />
                                         </div>
                                         <div>
-                                            <p className="text-sm text-gray-500">Total Spent</p>
+                                            <p className="text-sm text-gray-500">{t("profile", "totalSpent", "Total Spent")}</p>
                                             <h3 className="text-2xl font-bold text-gray-800">
                                                 {packageBookings?.reduce((sum, p) => p.paymentStatus === 'paid' ? sum + p.amount : sum, 0) || 0} EGP
                                             </h3>
@@ -197,7 +204,7 @@ const Profile = () => {
 
                             {/* Recent Activity */}
                             <div className="bg-white rounded-3xl shadow-sm border border-gray-100 p-8">
-                                <h3 className="text-xl font-bold text-gray-800 mb-6">Recent Activity</h3>
+                                <h3 className="text-xl font-bold text-gray-800 mb-6">{t("profile", "recentActivity", "Recent Activity")}</h3>
                                 {isLoadingHistory ? (
                                     <div className="flex justify-center py-8">
                                         <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-blue-600"></div>
@@ -211,23 +218,175 @@ const Profile = () => {
                                                         <FaClock />
                                                     </div>
                                                     <div>
-                                                        <p className="font-semibold text-gray-800">Free Session - {session.level}</p>
+                                                        <p className="font-semibold text-gray-800">{t("profile", "freeSession", "Free Session")} - {session.level}</p>
                                                         <p className="text-xs text-gray-500">{new Date(session.createdAt).toLocaleDateString()}</p>
                                                     </div>
                                                 </div>
                                                 <StatusBadge status={session.status} />
                                             </div>
                                         ))}
-                                        {freeSessions.length === 0 && <p className="text-gray-500 italic">No recent activity.</p>}
+                                        {freeSessions.length === 0 && <p className="text-gray-500 italic">{t("profile", "noRecentActivity", "No recent activity.")}</p>}
                                     </div>
                                 )}
                             </div>
                         </div>
                     )}
 
+
+                    {activeTab === "current_group" && (
+                        <div className="space-y-6 animate-in fade-in slide-in-from-bottom-4 duration-500">
+                            <h2 className="text-2xl font-bold text-gray-800">{t("profile", "currentGroup", "Current Group & Attendance")}</h2>
+
+                            {/* Stats Cards */}
+                            <div className="grid grid-cols-2 md:grid-cols-5 gap-4">
+                                <div className="bg-white p-4 rounded-2xl shadow-sm border border-gray-100">
+                                    <p className="text-gray-500 text-xs uppercase font-bold">{t("profile", "totalSessions", "Total Sessions")}</p>
+                                    <h3 className="text-2xl font-bold text-blue-600">{stats?.total || 0}</h3>
+                                </div>
+                                <div className="bg-white p-4 rounded-2xl shadow-sm border border-gray-100">
+                                    <p className="text-gray-500 text-xs uppercase font-bold">{t("profile", "attended", "Attended")}</p>
+                                    <h3 className="text-2xl font-bold text-green-600">{stats?.attended || 0}</h3>
+                                </div>
+                                <div className="bg-white p-4 rounded-2xl shadow-sm border border-gray-100">
+                                    <p className="text-gray-500 text-xs uppercase font-bold">{t("profile", "excused", "Excused")}</p>
+                                    <h3 className="text-2xl font-bold text-amber-600">{stats?.excused || 0}</h3>
+                                </div>
+                                <div className="bg-white p-4 rounded-2xl shadow-sm border border-gray-100">
+                                    <p className="text-gray-500 text-xs uppercase font-bold">{t("profile", "absent", "Absent")}</p>
+                                    <h3 className="text-2xl font-bold text-red-600">{stats?.absent || 0}</h3>
+                                </div>
+                                <div className="bg-white p-4 rounded-2xl shadow-sm border border-gray-100">
+                                    <p className="text-gray-500 text-xs uppercase font-bold">{t("profile", "remaining", "Remaining")}</p>
+                                    <h3 className="text-2xl font-bold text-indigo-600">
+                                        {groups?.filter(g => g.status === 'active').reduce((acc, g) => acc + (g.package?.sessionNo || 0), 0) - (stats?.total || 0)}
+                                    </h3>
+                                </div>
+                            </div>
+
+                            {groups?.filter(g => g.status === 'active').length > 0 ? (
+                                groups.filter(g => g.status === 'active').map(group => (
+                                    <div key={group._id} className="bg-white rounded-2xl shadow-sm border border-gray-100 p-8">
+                                        <div className="flex justify-between items-start mb-6">
+                                            <div>
+                                                <h3 className="text-2xl font-bold text-gray-800">{group.name}</h3>
+                                                <p className="text-gray-500 text-lg">{group.package?.name}</p>
+                                                <div className="flex items-center gap-2 mt-2 text-gray-600">
+                                                    <FaChalkboardTeacher />
+                                                    <span>{t("profile", "instructor", "Instructor")}: <span className="font-semibold">{group.instructor?.name}</span></span>
+                                                </div>
+                                            </div>
+                                            <span className="bg-green-100 text-green-700 px-3 py-1 rounded-full font-bold text-sm">
+                                                {t("profile", "active", "Active")}
+                                            </span>
+                                        </div>
+
+                                        <div className="grid grid-cols-1 md:grid-cols-2 gap-8 mb-8">
+                                            <div className="bg-gray-50 p-6 rounded-xl">
+                                                <h4 className="font-bold text-gray-800 mb-4 flex items-center gap-2">
+                                                    <FaClock /> {t("profile", "weeklySchedule", "Weekly Schedule")}
+                                                </h4>
+                                                <div className="space-y-3">
+                                                    {group.schedule.map((s, i) => (
+                                                        <div key={i} className="flex justify-between items-center bg-white p-3 rounded-lg border border-gray-100">
+                                                            <span className="font-medium text-gray-700">{s.day}</span>
+                                                            <span className="text-sm text-blue-600 font-bold">{s.startTime} - {s.endTime}</span>
+                                                        </div>
+                                                    ))}
+                                                </div>
+                                            </div>
+
+                                            <div className="bg-gray-50 p-6 rounded-xl">
+                                                <h4 className="font-bold text-gray-800 mb-4">{t("profile", "classLink", "Class Link")}</h4>
+                                                {group.zoomLink ? (
+                                                    <a
+                                                        href={group.zoomLink}
+                                                        target="_blank"
+                                                        rel="noreferrer"
+                                                        className="flex items-center justify-center gap-2 w-full bg-blue-600 text-white py-3 rounded-xl font-bold hover:bg-blue-700 transition"
+                                                    >
+                                                        <FaBoxOpen /> {t("profile", "joinZoom", "Join Zoom Meeting")}
+                                                    </a>
+                                                ) : (
+                                                    <div className="text-center py-4 text-gray-500 italic">
+                                                        {t("profile", "noLink", "No link available yet")}
+                                                    </div>
+                                                )}
+                                            </div>
+                                        </div>
+
+                                        {/* Attendance History for this group */}
+                                        <div className="mt-8">
+                                            <h4 className="font-bold text-gray-800 mb-4 flex justify-between items-center">
+                                                <span>{t("profile", "attendanceLog", "Attendance Log")}</span>
+                                                <span className="text-sm font-normal text-gray-500">
+                                                    {t("profile", "remainingSessions", "Sessions Remaining")}: {Math.max(0, (group.package?.sessionNo || 0) - attendanceHistory?.filter(r => r.group?.toString() === group._id?.toString()).length)} / {group.package?.sessionNo || 0}
+                                                </span>
+                                            </h4>
+                                            <div className="overflow-hidden rounded-xl border border-gray-200">
+                                                <table className="w-full text-left">
+                                                    <thead className="bg-gray-50 border-b border-gray-200">
+                                                        <tr>
+                                                            <th className="px-4 py-3 text-xs font-bold text-gray-500 uppercase">{t("profile", "date", "Date")}</th>
+                                                            <th className="px-4 py-3 text-xs font-bold text-gray-500 uppercase">{t("profile", "topic", "Topic")}</th>
+                                                            <th className="px-4 py-3 text-xs font-bold text-gray-500 uppercase">{t("profile", "status", "Status")}</th>
+                                                            <th className="px-4 py-3 text-xs font-bold text-gray-500 uppercase">{t("profile", "action", "Action")}</th>
+                                                        </tr>
+                                                    </thead>
+                                                    <tbody className="divide-y divide-gray-100">
+                                                        {attendanceHistory?.filter(r => r.group?.toString() === group._id?.toString()).map((record, idx) => (
+                                                            <tr key={idx} className="hover:bg-gray-50 transition-colors">
+                                                                <td className="px-4 py-3 text-sm text-gray-700">
+                                                                    <div className="font-medium">{new Date(record.date).toLocaleDateString()}</div>
+                                                                    <div className="text-xs text-gray-400">{record.startTime} - {record.endTime}</div>
+                                                                </td>
+                                                                <td className="px-4 py-3 text-sm text-gray-600 truncate max-w-[150px]">
+                                                                    {record.topic || "-"}
+                                                                </td>
+                                                                <td className="px-4 py-3">
+                                                                    <StatusBadge status={record.status} />
+                                                                </td>
+                                                                <td className="px-4 py-3">
+                                                                    {record.zoomLink ? (
+                                                                        <a
+                                                                            href={record.zoomLink}
+                                                                            target="_blank"
+                                                                            rel="noreferrer"
+                                                                            className="text-xs bg-blue-100 text-blue-600 px-3 py-1 rounded-full font-bold hover:bg-blue-600 hover:text-white transition"
+                                                                        >
+                                                                            {t("profile", "join", "Join")}
+                                                                        </a>
+                                                                    ) : (
+                                                                        <span className="text-xs text-gray-400 font-medium">{t("profile", "noLink", "No Link")}</span>
+                                                                    )}
+                                                                </td>
+                                                            </tr>
+                                                        ))}
+                                                    </tbody>
+                                                </table>
+                                                {(!attendanceHistory?.some(r => r.group?.toString() === group._id?.toString())) && (
+                                                    <div className="p-8 text-center bg-gray-50 text-gray-500 text-sm italic">
+                                                        {t("profile", "noAttendance", "No attendance records for this group yet.")}
+                                                    </div>
+                                                )}
+                                            </div>
+                                        </div>
+                                    </div>
+                                ))
+                            ) : (
+                                <div className="text-center py-12 bg-gray-50 rounded-3xl border border-dashed border-gray-200">
+                                    <div className="w-16 h-16 bg-gray-100 rounded-full flex items-center justify-center mx-auto mb-4 text-gray-400">
+                                        <FaChalkboardTeacher size={24} />
+                                    </div>
+                                    <h3 className="text-lg font-semibold text-gray-700">{t("profile", "noActiveGroup", "No Active Group")}</h3>
+                                    <p className="text-gray-500">{t("profile", "notAssigned", "You are not currently assigned to an active group.")}</p>
+                                </div>
+                            )}
+                        </div>
+                    )}
+
                     {activeTab === "packages" && (
                         <div className="space-y-6 animate-in fade-in slide-in-from-bottom-4 duration-500">
-                            <h2 className="text-2xl font-bold text-gray-800">My Packages</h2>
+                            <h2 className="text-2xl font-bold text-gray-800">{t("profile", "myPackagesTitle", "My Packages")}</h2>
                             {isLoadingHistory ? (
                                 <div className="flex justify-center py-12">
                                     <div className="animate-spin rounded-full h-10 w-10 border-b-2 border-blue-600"></div>
@@ -241,15 +400,15 @@ const Profile = () => {
                                                     <h3 className="text-xl font-bold text-gray-800">{booking.package?.name}</h3>
                                                     <StatusBadge status={booking.status} />
                                                 </div>
-                                                <p className="text-gray-500 text-sm mb-1">Booked on {new Date(booking.createdAt).toLocaleDateString()}</p>
-                                                <p className="text-gray-500 text-sm">Package ID: <span className="font-mono bg-gray-100 px-1 rounded">{booking._id.slice(-6)}</span></p>
+                                                <p className="text-gray-500 text-sm mb-1">{t("profile", "bookedOn", "Booked on")} {new Date(booking.createdAt).toLocaleDateString()}</p>
+                                                <p className="text-gray-500 text-sm">{t("profile", "packageId", "Package ID")}: <span className="font-mono bg-gray-100 px-1 rounded">{booking._id.slice(-6)}</span></p>
                                             </div>
                                             <div className="text-right">
                                                 <div className="text-2xl font-bold text-blue-600">{booking.amount} {booking.currency}</div>
-                                                <div className="text-sm text-gray-500 capitalize">{booking.paymentType} Payment</div>
+                                                <div className="text-sm text-gray-500 capitalize">{booking.paymentType} {t("profile", "payment", "Payment")}</div>
                                                 {booking.paymentStatus === 'unpaid' && (
                                                     <button className="mt-2 text-sm bg-blue-600 text-white px-4 py-2 rounded-lg hover:bg-blue-700 transition">
-                                                        Pay Now
+                                                        {t("profile", "payNow", "Pay Now")}
                                                     </button>
                                                 )}
                                             </div>
@@ -261,10 +420,10 @@ const Profile = () => {
                                     <div className="w-16 h-16 bg-gray-100 rounded-full flex items-center justify-center mx-auto mb-4 text-gray-400">
                                         <FaBoxOpen size={24} />
                                     </div>
-                                    <h3 className="text-lg font-semibold text-gray-700">No active packages</h3>
-                                    <p className="text-gray-500 mb-6">You haven&apos;t subscribed to any packages yet.</p>
+                                    <h3 className="text-lg font-semibold text-gray-700">{t("profile", "noActivePackages", "No active packages")}</h3>
+                                    <p className="text-gray-500 mb-6">{t("profile", "noPackagesDesc", "You haven't subscribed to any packages yet.")}</p>
                                     <a href="/courses" className="inline-block bg-blue-600 text-white px-6 py-2 rounded-xl font-bold hover:bg-blue-700 transition">
-                                        Browse Courses
+                                        {t("profile", "browseCourses", "Browse Courses")}
                                     </a>
                                 </div>
                             )}
@@ -273,7 +432,7 @@ const Profile = () => {
 
                     {activeTab === "classes" && (
                         <div className="space-y-6 animate-in fade-in slide-in-from-bottom-4 duration-500">
-                            <h2 className="text-2xl font-bold text-gray-800">My Classes</h2>
+                            <h2 className="text-2xl font-bold text-gray-800">{t("profile", "myClassesTitle", "My Classes")}</h2>
                             {isLoadingHistory ? (
                                 <div className="flex justify-center py-12">
                                     <div className="animate-spin rounded-full h-10 w-10 border-b-2 border-blue-600"></div>
@@ -286,22 +445,22 @@ const Profile = () => {
                                                 <div>
                                                     <h3 className="text-xl font-bold text-gray-800">{group.name}</h3>
                                                     <p className="text-gray-500">{group.package?.name}</p>
-                                                    <p className="text-gray-500 text-sm mt-1">Instructor: {group.instructor?.name}</p>
+                                                    <p className="text-gray-500 text-sm mt-1">{t("profile", "instructor", "Instructor")}: {group.instructor?.name}</p>
                                                 </div>
                                                 <span className={`px-2 py-1 text-xs rounded-full font-bold ${group.status === 'active' ? 'bg-green-100 text-green-700' : 'bg-yellow-100 text-yellow-700'}`}>
                                                     {group.status}
                                                 </span>
                                             </div>
                                             <div className="text-sm text-gray-600">
-                                                <p><span className="font-semibold">Schedule:</span> {group.schedule.map(s => `${s.day} ${s.startTime}-${s.endTime}`).join(", ")}</p>
-                                                <p className="mt-2"><span className="font-semibold">Zoom Link:</span> {group.zoomLink ? <a href={group.zoomLink} target="_blank" rel="noreferrer" className="text-blue-600 underline">Join Class</a> : "No link available"}</p>
+                                                <p><span className="font-semibold">{t("profile", "schedule", "Schedule")}:</span> {group.schedule.map(s => `${s.day} ${s.startTime}-${s.endTime}`).join(", ")}</p>
+                                                <p className="mt-2"><span className="font-semibold">{t("profile", "zoomLink", "Zoom Link")}:</span> {group.zoomLink ? <a href={group.zoomLink} target="_blank" rel="noreferrer" className="text-blue-600 underline">{t("profile", "joinClass", "Join Class")}</a> : t("profile", "noLink", "No link available yet")}</p>
                                             </div>
                                         </div>
                                     ))}
                                 </div>
                             ) : (
                                 <div className="text-center py-12 bg-gray-50 rounded-3xl border border-dashed border-gray-200">
-                                    <p className="text-gray-500">You are not enrolled in any active classes.</p>
+                                    <p className="text-gray-500">{t("profile", "noClasses", "You are not enrolled in any active classes.")}</p>
                                 </div>
                             )}
                         </div>
@@ -309,7 +468,7 @@ const Profile = () => {
 
                     {activeTab === "sessions" && (
                         <div className="space-y-6 animate-in fade-in slide-in-from-bottom-4 duration-500">
-                            <h2 className="text-2xl font-bold text-gray-800">My Sessions History</h2>
+                            <h2 className="text-2xl font-bold text-gray-800">{t("profile", "mySessionsTitle", "My Sessions History")}</h2>
                             {isLoadingHistory ? (
                                 <div className="flex justify-center py-12">
                                     <div className="animate-spin rounded-full h-10 w-10 border-b-2 border-blue-600"></div>
@@ -340,7 +499,9 @@ const Profile = () => {
                                                                 </div>
                                                                 {(session.notes || session.note) && (
                                                                     <p className="mt-2 text-sm bg-yellow-50 text-yellow-800 p-2 rounded-lg border border-yellow-100">
-                                                                        Note: {session.notes || session.note}
+                                                                        Note: {typeof (session.notes || session.note) === 'object'
+                                                                            ? (Array.isArray(session.notes) ? session.notes[session.notes.length - 1]?.text : JSON.stringify(session.notes || session.note))
+                                                                            : (session.notes || session.note)}
                                                                     </p>
                                                                 )}
                                                             </div>
@@ -349,7 +510,7 @@ const Profile = () => {
                                                             <StatusBadge status={session.status} />
                                                             {session.type === 'free' && session.instructor && (
                                                                 <span className="text-sm text-gray-500">
-                                                                    Instructor Assigned
+                                                                    {t("profile", "instructorAssigned", "Instructor Assigned")}
                                                                 </span>
                                                             )}
                                                         </div>
@@ -363,10 +524,10 @@ const Profile = () => {
                                     <div className="w-16 h-16 bg-gray-100 rounded-full flex items-center justify-center mx-auto mb-4 text-gray-400">
                                         <FaHistory size={24} />
                                     </div>
-                                    <h3 className="text-lg font-semibold text-gray-700">No session history</h3>
-                                    <p className="text-gray-500 mb-6">Book a free test to get started!</p>
+                                    <h3 className="text-lg font-semibold text-gray-700">{t("profile", "noSessionHistory", "No session history")}</h3>
+                                    <p className="text-gray-500 mb-6">{t("profile", "bookFreeTestDesc", "Book a free test to get started!")}</p>
                                     <a href="/free-test" className="inline-block bg-blue-600 text-white px-6 py-2 rounded-xl font-bold hover:bg-blue-700 transition">
-                                        Book Free Test
+                                        {t("profile", "bookFreeTest", "Book Free Test")}
                                     </a>
                                 </div>
                             )}
@@ -375,7 +536,7 @@ const Profile = () => {
 
                     {activeTab === "payments" && (
                         <div className="space-y-6 animate-in fade-in slide-in-from-bottom-4 duration-500">
-                            <h2 className="text-2xl font-bold text-gray-800">Payment History</h2>
+                            <h2 className="text-2xl font-bold text-gray-800">{t("profile", "paymentHistoryTitle", "Payment History")}</h2>
                             {isLoadingHistory ? (
                                 <div className="flex justify-center py-12">
                                     <div className="animate-spin rounded-full h-10 w-10 border-b-2 border-blue-600"></div>
@@ -385,11 +546,11 @@ const Profile = () => {
                                     <table className="w-full text-left">
                                         <thead className="bg-gray-50 border-b border-gray-100">
                                             <tr>
-                                                <th className="px-6 py-4 font-semibold text-gray-600 text-sm">Date</th>
-                                                <th className="px-6 py-4 font-semibold text-gray-600 text-sm">Description</th>
-                                                <th className="px-6 py-4 font-semibold text-gray-600 text-sm">Amount</th>
-                                                <th className="px-6 py-4 font-semibold text-gray-600 text-sm">Method</th>
-                                                <th className="px-6 py-4 font-semibold text-gray-600 text-sm">Status</th>
+                                                <th className="px-6 py-4 font-semibold text-gray-600 text-sm">{t("profile", "date", "Date")}</th>
+                                                <th className="px-6 py-4 font-semibold text-gray-600 text-sm">{t("profile", "description", "Description")}</th>
+                                                <th className="px-6 py-4 font-semibold text-gray-600 text-sm">{t("profile", "amount", "Amount")}</th>
+                                                <th className="px-6 py-4 font-semibold text-gray-600 text-sm">{t("profile", "method", "Method")}</th>
+                                                <th className="px-6 py-4 font-semibold text-gray-600 text-sm">{t("profile", "status", "Status")}</th>
                                             </tr>
                                         </thead>
                                         <tbody className="divide-y divide-gray-100">
@@ -420,8 +581,8 @@ const Profile = () => {
                                     <div className="w-16 h-16 bg-gray-100 rounded-full flex items-center justify-center mx-auto mb-4 text-gray-400">
                                         <FaCreditCard size={24} />
                                     </div>
-                                    <h3 className="text-lg font-semibold text-gray-700">No payment history</h3>
-                                    <p className="text-gray-500">Your transaction history will appear here.</p>
+                                    <h3 className="text-lg font-semibold text-gray-700">{t("profile", "noPaymentHistory", "No payment history")}</h3>
+                                    <p className="text-gray-500">{t("profile", "noPaymentDesc", "Your transaction history will appear here.")}</p>
                                 </div>
                             )}
                         </div>
@@ -429,12 +590,12 @@ const Profile = () => {
 
                     {activeTab === "settings" && (
                         <div className="space-y-6 animate-in fade-in slide-in-from-bottom-4 duration-500">
-                            <h2 className="text-2xl font-bold text-gray-800">Account Settings</h2>
+                            <h2 className="text-2xl font-bold text-gray-800">{t("profile", "accountSettings", "Account Settings")}</h2>
                             <div className="bg-white rounded-3xl shadow-sm border border-gray-100 p-8">
                                 <form onSubmit={handleUpdate} className="space-y-6 max-w-2xl">
                                     <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                                         <div className="space-y-2">
-                                            <label className="text-sm font-bold text-gray-700">Full Name</label>
+                                            <label className="text-sm font-bold text-gray-700">{t("profile", "fullName", "Full Name")}</label>
                                             <div className="relative">
                                                 <FaUser className="absolute left-4 top-1/2 -translate-y-1/2 text-gray-300" />
                                                 <input
@@ -447,7 +608,7 @@ const Profile = () => {
                                             </div>
                                         </div>
                                         <div className="space-y-2">
-                                            <label className="text-sm font-bold text-gray-700">Phone Number</label>
+                                            <label className="text-sm font-bold text-gray-700">{t("profile", "phoneNumber", "Phone Number")}</label>
                                             <div className="relative">
                                                 <FaEdit className="absolute left-4 top-1/2 -translate-y-1/2 text-gray-300" />
                                                 <input
@@ -462,37 +623,37 @@ const Profile = () => {
                                     </div>
 
                                     <div className="space-y-2">
-                                        <label className="text-sm font-bold text-gray-700">Email Address (Read Check-only)</label>
+                                        <label className="text-sm font-bold text-gray-700">{t("profile", "emailAddress", "Email Address (Read Check-only)")}</label>
                                         <input
                                             type="email"
                                             disabled
                                             className="w-full px-4 py-3 bg-gray-100 border border-gray-200 rounded-xl text-gray-500 cursor-not-allowed"
                                             value={user?.email || ""}
                                         />
-                                        <p className="text-xs text-gray-400">Please contact support to change your email.</p>
+                                        <p className="text-xs text-gray-400">{t("profile", "emailHelper", "Please contact support to change your email.")}</p>
                                     </div>
 
                                     <div className="border-t border-gray-100 my-6 pt-6">
                                         <h3 className="text-lg font-bold text-gray-800 mb-4 flex items-center gap-2">
-                                            <FaLock /> Change Password
+                                            <FaLock /> {t("profile", "changePassword", "Change Password")}
                                         </h3>
                                         <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                                             <div className="space-y-2">
-                                                <label className="text-sm font-bold text-gray-700">New Password</label>
+                                                <label className="text-sm font-bold text-gray-700">{t("profile", "newPassword", "New Password")}</label>
                                                 <input
                                                     type="password"
                                                     className="w-full px-4 py-3 bg-gray-50 border border-gray-200 rounded-xl outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all"
-                                                    placeholder="Leave empty to keep current"
+                                                    placeholder={t("profile", "leaveEmpty", "Leave empty to keep current")}
                                                     value={formData.password}
                                                     onChange={(e) => setFormData({ ...formData, password: e.target.value })}
                                                 />
                                             </div>
                                             <div className="space-y-2">
-                                                <label className="text-sm font-bold text-gray-700">Confirm Password</label>
+                                                <label className="text-sm font-bold text-gray-700">{t("profile", "confirmPassword", "Confirm Password")}</label>
                                                 <input
                                                     type="password"
                                                     className="w-full px-4 py-3 bg-gray-50 border border-gray-200 rounded-xl outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all"
-                                                    placeholder="Confirm new password"
+                                                    placeholder={t("profile", "confirmNewPassword", "Confirm new password")}
                                                     value={formData.confirmPassword}
                                                     onChange={(e) => setFormData({ ...formData, confirmPassword: e.target.value })}
                                                 />
@@ -506,7 +667,7 @@ const Profile = () => {
                                             disabled={isUpdating}
                                             className="px-8 py-3 bg-blue-600 text-white rounded-xl font-bold hover:bg-blue-700 shadow-lg shadow-blue-500/30 transform transition-all active:scale-95 disabled:opacity-50 disabled:cursor-not-allowed"
                                         >
-                                            {isUpdating ? "Saving Changes..." : "Save Changes"}
+                                            {isUpdating ? t("profile", "saving", "Saving Changes...") : t("profile", "saveChanges", "Save Changes")}
                                         </button>
                                     </div>
                                 </form>

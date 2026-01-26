@@ -37,7 +37,16 @@ function StudentsBooking() {
     data: freeSessionsData,
     isPending,
     isLoading,
-  } = useGetAllFreeSessionBookings({ page, limit });
+  } = useGetAllFreeSessionBookings({
+    page,
+    limit,
+    search: searchQuery,
+    status: statusFilter,
+    leadStatus: leadStatusFilter,
+    teamId: teamLeaderFilter,
+    startDate,
+    endDate,
+  });
   const { mutate: updateLeadStatus, isPending: isUpdatingLead } =
     useUpdateLeadStatusForFreeSessionBooking();
   const { mutate: updateLevel, isPending: isUpdatingLevel } =
@@ -79,40 +88,8 @@ function StudentsBooking() {
   const [startDate, setStartDate] = useState("");
   const [endDate, setEndDate] = useState("");
 
-  const filteredBookings = bookings?.filter((booking) => {
-    const matchesSearch =
-      booking?.name?.toLowerCase().includes(searchQuery) ||
-      booking?.email?.toLowerCase().includes(searchQuery) ||
-      booking?.phoneNumber?.toLowerCase().includes(searchQuery) ||
-      booking?.freeSessionGroupId?.instructor?.name?.toLowerCase().includes(searchQuery);
-
-    const matchesStatus = statusFilter
-      ? booking?.status === statusFilter
-      : true;
-    const matchesLeadStatus = leadStatusFilter
-      ? booking?.leadStatus === leadStatusFilter
-      : true;
-    const matchesTeamLeader = teamLeaderFilter
-      ? booking?.salesAgentId?.teamId === teamLeaderFilter
-      : true;
-
-    const createdAt = booking?.createdAt ? new Date(booking.createdAt) : null;
-    const inDateRange = (() => {
-      if (!startDate && !endDate) return true;
-      if (!createdAt) return false;
-      const start = startDate ? new Date(startDate) : null;
-      const end = endDate ? new Date(endDate) : null;
-      if (start && createdAt < start) return false;
-      if (end) {
-        const endOfDay = new Date(end);
-        endOfDay.setHours(23, 59, 59, 999);
-        if (createdAt > endOfDay) return false;
-      }
-      return true;
-    })();
-
-    return matchesSearch && matchesStatus && matchesLeadStatus && matchesTeamLeader && inDateRange;
-  });
+  // Use server-side filtered bookings directly
+  const filteredBookings = bookings;
 
   const [updatingLevelId, setUpdatingLevelId] = useState(null);
   const [updatingLeadId, setUpdatingLeadId] = useState(null);
