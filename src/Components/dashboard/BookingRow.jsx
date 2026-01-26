@@ -107,7 +107,7 @@ function BookingRow({ booking }) {
   const { mutate: updateMutate, isPending: isUpdating } = useUpdateBooking();
 
   const { mutate: refundMutate, isPending: isRefunding } = usePostData(
-    `${endPoints.bookings}${booking._id}/refund`,
+    `${endPoints.bookings}/${booking._id}/refund`,
     [`refundBooking-${booking._id}`],
     ["bookings"] // Invalidate main bookings list
   );

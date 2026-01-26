@@ -33,7 +33,7 @@ export default function ManualPayment() {
   const packages = packagesRes?.data || [];
 
   const { mutate, isPending } = usePostData(
-    `${endPoints.bookings}manual`,
+    `${endPoints.bookings}/manual`,
     ["createManualPayment"],
     ["createManualPayment"],
     ["bookings"]

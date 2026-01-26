@@ -22,7 +22,7 @@ export const useGetAllpackages = () => {
 
 export const useGetpackageById = ({ id, enabled }) => {
   const { data, isPending, isSuccess, refetch } = useGetData({
-    url: `${endPoints.packages}${id}`,
+    url: `${endPoints.packages}/${id}`,
     queryKeys: [queryKeys.packages, id],
     enabled: enabled,
   });
@@ -32,7 +32,7 @@ export const useGetpackageById = ({ id, enabled }) => {
 
 export const useGetpackageByCategoryId = ({ id, enabled }) => {
   const { data, isPending, isSuccess, refetch } = useGetData({
-    url: `${endPoints.packagesByCategory}${id}`,
+    url: `${endPoints.packagesByCategory}/${id}`,
     queryKeys: [queryKeys.packagesByCategory, id],
     enabled: enabled,
   });

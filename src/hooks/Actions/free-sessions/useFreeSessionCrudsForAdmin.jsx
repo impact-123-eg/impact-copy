@@ -21,7 +21,7 @@ export const useGetFreeSessionAvailableDays = () => {
 
 export const useGetFreeSessionSlotsByDate = (date) => {
   const { data, isPending, isSuccess, refetch } = useGetData({
-    url: `${endPoints.freeSessionSlotByDateForAdmin}${date}`,
+    url: `${endPoints.freeSessionSlotByDateForAdmin}/${date}`,
     queryKeys: [queryKeys.freeSessionSlotByDate, date],
     enabled: true,
   });
@@ -61,7 +61,7 @@ export const useMoveBooking = () => {
 
 export const useToggleSlotStatus = (id) => {
   const { mutate, data, error, isPending, isSuccess, isError } = usePatchData(
-    `${endPoints.freeSessionSlots}${id}/status`,
+    `${endPoints.freeSessionSlots}/${id}/status`,
     [queryKeys.toggleFreeSessionSlotStatus],
     [queryKeys.freeSessionSlotByDate]
   );
@@ -102,7 +102,7 @@ export const useAutoAssignInstructors = () => {
   );
 
   const autoAssign = (slotId) => mutate({
-    url: `${endPoints.autoAssignInstructors}${slotId}`
+    url: `${endPoints.autoAssignInstructors}/${slotId}`
   });
 
   return { mutate: autoAssign, ...rest };
@@ -116,7 +116,7 @@ export const useCancelFreeSessionBooking = () => {
   );
 
   const cancelBooking = (bookingId) => mutate({
-    url: `${endPoints.cancelFreeSessionBooking}${bookingId}/cancel`
+    url: `${endPoints.cancelFreeSessionBooking}/${bookingId}/cancel`
   });
 
   return { mutate: cancelBooking, ...rest };

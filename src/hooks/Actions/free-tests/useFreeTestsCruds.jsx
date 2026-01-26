@@ -27,7 +27,7 @@ export const useUpdateLevelForFreeTest = () => {
   const updateLevel = ({ id, level }) =>
     mutate({
       data: { level },
-      url: `${endPoints.getTest}${id}/level`,
+      url: `${endPoints.getTest}/${id}/level`,
     });
 
   return { mutate: updateLevel, data, error, isPending, isSuccess, isError };

@@ -22,7 +22,7 @@ export const useGetAllAvailabilities = () => {
 
 export const useGetAvailabilityById = ({ id, enabled }) => {
   const { data, isPending, isSuccess, refetch } = useGetData({
-    url: `${endPoints.availabilities}${id}`,
+    url: `${endPoints.availabilities}/${id}`,
     queryKeys: [queryKeys.availabilities, id],
     enabled: enabled,
   });

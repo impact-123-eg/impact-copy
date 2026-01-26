@@ -15,7 +15,7 @@ export const useCreatePayment = () => {
 
 export const useGetPaymentStatus = ({ bookingId, enabled = true }) => {
   const query = useGetData({
-    url: `${endPoints.paymentStatus}${bookingId}`,
+    url: `${endPoints.paymentStatus}/${bookingId}`,
     queryKeys: [queryKeys.createPayment, bookingId, "status"],
     enabled: Boolean(enabled && bookingId),
     // Poll every 3s until terminal state

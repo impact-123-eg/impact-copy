@@ -21,7 +21,7 @@ export const useGetUserProfile = () => {
 
 export const useGetEmployeeById = (id) => {
   const { data, isPending, isSuccess, refetch } = useGetData({
-    url: `${endPoints.users}${id}`,
+    url: `${endPoints.users}/${id}`,
     queryKeys: [queryKeys.users, id],
     enabled: true,
   });
@@ -84,7 +84,7 @@ export const useCreateUserFromBooking = () => {
   const mutation = useMutation({
     mutationKey: ["createUserFromBooking"],
     mutationFn: async ({ id }) => {
-      const url = `${endPoints.users}create-from-booking/${id}`;
+      const url = `${endPoints.users}/create-from-booking/${id}`;
       return postRequest(url, {}, token);
     },
     onSuccess: (data) => {

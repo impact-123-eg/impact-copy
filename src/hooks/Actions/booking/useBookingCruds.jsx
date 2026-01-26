@@ -22,7 +22,7 @@ export const useGetAllBookings = () => {
 
 export const useGetBookingById = ({ id, enabled }) => {
   const { data, isPending, isSuccess, refetch } = useGetData({
-    url: `${endPoints.bookings}${id}`,
+    url: `${endPoints.bookings}/${id}`,
     queryKeys: [queryKeys.bookings, id],
     enabled: enabled,
   });

@@ -42,7 +42,7 @@ export const useUpdateLevelForFreeSessionBooking = () => {
   const updateLevel = ({ id, level }) =>
     mutate({
       data: { level },
-      url: `${endPoints.freeSessionBookings}${id}/level`,
+      url: `${endPoints.freeSessionBookings}/${id}/level`,
     });
 
   return { mutate: updateLevel, data, error, isPending, isSuccess, isError };
@@ -50,7 +50,7 @@ export const useUpdateLevelForFreeSessionBooking = () => {
 
 export const useGetFreeSessionBookingById = ({ id, enabled = true }) => {
   const { data, isPending, isSuccess, refetch, ...rest } = useGetData({
-    url: `${endPoints.freeSessionBookings}${id}`,
+    url: `${endPoints.freeSessionBookings}/${id}`,
     queryKeys: [queryKeys.freeSessionBookingsById, id],
     enabled: !!id && enabled,
   });
@@ -68,7 +68,7 @@ export const useAddNoteToFreeSessionBooking = () => {
   const addNote = ({ id, note }) =>
     mutate({
       data: { note },
-      url: `${endPoints.freeSessionBookings}${id}/notes`,
+      url: `${endPoints.freeSessionBookings}/${id}/notes`,
     });
 
   return { mutate: addNote, data, error, isPending, isSuccess, isError };
@@ -84,7 +84,7 @@ export const useUpdateLeadStatusForFreeSessionBooking = () => {
   const updateLeadStatus = ({ id, leadStatus }) =>
     mutate({
       data: { leadStatus },
-      url: `${endPoints.freeSessionBookings}${id}/lead-status`,
+      url: `${endPoints.freeSessionBookings}/${id}/lead-status`,
     });
 
   return {
@@ -107,7 +107,7 @@ export const useUpdateStatusForFreeSessionBooking = () => {
   const updateStatus = ({ id, status }) =>
     mutate({
       data: { status },
-      url: `${endPoints.freeSessionBookings}${id}/status`,
+      url: `${endPoints.freeSessionBookings}/${id}/status`,
     });
 
   return { mutate: updateStatus, data, error, isPending, isSuccess, isError };
@@ -123,7 +123,7 @@ export const useUpdateSalesAgentForFreeSessionBooking = () => {
   const updateSalesAgent = ({ id, salesAgentId }) =>
     mutate({
       data: { salesAgentId },
-      url: `${endPoints.freeSessionBookings}${id}/sales-agent`,
+      url: `${endPoints.freeSessionBookings}/${id}/sales-agent`,
     });
 
   return { mutate: updateSalesAgent, data, error, isPending, isSuccess, isError };

@@ -22,7 +22,7 @@ export const useGetAllcategories = () => {
 
 export const useGetcategoryById = ({ id, enabled }) => {
   const { data, isPending, isSuccess, refetch } = useGetData({
-    url: `${endPoints.categories}${id}`,
+    url: `${endPoints.categories}/${id}`,
     queryKeys: [queryKeys.categories, id],
     enabled: enabled,
   });
