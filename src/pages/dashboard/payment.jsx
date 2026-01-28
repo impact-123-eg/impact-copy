@@ -212,8 +212,7 @@ function Payment() {
                 filteredBookings
                   .filter(
                     (booking) =>
-                      booking.status === "confirmed" &&
-                      isWithinDateRange(booking)
+                      booking.status === "confirmed"
                   )
                   .reduce((sum, booking) => sum + (booking.amount || 0), 0)
               ).toFixed(2)}{" "}

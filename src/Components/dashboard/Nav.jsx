@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import { useState } from "react";
 import { Link, useLocation } from "react-router-dom";
 import logo from "../../assets/Logo White 1.png";
 import { RxCalendar, RxDashboard, RxCaretDown, RxCaretRight, RxHamburgerMenu } from "react-icons/rx";
@@ -7,8 +7,7 @@ import { CiSettings } from "react-icons/ci";
 import { MdOutlineLogout, MdPersonOutline, MdHome, MdClose } from "react-icons/md";
 import { useAuth } from "@/context/AuthContext";
 import ConfirmModal from "../ConfirmModal";
-import { FaChalkboardTeacher } from "react-icons/fa";
-import { HiUserGroup, HiCalendarDays, HiClipboardDocumentList, HiBookOpen, HiAcademicCap } from "react-icons/hi2";
+import { HiUserGroup, HiCalendarDays, HiClipboardDocumentList, HiBookOpen, HiAcademicCap, HiCurrencyDollar, HiTrendingUp } from "react-icons/hi2";
 
 function Nav() {
   const location = useLocation();
@@ -56,6 +55,7 @@ function Nav() {
         isAdmin && { name: "Groups", icon: <HiUserGroup size={16} />, path: "/dash/groups" },
         isAdmin && { name: "Students", icon: <MdPersonOutline size={16} />, path: "/dash/users" },
         isAdmin && { name: "Payments", icon: <RxCalendar size={16} />, path: "/dash/payment" },
+        isAdmin && { name: "Affiliate", icon: <HiClipboardDocumentList size={16} />, path: "/dash/affiliate-settings" },
       ].filter(Boolean)
     },
     // Content Section
@@ -63,6 +63,16 @@ function Nav() {
       name: "Content",
       icon: <GiPapers size={18} />,
       children: [{ name: "Pages", icon: <GiPapers size={16} />, path: "/dash/pages" }]
+    },
+    // Finance Section
+    isAdmin && {
+      name: "Finance",
+      icon: <HiCurrencyDollar size={18} />,
+      children: [
+        { name: "Revenues", icon: <HiTrendingUp size={16} />, path: "/dash/finance/revenues" },
+        { name: "Expenses", icon: <HiTrendingUp size={16} />, path: "/dash/finance/expenses" },
+        { name: "Payroll", icon: <HiCurrencyDollar size={16} />, path: "/dash/finance/payroll" },
+      ]
     },
     // Settings
     isAdmin && {

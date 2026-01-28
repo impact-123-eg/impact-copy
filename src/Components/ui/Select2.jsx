@@ -1,4 +1,4 @@
-import React, { useEffect, useRef } from 'react';
+import { useEffect, useRef } from 'react';
 import $ from 'jquery';
 
 const Select2 = ({
@@ -43,7 +43,7 @@ const Select2 = ({
             }
 
             // Handle change event
-            $element.on('change', function (e) {
+            $element.on('change', function (_e) {
                 const val = $(this).val();
                 if (onChange) {
                     onChange(val);
@@ -54,7 +54,7 @@ const Select2 = ({
         init();
 
         // Handle change event
-        $element.on('change', function (e) {
+        $element.on('change', function (_e) {
             const val = $(this).val();
             if (onChange) {
                 onChange(val);

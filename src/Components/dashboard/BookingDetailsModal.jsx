@@ -1,4 +1,3 @@
-import React from "react";
 import { Link } from "react-router-dom";
 import {
     X,
@@ -6,10 +5,8 @@ import {
     Mail,
     Phone,
     MapPin,
-    Calendar,
     UserCheck,
-    Clock,
-    Activity
+    Clock
 } from "lucide-react";
 import formatTime from "@/utilities/formatTime";
 

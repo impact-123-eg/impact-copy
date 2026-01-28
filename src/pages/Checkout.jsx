@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from "react";
+import { useState, useEffect } from "react";
 import { useNavigate, useLocation } from "react-router-dom";
 import Swal from "sweetalert2";
 import visa from "../assets/visa.png";
@@ -116,7 +116,7 @@ function Checkout() {
       const authResponse = await fetch("https://accept.paymob.com/api/auth/tokens", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ api_key: process.env.REACT_APP_PAYMOB_API_KEY }),
+        body: JSON.stringify({ api_key: import.meta.env.VITE_PAYMOB_API_KEY }),
       });
       const authData = await authResponse.json();
       const authToken = authData.token;
@@ -144,13 +144,13 @@ function Checkout() {
           expiration: 3600,
           order_id: orderId,
           currency: "EGP",
-          integration_id: process.env.REACT_APP_PAYMOB_IFRAME_ID,
+          integration_id: import.meta.env.VITE_PAYMOB_IFRAME_ID,
         }),
       });
       const paymentKeyData = await paymentKeyResponse.json();
       const paymentKey = paymentKeyData.token;
 
-      const iframeUrl = `https://accept.paymob.com/api/acceptance/iframes/${process.env.REACT_APP_PAYMOB_IFRAME_ID}?payment_token=${paymentKey}`;
+      const iframeUrl = `https://accept.paymob.com/api/acceptance/iframes/${import.meta.env.VITE_PAYMOB_IFRAME_ID}?payment_token=${paymentKey}`;
       setPaymentUrl(iframeUrl);
     } catch (error) {
       console.error("Payment error:", error);

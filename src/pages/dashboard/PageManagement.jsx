@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useCallback } from 'react';
+import { useState, useEffect, useCallback } from 'react';
 import axios from 'axios';
 import { toast } from 'react-hot-toast';
 import { FaPlus, FaEdit, FaTrash, FaCheck, FaTimes, FaCode, FaEye } from 'react-icons/fa';
@@ -128,7 +128,7 @@ const PageManagement = () => {
           [lang]: parsed
         }
       }));
-    } catch (e) {
+    } catch (_e) {
       // Allow invalid JSON while typing, but don't update state
     }
   };
@@ -166,7 +166,7 @@ const PageManagement = () => {
       try {
         JSON.parse(jsonAr);
         JSON.parse(jsonEn);
-      } catch (e) {
+      } catch (_e) {
         toast.error('Invalid JSON content detected. Please fix it before saving.');
         return;
       }
@@ -197,7 +197,7 @@ const PageManagement = () => {
       await axios.delete(`${API_BASE_URL}/pages/${id}`);
       toast.success('Page deleted successfully');
       loadPages();
-    } catch (err) {
+    } catch (_err) {
       toast.error('Failed to delete page');
     }
   };

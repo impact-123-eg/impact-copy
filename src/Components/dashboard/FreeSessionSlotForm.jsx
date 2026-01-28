@@ -1,5 +1,4 @@
-import formatDateForAPI from "@/utilities/formatDateForApi";
-import React, { useState, useEffect } from "react";
+import { useState } from "react";
 import { useGetUsers } from "@/hooks/Actions/users/useCurdsUsers";
 
 const FreeSessionSlotForm = ({ date, onSubmit, onCancel }) => {

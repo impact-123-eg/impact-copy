@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from "react";
+import { useEffect, useState } from "react";
 import "./App.css";
 
 import { Route, Routes, Navigate, useLocation } from "react-router-dom";
@@ -50,15 +50,20 @@ import AddEditPackage from "./Components/dashboard/AddEditPackage";
 import PageManagement from "./pages/dashboard/PageManagement";
 import UsersManagement from "./pages/dashboard/UsersManagement";
 import UserDetailedProfile from "./pages/dashboard/UserDetailedProfile";
-import Login from "./pages/dashboard/Login";
+import Login from "./pages/Login";
+import DashboardLogin from "./pages/dashboard/Login";
 import Register from "./pages/Register";
 import VerifyOTP from "./pages/VerifyOTP";
 import Profile from "./pages/Profile";
 
 import Groups from "./pages/dashboard/Groups";
 import GroupDetails from "./pages/dashboard/GroupDetails";
+import Revenues from "./pages/dashboard/finance/Revenues";
+import Expenses from "./pages/dashboard/finance/Expenses";
+import Payroll from "./pages/dashboard/finance/Payroll";
 import SessionAttendance from "./pages/dashboard/SessionAttendance";
 import InstructorPendingRequests from "./pages/dashboard/InstructorPendingRequests";
+import AffiliateSettings from "./pages/dashboard/AffiliateSettings";
 
 const pixelId = import.meta.env.VITE_PIXEL_ID;
 
@@ -154,6 +159,15 @@ function App() {
               element={
                 <ProtectedRoute
                   element={<Settings />}
+                  requiredRoles={["admin"]}
+                />
+              }
+            />
+            <Route
+              path="affiliate-settings"
+              element={
+                <ProtectedRoute
+                  element={<AffiliateSettings />}
                   requiredRoles={["admin"]}
                 />
               }
@@ -308,10 +322,23 @@ function App() {
               path="pending-assignments"
               element={<ProtectedRoute element={<InstructorPendingRequests />} requiredRoles={["instructor", "admin"]} />}
             />
+            {/* Finance Module */}
+            <Route
+              path="finance/revenues"
+              element={<ProtectedRoute element={<Revenues />} requiredRoles={["admin"]} />}
+            />
+            <Route
+              path="finance/expenses"
+              element={<ProtectedRoute element={<Expenses />} requiredRoles={["admin"]} />}
+            />
+            <Route
+              path="finance/payroll"
+              element={<ProtectedRoute element={<Payroll />} requiredRoles={["admin"]} />}
+            />
           </Route>
 
           <Route path="/dash/login" element={<LoginLayout />}>
-            <Route index element={<Login />} />
+            <Route index element={<DashboardLogin />} />
           </Route>
         </Routes>
       </AuthProvider>

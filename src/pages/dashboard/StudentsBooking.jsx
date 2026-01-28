@@ -16,9 +16,8 @@ import { to12h } from "@/utilities/formatTime";
 import formatDateForAPI from "@/utilities/formatDateForApi";
 import FreeSessionCalendar from "@/Components/FreeSessionCalendar";
 import { useFormik } from "formik";
-import { freeSessionValidationSchema } from "@/Validation";
-import { useTranslation } from "react-i18next"; // fallback if not available
-import cntris from "@/data/Countries.json"; // Adjust path if needed, usually ../data/Countries.json in pages/FreeSession.jsx so here it is ../../data ??
+// fallback if not available
+// Adjust path if needed, usually ../data/Countries.json in pages/FreeSession.jsx so here it is ../../data ??
 // Pages is src/pages/dashboard/StudentsBooking.jsx
 // Countries is src/data/Countries.json
 // So path is ../../data/Countries.json

@@ -1,4 +1,4 @@
-import React, { useEffect } from 'react';
+import { useEffect } from 'react';
 import { Link, Outlet } from 'react-router-dom';
 import Footer from '../Components/Footer';
 import { useI18n } from '../hooks/useI18n';

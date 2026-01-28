@@ -124,7 +124,7 @@ function CoursesPlans() {
                 onClick={() => navigate("/dash/categories/add-category")}
                 className="px-8 py-3 rounded-xl bg-blue-600 text-white font-semibold hover:bg-blue-700 transition-all shadow-lg hover:shadow-blue-200"
               >
-                Create "{activeTab}" Category
+                Create &quot;{activeTab}&quot; Category
               </button>
             )}
             <button

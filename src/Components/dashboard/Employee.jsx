@@ -1,9 +1,9 @@
-import React, { useState } from "react";
+import { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import ConfirmModal from "../ConfirmModal";
 import { useDeleteUser } from "@/hooks/Actions/users/useCurdsUsers";
 
-const Employee = ({ employee, onDelete }) => {
+const Employee = ({ employee, _onDelete }) => {
   const [openModal, setOpenModal] = useState(false);
   const navigate = useNavigate();
   const { mutate: mutateDeleteEmployee } = useDeleteUser();

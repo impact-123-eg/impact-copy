@@ -1,8 +1,8 @@
 import formatTime from "@/utilities/formatTime";
-import React, { useState } from "react";
+import { useState } from "react";
 import { MdOutlineBlock } from "react-icons/md";
 import { MdDelete } from "react-icons/md";
-import { RiVerifiedBadgeFill } from "react-icons/ri";
+import { IoCheckmarkCircleOutline } from "react-icons/io5";
 import ConfirmModal from "../ConfirmModal";
 import { useDeleteSlot } from "@/hooks/Actions/free-sessions/useFreeSessionCrudsForAdmin";
 
@@ -11,7 +11,12 @@ const FreeSessionSlotList = ({
   onSlotSelect,
   selectedSlot,
   isLoading,
+  onToggleStatus,
 }) => {
+  const [selectedSlotId, setSelectedSlotId] = useState(null);
+  const [modalOpen, setModalOpen] = useState(false);
+  const { mutate: deleteSlot, isPending } = useDeleteSlot(selectedSlotId);
+
   if (isLoading) {
     return (
       <div className="text-center py-8">
@@ -28,10 +33,6 @@ const FreeSessionSlotList = ({
       </div>
     );
   }
-
-  const [selectedSlotId, setSelectedSlotId] = useState(null);
-  const [modalOpen, setModalOpen] = useState(false);
-  const { mutate: deleteSlot, isPending } = useDeleteSlot(selectedSlotId);
 
   const onDeleteSlot = (slotId) => {
     if (!slotId) return;
@@ -78,8 +79,8 @@ const FreeSessionSlotList = ({
             key={slot._id}
             onClick={() => onSlotSelect(slot)}
             className={`p-4 border rounded-lg cursor-pointer transition-all ${isSelected
-                ? "border-[var(--Yellow)] bg-yellow-50 ring-2 ring-[var(--Yellow)] ring-opacity-50"
-                : "border-[var(--Input)] hover:border-[var(--Yellow)] hover:shadow-sm"
+              ? "border-[var(--Yellow)] bg-yellow-50 ring-2 ring-[var(--Yellow)] ring-opacity-50"
+              : "border-[var(--Input)] hover:border-[var(--Yellow)] hover:shadow-sm"
               } ${!isActive ? "opacity-60 grayscale" : ""}`}
           >
             {/* Slot Header */}
@@ -100,8 +101,8 @@ const FreeSessionSlotList = ({
                 <div className="flex gap-2">
                   <span
                     className={`text-sm px-2 py-1 rounded-full ${stats.availableSpots > 0
-                        ? "bg-green-100 text-green-700"
-                        : "bg-red-100 text-red-700"
+                      ? "bg-green-100 text-green-700"
+                      : "bg-red-100 text-red-700"
                       }`}
                   >
                     {stats.availableSpots} spot
@@ -116,8 +117,8 @@ const FreeSessionSlotList = ({
                         onToggleStatus(slot._id, !isActive);
                       }}
                       className={`p-2 rounded-lg transition-colors ${isActive
-                          ? "bg-[var(--Yellow)] text-white hover:bg-yellow-400"
-                          : "bg-green-500 text-white hover:bg-green-700"
+                        ? "bg-[var(--Yellow)] text-white hover:bg-yellow-400"
+                        : "bg-green-500 text-white hover:bg-green-700"
                         }`}
                       title={isActive ? "Disable Slot" : "Enable Slot"}
                     >
@@ -170,8 +171,8 @@ const FreeSessionSlotList = ({
                 className="bg-[var(--Yellow)] h-2 rounded-full transition-all"
                 style={{
                   width: `${stats.totalCapacity > 0
-                      ? (stats.totalBooked / stats.totalCapacity) * 100
-                      : 0
+                    ? (stats.totalBooked / stats.totalCapacity) * 100
+                    : 0
                     }%`,
                 }}
               ></div>
@@ -212,8 +213,8 @@ const FreeSessionSlotList = ({
                       <div
                         key={group._id}
                         className={`flex justify-between items-center p-2 rounded text-xs ${isGroupFull
-                            ? "bg-red-50 text-red-700"
-                            : "bg-green-50 text-green-700"
+                          ? "bg-red-50 text-red-700"
+                          : "bg-green-50 text-green-700"
                           }`}
                       >
                         <span className="font-medium">

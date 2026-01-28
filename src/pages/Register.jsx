@@ -1,17 +1,15 @@
-import React, { useState } from "react";
 import { useNavigate, Link } from "react-router-dom";
 import { useFormik } from "formik";
 import * as Yup from "yup";
 import Swal from "sweetalert2";
-import { useTranslation } from "react-i18next";
 import { useI18n } from "../hooks/useI18n";
 import useRegister from "../hooks/Actions/auth/useRegister";
 import ErrorMsg from "../Components/auth/ErrorMsg";
 import { FaUser, FaEnvelope, FaPhone, FaLock, FaGlobe } from "react-icons/fa";
 
+
 const Register = () => {
-    const { t } = useTranslation();
-    const { localizePath } = useI18n();
+    const { t, localizePath } = useI18n();
     const navigate = useNavigate();
     const { mutate, isPending } = useRegister();
 
@@ -58,21 +56,21 @@ const Register = () => {
     return (
         <div className="max-w-md mx-auto bg-white/70 backdrop-blur-md p-8 rounded-3xl shadow-2xl border border-white/20">
             <div className="text-center mb-8">
-                <h2 className="text-3xl font-bold text-gray-800">Create Account</h2>
-                <p className="text-gray-600 mt-2">Join Impact English Courses</p>
+                <h2 className="text-3xl font-bold text-gray-800">{t("register", "title", "Create Account")}</h2>
+                <p className="text-gray-600 mt-2">{t("register", "subtitle", "Join Impact English Courses")}</p>
             </div>
 
             <form onSubmit={formik.handleSubmit} className="space-y-5">
                 {/* Name */}
                 <div className="space-y-1">
-                    <label className="text-sm font-semibold text-gray-700 ml-1">Name</label>
+                    <label className="text-sm font-semibold text-gray-700 ml-1 rtl:ml-0 rtl:mr-1">{t("register", "nameLabel", "Name")}</label>
                     <div className="relative">
-                        <FaUser className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400" />
+                        <FaUser className="absolute left-3 rtl:left-auto rtl:right-3 top-1/2 -translate-y-1/2 text-gray-400" />
                         <input
                             name="name"
                             type="text"
-                            placeholder="John Doe"
-                            className="w-full pl-10 pr-4 py-3 bg-gray-50 border border-gray-200 rounded-xl focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all outline-none"
+                            placeholder={t("register", "namePlaceholder", "John Doe")}
+                            className="w-full pl-10 rtl:pl-4 rtl:pr-10 pr-4 py-3 bg-gray-50 border border-gray-200 rounded-xl focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all outline-none"
                             {...formik.getFieldProps("name")}
                         />
                     </div>
@@ -81,14 +79,14 @@ const Register = () => {
 
                 {/* Email */}
                 <div className="space-y-1">
-                    <label className="text-sm font-semibold text-gray-700 ml-1">Email</label>
+                    <label className="text-sm font-semibold text-gray-700 ml-1 rtl:ml-0 rtl:mr-1">{t("register", "emailLabel", "Email")}</label>
                     <div className="relative">
-                        <FaEnvelope className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400" />
+                        <FaEnvelope className="absolute left-3 rtl:left-auto rtl:right-3 top-1/2 -translate-y-1/2 text-gray-400" />
                         <input
                             name="email"
                             type="email"
-                            placeholder="john@example.com"
-                            className="w-full pl-10 pr-4 py-3 bg-gray-50 border border-gray-200 rounded-xl focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all outline-none"
+                            placeholder={t("register", "emailPlaceholder", "john@example.com")}
+                            className="w-full pl-10 rtl:pl-4 rtl:pr-10 pr-4 py-3 bg-gray-50 border border-gray-200 rounded-xl focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all outline-none"
                             {...formik.getFieldProps("email")}
                         />
                     </div>
@@ -97,14 +95,14 @@ const Register = () => {
 
                 {/* Phone */}
                 <div className="space-y-1">
-                    <label className="text-sm font-semibold text-gray-700 ml-1">Phone Number</label>
+                    <label className="text-sm font-semibold text-gray-700 ml-1 rtl:ml-0 rtl:mr-1">{t("register", "phoneLabel", "Phone Number")}</label>
                     <div className="relative">
-                        <FaPhone className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400" />
+                        <FaPhone className="absolute left-3 rtl:left-auto rtl:right-3 top-1/2 -translate-y-1/2 text-gray-400" />
                         <input
                             name="phoneNumber"
                             type="text"
-                            placeholder="+1234567890"
-                            className="w-full pl-10 pr-4 py-3 bg-gray-50 border border-gray-200 rounded-xl focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all outline-none"
+                            placeholder={t("register", "phonePlaceholder", "+1234567890")}
+                            className="w-full pl-10 rtl:pl-4 rtl:pr-10 pr-4 py-3 bg-gray-50 border border-gray-200 rounded-xl focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all outline-none"
                             {...formik.getFieldProps("phoneNumber")}
                         />
                     </div>
@@ -113,14 +111,14 @@ const Register = () => {
 
                 {/* Password */}
                 <div className="space-y-1">
-                    <label className="text-sm font-semibold text-gray-700 ml-1">Password</label>
+                    <label className="text-sm font-semibold text-gray-700 ml-1 rtl:ml-0 rtl:mr-1">{t("register", "passwordLabel", "Password")}</label>
                     <div className="relative">
-                        <FaLock className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400" />
+                        <FaLock className="absolute left-3 rtl:left-auto rtl:right-3 top-1/2 -translate-y-1/2 text-gray-400" />
                         <input
                             name="password"
                             type="password"
-                            placeholder="••••••••"
-                            className="w-full pl-10 pr-4 py-3 bg-gray-50 border border-gray-200 rounded-xl focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all outline-none"
+                            placeholder={t("register", "passwordPlaceholder", "••••••••")}
+                            className="w-full pl-10 rtl:pl-4 rtl:pr-10 pr-4 py-3 bg-gray-50 border border-gray-200 rounded-xl focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all outline-none"
                             {...formik.getFieldProps("password")}
                         />
                     </div>
@@ -129,12 +127,12 @@ const Register = () => {
 
                 {/* Language */}
                 <div className="space-y-1">
-                    <label className="text-sm font-semibold text-gray-700 ml-1">Preferred Language</label>
+                    <label className="text-sm font-semibold text-gray-700 ml-1 rtl:ml-0 rtl:mr-1">{t("register", "languageLabel", "Preferred Language")}</label>
                     <div className="relative">
-                        <FaGlobe className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400" />
+                        <FaGlobe className="absolute left-3 rtl:left-auto rtl:right-3 top-1/2 -translate-y-1/2 text-gray-400" />
                         <select
                             name="preferredLanguage"
-                            className="w-full pl-10 pr-4 py-3 bg-gray-50 border border-gray-200 rounded-xl focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all outline-none appearance-none"
+                            className="w-full pl-10 rtl:pl-4 rtl:pr-10 pr-4 py-3 bg-gray-50 border border-gray-200 rounded-xl focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all outline-none appearance-none"
                             {...formik.getFieldProps("preferredLanguage")}
                         >
                             <option value="english">English</option>
@@ -151,15 +149,15 @@ const Register = () => {
                     {isPending ? (
                         <div className="w-6 h-6 border-4 border-white/30 border-t-white rounded-full animate-spin" />
                     ) : (
-                        <span>Register Now</span>
+                        <span>{t("register", "submitButton", "Register Now")}</span>
                     )}
                 </button>
             </form>
 
             <div className="mt-8 text-center text-gray-600">
-                Already have an account?{" "}
+                {t("register", "alreadyHaveAccount", "Already have an account?")}{" "}
                 <Link to={localizePath("/login")} className="text-blue-600 font-bold hover:underline">
-                    Login
+                    {t("register", "loginLink", "Login")}
                 </Link>
             </div>
         </div>

@@ -1,3 +1,5 @@
+import { useEffect } from "react";
+import { useNavigate, useSearchParams } from "react-router-dom";
 import { useI18n } from "../hooks/useI18n";
 
 const FreeSessionConfirmed = () => {

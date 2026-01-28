@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from "react";
+import { useEffect, useState } from "react";
 import { useParams, useNavigate } from "react-router-dom";
 import axios from "axios";
 import { toast } from "react-hot-toast";
@@ -112,7 +112,7 @@ const SessionAttendance = () => {
             );
             toast.success("Attendance saved");
             navigate(-1);
-        } catch (error) {
+        } catch (_error) {
             toast.error("Failed to save attendance");
         }
     };

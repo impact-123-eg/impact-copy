@@ -58,6 +58,19 @@ const queryKeys = {
 
   // Roles
   roles: "roles",
+
+  // Affiliate
+  affiliateStats: "affiliateStats",
+  affiliateConfig: "affiliateConfig",
+
+  // Finance
+  revenues: "revenues",
+  revenuesSummary: "revenuesSummary",
+  expenses: "expenses",
+  expensesSummary: "expensesSummary",
+  payroll: "payroll",
+  payrollSummary: "payrollSummary",
+  financeSummary: "financeSummary",
 };
 
 export default queryKeys;

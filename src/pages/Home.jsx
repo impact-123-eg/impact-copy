@@ -1,13 +1,11 @@
-import React, { useEffect } from "react";
+import { useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import { useI18n } from "../hooks/useI18n";
-import { Toaster } from "react-hot-toast";
 
 import photo from "../assets/student.png";
 import students from "../assets/studentsgroup.png";
 import offer from "../assets/offer.png";
 import thinking from "../assets/thinking.png";
-import { useLocation } from "react-router-dom";
 
 import video from "../assets/video.mp4";
 
@@ -23,8 +21,6 @@ import { FaLaptop, FaMoneyBillWave } from "react-icons/fa";
 import Bnfts from "../Components/Bnfts";
 import Service from "../Components/Service";
 import Course from "../Components/Course";
-import { doc, updateDoc } from "firebase/firestore";
-import { db } from "../data/firebaseConfig";
 import { useGetAllcategories } from "@/hooks/Actions/categories/useCategoryCruds";
 import SEO from "../Components/SEO";
 

@@ -1,11 +1,11 @@
-import React from "react";
 import { useParams, Link } from "react-router-dom";
-import { useAdminGetUsers, useAddUserNote, useToggleSubscription } from "@/hooks/Actions/users/useCurdsUsers";
+import { useAdminGetUsers, useAddUserNote, useToggleSubscription, useUpdateUser, useToggleFreeze } from "@/hooks/Actions/users/useCurdsUsers";
+import { useAdminGetReferralHistory } from "@/hooks/Actions/affiliate/useAffiliate";
 import {
-    User, Mail, Phone, MapPin, Calendar, CheckCircle, XCircle,
-    ArrowLeft, ClipboardList, Briefcase, Clock, Activity, ExternalLink
+    Mail, CheckCircle, XCircle,
+    ArrowLeft, ClipboardList, Clock, Activity, ExternalLink,
+    Tag, Save, History, Briefcase, Users, Snowflake
 } from "lucide-react";
-import formatTime from "@/utilities/formatTime";
 import Swal from "sweetalert2";
 
 const UserDetailedProfile = () => {
@@ -13,9 +13,38 @@ const UserDetailedProfile = () => {
     const { data: usersData, isLoading, refetch } = useAdminGetUsers({ _id: id });
     const { mutate: addNote, isPending: isAddingNote } = useAddUserNote();
     const { mutate: toggleSubscription } = useToggleSubscription();
+    const { mutate: toggleFreeze } = useToggleFreeze();
+    const { mutate: updateUser, isPending: isUpdatingUser } = useUpdateUser();
+    const { data: referralsData, isLoading: isLoadingReferrals } = useAdminGetReferralHistory(id);
+
+    const referrals = referralsData?.data || [];
 
     // The hook returns all users (paginated), we filter for our specific one (which should be the only one if ID is passed and handled)
     const student = usersData?.data?.data?.data?.find(u => u._id === id);
+
+    const handleUpdateAffiliate = (e) => {
+        e.preventDefault();
+        const formData = new FormData(e.target);
+        const data = {
+            promoCode: formData.get("promoCode").toUpperCase(),
+            affiliateDiscount: formData.get("affiliateDiscount") === "" ? null : Number(formData.get("affiliateDiscount")),
+            affiliateReward: formData.get("affiliateReward") === "" ? null : Number(formData.get("affiliateReward")),
+            affiliateBalance: formData.get("affiliateBalance") === "" ? 0 : Number(formData.get("affiliateBalance")),
+        };
+
+        updateUser(
+            { id, data },
+            {
+                onSuccess: () => {
+                    refetch();
+                    Swal.fire("Updated!", "Affiliate settings have been updated.", "success");
+                },
+                onError: (err) => {
+                    Swal.fire("Error", err.response?.data?.message || "Failed to update affiliate settings", "error");
+                }
+            }
+        );
+    };
 
     const activeEnrollment = student?.packageHistory?.find(pkg => pkg.status === "confirmed" && pkg.group);
 
@@ -32,6 +61,29 @@ const UserDetailedProfile = () => {
                 toggleSubscription(
                     { data: { userId: id, status: !currentStatus } },
                     { onSuccess: () => refetch() }
+                );
+            }
+        });
+    };
+
+    const handleToggleFreeze = () => {
+        const currentStatus = student?.isFrozen;
+        Swal.fire({
+            title: `${currentStatus ? "Unfreeze" : "Freeze"} Account`,
+            text: `Are you sure you want to ${currentStatus ? "unfreeze" : "freeze"} this student?`,
+            icon: "warning",
+            showCancelButton: true,
+            confirmButtonText: "Yes, update it!",
+        }).then((result) => {
+            if (result.isConfirmed) {
+                toggleFreeze(
+                    { data: { userId: id, status: !currentStatus } },
+                    {
+                        onSuccess: () => {
+                            refetch();
+                            Swal.fire("Updated!", `User has been ${currentStatus ? "unfrozen" : "frozen"}.`, "success");
+                        }
+                    }
                 );
             }
         });
@@ -82,6 +134,11 @@ const UserDetailedProfile = () => {
                                     <XCircle size={12} /> Inactive
                                 </span>
                             )}
+                            {student.isFrozen && (
+                                <span className="flex items-center gap-1 bg-cyan-100 text-cyan-700 px-3 py-1 rounded-full text-[10px] font-black uppercase tracking-wider">
+                                    <Snowflake size={12} /> Frozen
+                                </span>
+                            )}
                         </div>
                         <p className="text-gray-500 flex items-center gap-2 mt-1">
                             <Mail className="h-4 w-4" /> {student.email}
@@ -90,6 +147,13 @@ const UserDetailedProfile = () => {
                 </div>
 
                 <div className="flex gap-3">
+                    <button
+                        onClick={handleToggleFreeze}
+                        className={`px-6 py-2 rounded-xl font-bold transition-all shadow-lg ${student.isFrozen ? "bg-orange-50 text-orange-600 hover:bg-orange-100 shadow-orange-500/10" : "bg-cyan-50 text-cyan-600 hover:bg-cyan-100 shadow-cyan-500/10"
+                            }`}
+                    >
+                        {student.isFrozen ? "Unfreeze Account" : "Freeze Account"}
+                    </button>
                     <button
                         onClick={handleToggleSub}
                         className={`px-6 py-2 rounded-xl font-bold transition-all shadow-lg ${student.isSubscribed ? "bg-red-50 text-red-600 hover:bg-red-100 shadow-red-500/10" : "bg-green-50 text-green-600 hover:bg-green-100 shadow-green-500/10"
@@ -341,7 +405,7 @@ const UserDetailedProfile = () => {
                                 ) : (
                                     [...student.userNotes].reverse().map((note, idx) => (
                                         <div key={idx} className="bg-gray-50/50 p-4 rounded-2xl border border-gray-100 space-y-2">
-                                            <p className="text-sm text-gray-800 leading-relaxed font-medium">"{note.text}"</p>
+                                            <p className="text-sm text-gray-800 leading-relaxed font-medium">&quot;{note.text}&quot;</p>
                                             <div className="flex justify-between items-center text-[10px] font-black text-gray-400 uppercase tracking-widest">
                                                 <span>{note.createdBy}</span>
                                                 <span>{new Date(note.createdAt).toLocaleDateString()}</span>
@@ -350,6 +414,120 @@ const UserDetailedProfile = () => {
                                     ))
                                 )}
                             </div>
+                        </div>
+                    </div>
+
+                    {/* Affiliate & Rewards Section */}
+                    <div className="bg-white rounded-3xl border border-gray-100 shadow-sm overflow-hidden">
+                        <div className="bg-gray-50/50 p-6 border-b border-gray-100">
+                            <h2 className="font-bold text-gray-900 flex items-center gap-2">
+                                <Tag className="h-5 w-5 text-yellow-500" />
+                                Affiliate & Rewards
+                            </h2>
+                        </div>
+
+                        <div className="p-6">
+                            <form onSubmit={handleUpdateAffiliate} className="space-y-4">
+                                <div className="space-y-1">
+                                    <label className="text-[10px] uppercase font-bold text-gray-400 tracking-widest">Promo Code</label>
+                                    <input
+                                        name="promoCode"
+                                        defaultValue={student.promoCode || ""}
+                                        className="w-full bg-gray-50 border border-gray-100 rounded-xl p-3 text-sm focus:ring-2 focus:ring-yellow-500 outline-none font-bold placeholder:font-normal"
+                                        placeholder="No code assigned"
+                                    />
+                                </div>
+
+                                <div className="grid grid-cols-2 gap-4">
+                                    <div className="space-y-1">
+                                        <label className="text-[10px] uppercase font-bold text-gray-400 tracking-widest">Discount (%)</label>
+                                        <input
+                                            name="affiliateDiscount"
+                                            type="number"
+                                            defaultValue={student.affiliateDiscount ?? ""}
+                                            className="w-full bg-gray-50 border border-gray-100 rounded-xl p-3 text-sm focus:ring-2 focus:ring-yellow-500 outline-none"
+                                            placeholder="Global Default"
+                                        />
+                                    </div>
+                                    <div className="space-y-1">
+                                        <label className="text-[10px] uppercase font-bold text-gray-400 tracking-widest">Reward (EGP)</label>
+                                        <input
+                                            name="affiliateReward"
+                                            type="number"
+                                            defaultValue={student.affiliateReward ?? ""}
+                                            className="w-full bg-gray-50 border border-gray-100 rounded-xl p-3 text-sm focus:ring-2 focus:ring-yellow-500 outline-none"
+                                            placeholder="Global Default"
+                                        />
+                                    </div>
+                                </div>
+
+                                <div className="space-y-1">
+                                    <label className="text-[10px] uppercase font-bold text-emerald-600 tracking-widest">Current Balance (EGP)</label>
+                                    <input
+                                        name="affiliateBalance"
+                                        type="number"
+                                        defaultValue={student.affiliateBalance || 0}
+                                        className="w-full bg-emerald-50 border border-emerald-100 rounded-xl p-3 text-sm focus:ring-2 focus:ring-emerald-500 outline-none font-bold text-emerald-700"
+                                    />
+                                </div>
+
+                                <button
+                                    type="submit"
+                                    disabled={isUpdatingUser}
+                                    className="w-full py-3 bg-gray-900 text-white rounded-xl font-bold hover:bg-black transition-all active:scale-95 disabled:opacity-50 flex items-center justify-center gap-2"
+                                >
+                                    <Save size={16} /> {isUpdatingUser ? "Saving..." : "Update Affiliate Settings"}
+                                </button>
+                            </form>
+
+                            <div className="mt-6 pt-6 border-t border-gray-50 space-y-4">
+                                <div className="flex items-center gap-2 text-[10px] bg-emerald-50 text-emerald-700 p-3 rounded-xl font-bold">
+                                    <Activity size={14} />
+                                    Manual balance adjustments are reflected immediately.
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    {/* Referral History Table (Admin View) */}
+                    <div className="bg-white rounded-3xl border border-gray-100 shadow-sm overflow-hidden">
+                        <div className="bg-gray-50/50 p-6 border-b border-gray-100">
+                            <h2 className="font-bold text-gray-900 flex items-center gap-2">
+                                <History className="h-5 w-5 text-blue-500" />
+                                Referral History
+                            </h2>
+                        </div>
+                        <div className="p-6">
+                            {isLoadingReferrals ? (
+                                <div className="flex justify-center py-4">
+                                    <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-blue-600"></div>
+                                </div>
+                            ) : referrals.length > 0 ? (
+                                <div className="overflow-x-auto">
+                                    <table className="w-full text-left">
+                                        <thead className="bg-gray-50 border-b border-gray-100">
+                                            <tr>
+                                                <th className="px-4 py-3 text-[10px] font-bold text-gray-500 uppercase">Student</th>
+                                                <th className="px-4 py-3 text-[10px] font-bold text-gray-500 uppercase">Date</th>
+                                                <th className="px-4 py-3 text-[10px] font-bold text-gray-500 uppercase">Reward</th>
+                                            </tr>
+                                        </thead>
+                                        <tbody className="divide-y divide-gray-100">
+                                            {referrals.map((ref, idx) => (
+                                                <tr key={idx} className="hover:bg-gray-50 transition-colors">
+                                                    <td className="px-4 py-3 text-sm font-medium text-gray-800">{ref.name}</td>
+                                                    <td className="px-4 py-3 text-xs text-gray-500">{new Date(ref.createdAt).toLocaleDateString()}</td>
+                                                    <td className="px-4 py-3 text-sm font-bold text-emerald-600">+{ref.rewardAmount} EGP</td>
+                                                </tr>
+                                            ))}
+                                        </tbody>
+                                    </table>
+                                </div>
+                            ) : (
+                                <div className="text-center py-4 text-gray-500 text-sm italic">
+                                    No successful referrals recorded.
+                                </div>
+                            )}
                         </div>
                     </div>
                 </div>

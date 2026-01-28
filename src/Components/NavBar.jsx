@@ -12,6 +12,7 @@ import {
   faBookOpen,
   faInfoCircle,
   faRightToBracket,
+  faRightFromBracket,
   faUserPlus,
   faFlask,
   faCalendarCheck,
@@ -145,6 +146,13 @@ function Navbar() {
                     <FontAwesomeIcon icon={faChalkboardUser} className="text-sm" />
                   </NavLink>
                 )}
+                <button
+                  onClick={authLogout}
+                  className="text-white hover:text-gray-200 transition-colors"
+                  title={t("logout", "Logout")}
+                >
+                  <FontAwesomeIcon icon={faRightFromBracket} className="text-sm" />
+                </button>
               </div>
             ) : (
               <div className="flex items-center gap-2 ml-2">

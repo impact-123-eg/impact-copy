@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import { useState } from "react";
 import { DragDropContext, Droppable, Draggable } from "@hello-pangea/dnd";
 import {
   useMoveBooking,
@@ -7,15 +7,12 @@ import {
 } from "@/hooks/Actions/free-sessions/useFreeSessionCrudsForAdmin";
 import { useGetAllEmployees } from "@/hooks/Actions/users/useCurdsUsers";
 import formatTime from "@/utilities/formatTime";
-import InlineSelect from "@/Components/ui/InlineSelect";
 import {
   User,
   UserX,
   Calendar,
-  XCircle,
   CheckCircle2,
   AlertCircle,
-  ArrowRight,
   ChevronDown,
   ChevronUp,
   Move,

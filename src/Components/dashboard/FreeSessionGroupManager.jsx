@@ -1,7 +1,6 @@
-import React, { useState } from "react";
-import { DragDropContext, Droppable, Draggable } from "@hello-pangea/dnd";
+import { useState } from "react";
+import { Droppable, Draggable } from "@hello-pangea/dnd";
 import {
-  useMoveBooking,
   useAutoAssignInstructors,
   useCancelFreeSessionBooking,
   useUpdateGroupTeacher
@@ -12,8 +11,6 @@ import InlineSelect from "@/Components/ui/InlineSelect";
 import {
   User,
   UserX,
-  Trash2,
-  Wand2,
   Users,
   Calendar,
   XCircle,
@@ -22,7 +19,7 @@ import {
 } from "lucide-react";
 import BookingDetailsModal from "./BookingDetailsModal";
 
-const FreeSessionGroupManager = ({ slot, onBookingMoved, isMoving, onMoveBooking, hideHeader = false }) => {
+const FreeSessionGroupManager = ({ slot, onBookingMoved, isMoving, _onMoveBooking, hideHeader = false }) => {
   const [selectedBooking, setSelectedBooking] = useState(null);
   const { mutate: autoAssign, isPending: isAssigning } = useAutoAssignInstructors();
   const { mutate: cancelBooking, isPending: isCancelling } = useCancelFreeSessionBooking();

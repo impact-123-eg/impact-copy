@@ -1,4 +1,3 @@
-import { useEffect, useState } from "react";
 import { Bar } from "react-chartjs-2";
 import {
   Chart as ChartJS,
@@ -9,7 +8,7 @@ import {
   Tooltip,
   Legend,
 } from "chart.js";
-import { Link, useLocation } from "react-router-dom";
+import { Link } from "react-router-dom";
 import useDashboardStats from "@/hooks/Actions/dashboard/useDashboardStats";
 import { useGetAllFreeSessionBookings } from "@/hooks/Actions/free-sessions/useFreeSessionBookingCruds";
 import { useAuth } from "@/context/AuthContext";
@@ -146,7 +145,7 @@ function HomePage() {
       <main className="w-full space-y-10 p-4 sm:p-0">
         <section className="bg-[var(--Main)] text-white p-6 sm:p-10 rounded-2xl">
           <h1 className="text-xl sm:text-2xl font-bold mb-2">Welcome, {user.name}!</h1>
-          <p className="text-sm opacity-90">You have access to Page Management only. Click on "Page Management" in the sidebar to manage website content.</p>
+          <p className="text-sm opacity-90">You have access to Page Management only. Click on &quot;Page Management&quot; in the sidebar to manage website content.</p>
         </section>
 
         <section className="bg-yellow-50 border-l-4 border-yellow-500 p-6 rounded-r-2xl shadow-sm">

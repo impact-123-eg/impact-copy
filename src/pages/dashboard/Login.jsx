@@ -1,14 +1,16 @@
-import React, { useState } from "react";
+import { useState } from "react";
 import photo from "../../assets/login.png";
 import { FaEye, FaEyeSlash } from "react-icons/fa";
 import { useFormik } from "formik";
 import { loginValidationSchema } from "@/Validation";
 import ErrorMsg from "@/Components/auth/ErrorMsg";
 import useLogin from "@/hooks/Actions/auth/useLogin";
-import { useI18n } from "@/hooks/useI18n";
+// Removed useI18n to enforce English
 
 function Login() {
-  const { t } = useI18n();
+  // Dummy t function that ignores the key and returns the default message
+  const t = (ns, key, defaultMsg) => defaultMsg || key;
+
   const [showPassword, setShowPassword] = useState(false);
   const { mutate, isPending } = useLogin();
   const initialValues = {
@@ -27,80 +29,6 @@ function Login() {
       mutate({ data: userData });
     },
   });
-
-
-
-  // const [formData, setFormData] = useState({ Email: "", Password: "" }),
-  // const navigate = useNavigate();
-  // const { login } = useAuth();
-  // const { setAdmin } = useAdmin();
-  // const location = useLocation();
-
-  // useEffect(() => {
-  //   const storedAdmin = localStorage.getItem("admin");
-  //   if (storedAdmin) {
-  //     setAdmin(JSON.parse(storedAdmin));
-  //     navigate("/dash/");
-  //   }
-  // }, [setAdmin, navigate]);
-
-  // const handleChange = (e) => {
-  //   const { name, value } = e.target;
-  //   setFormData((prevState) => ({ ...prevState, [name]: value }));
-  // };
-
-  // const handleSubmit = async (e) => {
-  //   e.preventDefault();
-
-  //   if (!formData.Email || !formData.Password) {
-  //     Swal.fire({
-  //       icon: "error",
-  //       title: "Error",
-  //       text: "Please fill all fields",
-  //       timer: 1000,
-  //       showConfirmButton: false,
-  //     });
-  //     return;
-  //   }
-
-  //   try {
-  //     const q = query(
-  //       collection(db, "Admins"),
-  //       where("Email", "==", formData.Email),
-  //       where("Password", "==", formData.Password)
-  //     );
-  //     const querySnapshot = await getDocs(q);
-
-  //     if (querySnapshot.empty) {
-  //       Swal.fire({
-  //         icon: "error",
-  //         title: "Error",
-  //         text: "Invalid Email or Password",
-  //         timer: 1000,
-  //         showConfirmButton: false,
-  //       });
-  //       return;
-  //     } else {
-  //       const adminData = querySnapshot.docs[0].data();
-
-  //       localStorage.setItem("admin", JSON.stringify(adminData));
-
-  //       setAdmin(adminData);
-  //       login();
-  //       window.scroll(0, 0);
-  //       navigate("/dash/");
-  //     }
-  //   } catch (e) {
-  //     Swal.fire({
-  //       icon: "error",
-  //       title: "Error",
-  //       text: "Something went wrong. Please try again.",
-  //       timer: 1000,
-  //       showConfirmButton: false,
-  //     });
-  //     console.error("Error during login: ", e);
-  //   }
-  // };
 
   return (
     <main className="min-h-screen flex items-center justify-center  py-12 px-4 sm:px-6 lg:px-8">
@@ -220,15 +148,6 @@ function Login() {
               )}
             </button>
           </form>
-
-          {/* <div className="text-center pt-4">
-            <p className="text-gray-600">
-              Don't have an account?{" "}
-              <a href="#" className="font-medium text-blue-600 hover:underline">
-                Sign up
-              </a>
-            </p>
-          </div> */}
         </section>
       </div>
     </main>

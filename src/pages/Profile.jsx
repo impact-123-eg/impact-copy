@@ -16,8 +16,10 @@ import {
     FaClock,
     FaMoneyBillWave,
     FaLock,
-    FaChalkboardTeacher
+    FaChalkboardTeacher,
+    FaShareAlt
 } from "react-icons/fa";
+import { useGetAffiliateStats, useGetReferralHistory } from "../hooks/Actions/affiliate/useAffiliate";
 
 const Profile = () => {
     const { user, setUser } = useAuth();
@@ -109,11 +111,25 @@ const Profile = () => {
         { id: "classes", label: t("profile", "tabGroupHistory", "Group History"), icon: FaHistory },
         { id: "sessions", label: t("profile", "tabSessions", "My Sessions"), icon: FaCalendarCheck },
         { id: "payments", label: t("profile", "tabPayments", "My Payments"), icon: FaCreditCard },
+        { id: "affiliate", label: t("profile", "tabAffiliate", "Affiliate"), icon: FaShareAlt },
         { id: "settings", label: t("profile", "tabSettings", "Settings"), icon: FaCog },
     ];
 
     return (
         <div className="max-w-7xl mx-auto px-4 py-8 min-h-[80vh]">
+            {/* Freeze Status Banner */}
+            {user?.isFrozen && (
+                <div className="bg-cyan-50 border-2 border-cyan-200 rounded-3xl p-6 mb-8 flex items-center gap-4">
+                    <div className="w-12 h-12 bg-cyan-100 rounded-full flex items-center justify-center flex-shrink-0">
+                        <FaSnowflake className="text-cyan-600 text-xl" />
+                    </div>
+                    <div>
+                        <h3 className="font-bold text-cyan-800">Account Frozen</h3>
+                        <p className="text-cyan-700">Please contact support to unfreeze your account.</p>
+                    </div>
+                </div>
+            )}
+
             <div className="grid grid-cols-1 lg:grid-cols-4 gap-8">
                 {/* Sidebar Navigation */}
                 <div className="lg:col-span-1">
@@ -235,7 +251,7 @@ const Profile = () => {
 
                     {activeTab === "current_group" && (
                         <div className="space-y-6 animate-in fade-in slide-in-from-bottom-4 duration-500">
-                            <h2 className="text-2xl font-bold text-gray-800">{t("profile", "currentGroup", "Current Group & Attendance")}</h2>
+                            <h2 className="text-2xl font-bold text-gray-800">{t("profile", "tabCurrentGroup", "Current Group & Attendance")}</h2>
 
                             {/* Stats Cards */}
                             <div className="grid grid-cols-2 md:grid-cols-5 gap-4">
@@ -256,7 +272,7 @@ const Profile = () => {
                                     <h3 className="text-2xl font-bold text-red-600">{stats?.absent || 0}</h3>
                                 </div>
                                 <div className="bg-white p-4 rounded-2xl shadow-sm border border-gray-100">
-                                    <p className="text-gray-500 text-xs uppercase font-bold">{t("profile", "remaining", "Remaining")}</p>
+                                    <p className="text-gray-500 text-xs uppercase font-bold">{t("profile", "remainingSessions", "Remaining")}</p>
                                     <h3 className="text-2xl font-bold text-indigo-600">
                                         {groups?.filter(g => g.status === 'active').reduce((acc, g) => acc + (g.package?.sessionNo || 0), 0) - (stats?.total || 0)}
                                     </h3>
@@ -280,7 +296,7 @@ const Profile = () => {
                                             </span>
                                         </div>
 
-                                        <div className="grid grid-cols-1 md:grid-cols-2 gap-8 mb-8">
+                                        <div className="grid grid-cols-1 md:grid-cols-1 gap-8 mb-8">
                                             <div className="bg-gray-50 p-6 rounded-xl">
                                                 <h4 className="font-bold text-gray-800 mb-4 flex items-center gap-2">
                                                     <FaClock /> {t("profile", "weeklySchedule", "Weekly Schedule")}
@@ -295,7 +311,7 @@ const Profile = () => {
                                                 </div>
                                             </div>
 
-                                            <div className="bg-gray-50 p-6 rounded-xl">
+                                            {/* <div className="bg-gray-50 p-6 rounded-xl">
                                                 <h4 className="font-bold text-gray-800 mb-4">{t("profile", "classLink", "Class Link")}</h4>
                                                 {group.zoomLink ? (
                                                     <a
@@ -311,7 +327,7 @@ const Profile = () => {
                                                         {t("profile", "noLink", "No link available yet")}
                                                     </div>
                                                 )}
-                                            </div>
+                                            </div> */}
                                         </div>
 
                                         {/* Attendance History for this group */}
@@ -343,18 +359,20 @@ const Profile = () => {
                                                                     {record.topic || "-"}
                                                                 </td>
                                                                 <td className="px-4 py-3">
-                                                                    <StatusBadge status={record.status} />
+                                                                    <StatusBadge status={t("profile", String(record.status).toLowerCase(), record.status)} />
                                                                 </td>
                                                                 <td className="px-4 py-3">
-                                                                    {record.zoomLink ? (
+                                                                    {!user?.isFrozen && record.zoomLink ? (
                                                                         <a
                                                                             href={record.zoomLink}
                                                                             target="_blank"
                                                                             rel="noreferrer"
                                                                             className="text-xs bg-blue-100 text-blue-600 px-3 py-1 rounded-full font-bold hover:bg-blue-600 hover:text-white transition"
                                                                         >
-                                                                            {t("profile", "join", "Join")}
+                                                                            {t("profile", "joinLink", "Join Link")}
                                                                         </a>
+                                                                    ) : user?.isFrozen ? (
+                                                                        <span className="text-xs text-cyan-600 font-medium">Account Frozen</span>
                                                                     ) : (
                                                                         <span className="text-xs text-gray-400 font-medium">{t("profile", "noLink", "No Link")}</span>
                                                                     )}
@@ -453,7 +471,16 @@ const Profile = () => {
                                             </div>
                                             <div className="text-sm text-gray-600">
                                                 <p><span className="font-semibold">{t("profile", "schedule", "Schedule")}:</span> {group.schedule.map(s => `${s.day} ${s.startTime}-${s.endTime}`).join(", ")}</p>
-                                                <p className="mt-2"><span className="font-semibold">{t("profile", "zoomLink", "Zoom Link")}:</span> {group.zoomLink ? <a href={group.zoomLink} target="_blank" rel="noreferrer" className="text-blue-600 underline">{t("profile", "joinClass", "Join Class")}</a> : t("profile", "noLink", "No link available yet")}</p>
+                                                <p className="mt-2">
+                                                    <span className="font-semibold">{t("profile", "zoomLink", "Zoom Link")}:</span>{" "}
+                                                    {!user?.isFrozen && group.zoomLink ? (
+                                                        <a href={group.zoomLink} target="_blank" rel="noreferrer" className="text-blue-600 underline">{t("profile", "joinClass", "Join Class")}</a>
+                                                    ) : user?.isFrozen ? (
+                                                        <span className="text-cyan-600">Account Frozen</span>
+                                                    ) : (
+                                                        t("profile", "noLink", "No link available yet")
+                                                    )}
+                                                </p>
                                             </div>
                                         </div>
                                     ))}
@@ -588,6 +615,13 @@ const Profile = () => {
                         </div>
                     )}
 
+                    {activeTab === "affiliate" && (
+                        <div className="space-y-6 animate-in fade-in slide-in-from-bottom-4 duration-500">
+                            <h2 className="text-2xl font-bold text-gray-800">{t("affiliate", "title", "Affiliate Program")}</h2>
+                            <AffiliateContent />
+                        </div>
+                    )}
+
                     {activeTab === "settings" && (
                         <div className="space-y-6 animate-in fade-in slide-in-from-bottom-4 duration-500">
                             <h2 className="text-2xl font-bold text-gray-800">{t("profile", "accountSettings", "Account Settings")}</h2>
@@ -674,6 +708,124 @@ const Profile = () => {
                             </div>
                         </div>
                     )}
+                </div>
+            </div>
+        </div>
+    );
+};
+
+const AffiliateContent = () => {
+    const { data: affiliateData, isLoading } = useGetAffiliateStats();
+    const { data: referralsData, isLoading: isLoadingReferrals } = useGetReferralHistory();
+    const stats = affiliateData?.data || { promoCode: "...", affiliateBalance: 0, discountPercentage: 10, rewardAmount: 50 };
+    const referrals = referralsData?.data || [];
+    const { t } = useI18n();
+
+    const copyToClipboard = () => {
+        navigator.clipboard.writeText(stats.promoCode);
+        Swal.fire({
+            icon: "success",
+            title: t("affiliate", "copied", "Copied!"),
+            text: t("affiliate", "copySuccess", "Promo code copied to clipboard"),
+            timer: 1500,
+            showConfirmButton: false,
+        });
+    };
+
+    if (isLoading) return <div className="text-center py-8"><div className="animate-spin rounded-full h-8 w-8 border-b-2 border-blue-600 mx-auto"></div></div>;
+
+    return (
+        <div className="space-y-6">
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                <div className="bg-white rounded-3xl shadow-sm border border-gray-100 p-8 flex flex-col items-center">
+                    <div className="w-16 h-16 bg-blue-50 text-blue-600 rounded-full flex items-center justify-center mb-4">
+                        <FaShareAlt size={24} />
+                    </div>
+                    <h3 className="text-xl font-bold text-gray-800 mb-2">{t("affiliate", "yourCode", "Your Promo Code")}</h3>
+                    <p className="text-gray-500 text-center mb-6">
+                        {t("affiliate", "shareDesc", "Share this code. Friends get")} <span className="text-blue-600 font-bold">{stats.discountPercentage}% {t("affiliate", "off", "OFF")}</span>{", "}
+                        {t("affiliate", "youshareDesc2", "and you get")} <span className="text-emerald-600 font-bold">{stats.rewardAmount} EGP</span>!
+                    </p>
+
+                    <div className="flex items-center gap-2 w-full max-w-sm">
+                        <div className="flex-1 bg-gray-50 border-2 border-dashed border-blue-200 rounded-xl px-4 py-3 text-center font-mono text-xl font-bold text-blue-700">
+                            {stats.promoCode ==="..." ? "-" : stats.promoCode}
+                        </div>
+                        <button
+                            onClick={copyToClipboard}
+                            className={"bg-blue-600 text-white p-4 rounded-xl hover:bg-blue-700 transition shadow-lg shadow-blue-500/20" + (stats.promoCode === "..." ? " opacity-50 cursor-not-allowed hidden" : "")}
+                            disabled={stats.promoCode === "..."}
+                        >
+                            
+                            {t("affiliate", "copy", "Copy")}
+                        </button>
+                    </div>
+                </div>
+
+                <div className="bg-white rounded-3xl shadow-sm border border-gray-100 p-8 flex flex-col items-center justify-center text-center">
+                    <div className="w-16 h-16 bg-emerald-50 text-emerald-600 rounded-full flex items-center justify-center mb-4">
+                        <FaMoneyBillWave size={24} />
+                    </div>
+                    <h3 className="text-xl font-bold text-gray-800 mb-1">{t("affiliate", "balance", "Affiliate Balance")}</h3>
+                    <p className="text-4xl font-extrabold text-emerald-600 mb-2">{stats.affiliateBalance} EGP</p>
+                    <p className="text-sm text-gray-400 max-w-[200px]">{t("affiliate", "balanceDesc", "This balance can be used for your next booking.")}</p>
+                </div>
+            </div>
+
+            {/* Referral History Table */}
+            <div className="bg-white rounded-3xl shadow-sm border border-gray-100 p-8">
+                <h3 className="text-xl font-bold text-gray-800 mb-6 flex items-center gap-2">
+                    <FaHistory className="text-blue-600" />
+                    {t("affiliate", "referralHistory", "Referral History")}
+                </h3>
+
+                {isLoadingReferrals ? (
+                    <div className="flex justify-center py-8">
+                        <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-blue-600"></div>
+                    </div>
+                ) : referrals.length > 0 ? (
+                    <div className="overflow-x-auto">
+                        <table className="w-full text-left">
+                            <thead className="bg-gray-50 border-b border-gray-100">
+                                <tr>
+                                    <th className="px-4 py-3 text-xs font-bold text-gray-500 uppercase">{t("affiliate", "student", "Student")}</th>
+                                    <th className="px-4 py-3 text-xs font-bold text-gray-500 uppercase">{t("affiliate", "date", "Date")}</th>
+                                    <th className="px-4 py-3 text-xs font-bold text-gray-500 uppercase">{t("affiliate", "reward", "Reward")}</th>
+                                </tr>
+                            </thead>
+                            <tbody className="divide-y divide-gray-100">
+                                {referrals.map((ref, idx) => (
+                                    <tr key={idx} className="hover:bg-gray-50 transition-colors">
+                                        <td className="px-4 py-3 font-medium text-gray-800">{ref.name}</td>
+                                        <td className="px-4 py-3 text-sm text-gray-500">{new Date(ref.createdAt).toLocaleDateString()}</td>
+                                        <td className="px-4 py-3 font-bold text-emerald-600">+{ref.rewardAmount} EGP</td>
+                                    </tr>
+                                ))}
+                            </tbody>
+                        </table>
+                    </div>
+                ) : (
+                    <div className="text-center py-8 text-gray-500 italic">
+                        {t("affiliate", "noReferrals", "No referrals yet. Start sharing your code!")}
+                    </div>
+                )}
+            </div>
+
+            <div className="bg-gradient-to-r from-blue-600 to-indigo-700 rounded-3xl p-8 text-white shadow-xl">
+                <h3 className="text-xl font-bold mb-4">{t("affiliate", "howItWorks", "How it works?")}</h3>
+                <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+                    <div className="bg-white/10 p-4 rounded-2xl backdrop-blur-sm">
+                        <div className="text-2xl font-black mb-1 text-blue-200">01</div>
+                        <p className="text-sm">{t("affiliate", "step1", "Share your unique promo code with friends or family.")}</p>
+                    </div>
+                    <div className="bg-white/10 p-4 rounded-2xl backdrop-blur-sm">
+                        <div className="text-2xl font-black mb-1 text-blue-200">02</div>
+                        <p className="text-sm">{t("affiliate", "step2", "They get an immediate discount when they book their first package.")}</p>
+                    </div>
+                    <div className="bg-white/10 p-4 rounded-2xl backdrop-blur-sm">
+                        <div className="text-2xl font-black mb-1 text-blue-200">03</div>
+                        <p className="text-sm">{t("affiliate", "step3", "Once their booking is confirmed, your balance will be credited!")}</p>
+                    </div>
                 </div>
             </div>
         </div>

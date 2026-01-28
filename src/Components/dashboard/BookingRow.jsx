@@ -60,7 +60,7 @@ const formatDate = (dateString) => {
       month: "short",
       day: "numeric",
     }).format(date);
-  } catch (error) {
+  } catch (_error) {
     return "Invalid Date";
   }
 };
@@ -79,7 +79,7 @@ import usePostData from "@/hooks/curdsHook/usePostData";
 import endPoints from "@/config/endPoints";
 import InlineSelect from "@/Components/ui/InlineSelect";
 import { useUpdateBooking } from "@/hooks/Actions/booking/useBookingCruds";
-import { MoreHorizontal, Edit2, RotateCcw } from "lucide-react";
+import { Edit2, RotateCcw } from "lucide-react";
 import EditAmountModal from "./EditAmountModal";
 
 const statusOptions = [

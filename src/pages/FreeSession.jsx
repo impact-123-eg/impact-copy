@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from "react";
+import { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import axios from "axios";
 import { useFormik } from "formik";
@@ -257,7 +257,7 @@ const FreeSessionForm = () => {
 
           {!isLoggedIn && (
             <div className="space-y-2">
-              <label htmlFor="password" padding className="block text-lg font-bold text-[var(--Main)]">
+              <label htmlFor="password" className="block text-lg font-bold text-[var(--Main)]">
                 {t("free-session", "password", "Create Password")}
               </label>
               <input

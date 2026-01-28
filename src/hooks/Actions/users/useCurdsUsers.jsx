@@ -166,3 +166,12 @@ export const useToggleSubscription = () => {
   );
   return { mutate, isPending, isSuccess };
 };
+
+export const useToggleFreeze = () => {
+  const { mutate, isPending, isSuccess } = usePostData(
+    endPoints.toggleFreeze,
+    [queryKeys.toggleFreeze],
+    [queryKeys.adminAllUsers]
+  );
+  return { mutate, isPending, isSuccess };
+};

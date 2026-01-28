@@ -1,4 +1,4 @@
-import { useEffect, useState } from "react";
+import { useState } from "react";
 import { useParams, Link } from "react-router-dom";
 import {
   useGetFreeSessionBookingById,
@@ -9,21 +9,18 @@ import {
   useUpdateSalesAgentForFreeSessionBooking,
 } from "@/hooks/Actions/free-sessions/useFreeSessionBookingCruds";
 import {
-  useUpdateGroupTeacher,
-  useMoveBooking,
-  useGetFreeSessionSlotsByDate
+  useMoveBooking
 } from "@/hooks/Actions/free-sessions/useFreeSessionCrudsForAdmin";
 import { useGetAllEmployees, useCreateUserFromBooking } from "@/hooks/Actions/users/useCurdsUsers";
 import { useAuth } from "@/context/AuthContext";
 import InlineSelect from "@/Components/ui/InlineSelect";
-import formatTime, { to12h } from "@/utilities/formatTime";
+import { to12h } from "@/utilities/formatTime";
 import formatDateForAPI from "@/utilities/formatDateForApi";
 import {
   User,
   Mail,
   Phone,
   MapPin,
-  Calendar,
   UserCheck,
   Clock,
   Activity,

@@ -1,5 +1,5 @@
 // components/free-test/AudioPlayer.jsx
-import React, { useState, useRef, useEffect } from "react";
+import { useState, useRef, useEffect } from "react";
 import { useI18n } from "../../hooks/useI18n";
 
 const AudioPlayer = ({ src, className = "", storageKey, maxPlays = 2 }) => {
@@ -44,7 +44,7 @@ const AudioPlayer = ({ src, className = "", storageKey, maxPlays = 2 }) => {
       setIsLoading(false);
     };
 
-    const handleError = (e) => {
+    const handleError = (_e) => {
       setError(t("free-test", "audioError", "Audio error"));
       setIsLoading(false);
     };
@@ -92,7 +92,9 @@ const AudioPlayer = ({ src, className = "", storageKey, maxPlays = 2 }) => {
     setPlayCount(next);
     try {
       localStorage.setItem(key, String(next));
-    } catch { }
+    } catch (e) {
+      console.error("Failed to save play count", e);
+    }
   };
 
   const togglePlay = async () => {
@@ -111,7 +113,7 @@ const AudioPlayer = ({ src, className = "", storageKey, maxPlays = 2 }) => {
         setIsPlaying(true);
         incrementPlay();
       }
-    } catch (err) {
+    } catch (_err) {
       setError(t("free-test", "audioError", "Failed to play audio"));
     }
   };
@@ -129,7 +131,7 @@ const AudioPlayer = ({ src, className = "", storageKey, maxPlays = 2 }) => {
       await audioRef.current.play();
       setIsPlaying(true);
       incrementPlay();
-    } catch (err) {
+    } catch (_err) {
       setError(t("free-test", "audioError", "Failed to replay audio"));
     }
   };

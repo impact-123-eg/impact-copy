@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from "react";
+import { useEffect } from "react";
 import { useNavigate, useLocation } from "react-router-dom";
 import { useFormik } from "formik";
 import Swal from "sweetalert2";
@@ -90,7 +90,7 @@ const VerifyOTP = () => {
                 </div>
                 <h2 className="text-3xl font-bold text-gray-800">Verification</h2>
                 <p className="text-gray-600 mt-2">
-                    We've sent a 6-digit code to <br />
+                    We&apos;ve sent a 6-digit code to <br />
                     <span className="font-bold text-gray-800">{email}</span>
                 </p>
             </div>
@@ -122,7 +122,7 @@ const VerifyOTP = () => {
             </form>
 
             <div className="mt-8 text-center">
-                <p className="text-gray-600">Didn't receive the code?</p>
+                <p className="text-gray-600">Didn&apos;t receive the code?</p>
                 <button
                     onClick={handleResend}
                     disabled={isResending}

@@ -49,7 +49,9 @@ const FreeTestContainer = () => {
           localStorage.removeItem(k);
         }
       }
-    } catch { }
+    } catch (e) {
+      console.error("Failed to clear audio play counters", e);
+    }
   };
 
   // Effect to automatically manage stage transitions (edge-aware)

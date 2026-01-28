@@ -45,9 +45,26 @@ const endPoints = {
   adminAllUsers: "users/admin/all",
   addUserNote: "users/admin/add-note",
   toggleSubscription: "users/admin/toggle-subscription",
+  toggleFreeze: "users/admin/toggle-freeze",
 
   // Roles
   roles: "roles/",
+
+  // Affiliate
+  affiliateStats: "/affiliate/stats",
+  affiliateValidate: "/affiliate/validate",
+  affiliateConfig: "/affiliate/config",
+  affiliateReferrals: "/affiliate/referrals",
+
+  // Finance
+  revenues: "/finance/revenues",
+  revenuesSummary: "/finance/revenues/summary",
+  expenses: "/expenses",
+  expensesSummary: "/expenses/summary",
+  payroll: "/payroll",
+  payrollSummary: "/payroll/summary",
+  payrollInstructors: "/payroll/instructors",
+  financeSummary: "/finance/summary",
 };
 
 export default endPoints;

@@ -59,14 +59,24 @@ export const useMoveBooking = () => {
   return { mutate: moveBooking, ...rest };
 };
 
-export const useToggleSlotStatus = (id) => {
-  const { mutate, data, error, isPending, isSuccess, isError } = usePatchData(
-    `${endPoints.freeSessionSlots}/${id}/status`,
+export const useToggleSlotStatus = () => {
+  const { mutate: patchMutate, ...rest } = usePatchData(
+    null,
     [queryKeys.toggleFreeSessionSlotStatus],
     [queryKeys.freeSessionSlotByDate]
   );
 
-  return { mutate, data, error, isPending, isSuccess, isError };
+  const toggleStatus = (id, isActive, options) => {
+    patchMutate(
+      {
+        url: `${endPoints.freeSessionSlots}/${id}/status`,
+        data: { isActive },
+      },
+      options
+    );
+  };
+
+  return { mutate: toggleStatus, ...rest };
 };
 
 export const useDeleteSlot = () => {

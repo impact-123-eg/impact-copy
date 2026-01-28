@@ -1,4 +1,3 @@
-import React from "react";
 import { Navigate } from "react-router-dom";
 import { useAuth } from "./context/AuthContext";
 
@@ -64,7 +63,7 @@ const ProtectedRoute = ({
               Access Denied
             </h2>
             <p className="text-gray-600 mb-6">
-              You don't have permission to access this page. Required roles:{" "}
+              You don&apos;t have permission to access this page. Required roles:{" "}
               {requiredRoles.join(", ")}
             </p>
             <button

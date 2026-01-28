@@ -1,8 +1,7 @@
-import React, { useState } from "react";
-import ConfirmModal from "../ConfirmModal";
+import { useState } from "react";
 // import { useDeleteAvailabilitySlot } from "@/hooks/Actions/availabilities/useAvailabilityCruds";
 
-const AvailabilityList = ({ availability, onRefresh }) => {
+const AvailabilityList = ({ availability, _onRefresh }) => {
   const [modalOpen, setModalOpen] = useState(false);
   const [selectedSlotId, setSelectedSlotId] = useState(null);
   // const { mutate: deleteSlot, isPending } = useDeleteAvailabilitySlot();

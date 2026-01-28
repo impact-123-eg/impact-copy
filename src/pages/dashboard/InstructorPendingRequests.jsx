@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from "react";
+import { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import axios from "axios";
 import { toast } from "react-hot-toast";
@@ -120,7 +120,7 @@ const InstructorPendingRequests = () => {
 
             toast.success("Assignment approved");
             isAdmin ? fetchAdminData() : fetchAllPending();
-        } catch (error) {
+        } catch (_error) {
             toast.error("Failed to approve assignment");
         }
     };
@@ -137,7 +137,7 @@ const InstructorPendingRequests = () => {
 
             toast.success("Assignment rejected");
             isAdmin ? fetchAdminData() : fetchAllPending();
-        } catch (error) {
+        } catch (_error) {
             toast.error("Failed to reject assignment");
         }
     };
@@ -163,7 +163,7 @@ const InstructorPendingRequests = () => {
             setShowReassignModal(false);
             setSelectedInstructorId("");
             fetchAdminData();
-        } catch (error) {
+        } catch (_error) {
             toast.error("Failed to reassign instructor");
         } finally {
             setReassigning(false);
@@ -186,7 +186,7 @@ const InstructorPendingRequests = () => {
             setShowReasonModal(false);
             setReason("");
             fetchAllPending();
-        } catch (error) {
+        } catch (_error) {
             toast.error("Failed to send change request");
         }
     };
@@ -231,7 +231,7 @@ const InstructorPendingRequests = () => {
                                             </span>
                                             <span className="font-bold text-gray-900">{item.name}</span>
                                         </div>
-                                        <p className="text-xs text-red-600 italic">By: {item.instructor?.name || "Unknown"} — "{item.changeReason || "No reason given"}"</p>
+                                        <p className="text-xs text-red-600 italic">By: {item.instructor?.name || "Unknown"} — &quot;{item.changeReason || "No reason given"}&quot;</p>
                                     </div>
                                     <button
                                         onClick={() => {

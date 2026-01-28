@@ -10,7 +10,7 @@ import {
   addDoc,
   deleteDoc,
 } from "../../data/firebaseConfig";
-import { query, getDocs, orderBy, where } from "firebase/firestore";
+import { query, getDocs, orderBy } from "firebase/firestore";
 import { Modal } from "react-responsive-modal";
 import { Datepicker } from "flowbite-react";
 

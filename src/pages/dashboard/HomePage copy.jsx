@@ -9,7 +9,7 @@ import {
   Tooltip,
   Legend,
 } from "chart.js";
-import { Link, useLocation } from "react-router-dom";
+import { Link } from "react-router-dom";
 import { db, collection } from "../../data/firebaseConfig";
 import { query, getDocs, orderBy } from "firebase/firestore";
 

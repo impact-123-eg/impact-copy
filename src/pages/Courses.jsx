@@ -1,4 +1,4 @@
-import React, { useEffect } from "react";
+import { useEffect } from "react";
 import { useGetAllcategories } from "@/hooks/Actions/categories/useCategoryCruds";
 import Course from "../Components/Course";
 import { useI18n } from "../hooks/useI18n";

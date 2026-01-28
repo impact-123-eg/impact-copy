@@ -1,4 +1,3 @@
-import React from "react";
 import { useFormik } from "formik";
 import * as Yup from "yup";
 import { useNavigate, Link } from "react-router-dom";
@@ -248,7 +247,7 @@ export default function ManualPayment() {
                   name="paymentType"
                   value="full"
                   checked={formik.values.paymentType === "full"}
-                  onChange={(e) => {
+                  onChange={(_e) => {
                     formik.setFieldValue("paymentType", "full");
                     // Auto-set amount to full price
                     const price = packages.find(p => p._id === formik.values.packageId)?.priceAfter;
@@ -264,7 +263,7 @@ export default function ManualPayment() {
                   name="paymentType"
                   value="installment"
                   checked={formik.values.paymentType === "installment"}
-                  onChange={(e) => {
+                  onChange={(_e) => {
                     formik.setFieldValue("paymentType", "installment");
                     formik.setFieldValue("amount", ""); // Clear for manual input
                   }}

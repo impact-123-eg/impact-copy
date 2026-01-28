@@ -1,10 +1,11 @@
-import React, { useState, useMemo } from "react";
+import { useState, useMemo } from "react";
 import { useSearchParams } from "react-router-dom";
 import { DragDropContext } from "@hello-pangea/dnd";
 import {
   useAddFreeSessionSlot,
   useGetFreeSessionSlotsByDate,
   useMoveBooking,
+  useToggleSlotStatus,
 } from "@/hooks/Actions/free-sessions/useFreeSessionCrudsForAdmin";
 import FreeSessionCalendar from "@/Components/FreeSessionCalendar";
 import FreeSessionSlotList from "@/Components/dashboard/FreeSessionSlotList";
@@ -44,6 +45,7 @@ const FreeSessionManagement = () => {
   } = useGetFreeSessionSlotsByDate(formatDateForAPI(selectedDate));
 
   const { mutate: moveBooking, isPending: isMoving } = useMoveBooking();
+  const { mutate: toggleSlotStatus } = useToggleSlotStatus();
 
   const slots = slotsData?.data?.data || [];
   const selectedSlot = slots.find((s) => s._id === selectedSlotId);
@@ -114,6 +116,14 @@ const FreeSessionManagement = () => {
     );
   };
 
+  const handleToggleStatus = (id, isActive) => {
+    toggleSlotStatus(id, isActive, {
+      onSuccess: () => {
+        refetchSlots();
+      },
+    });
+  };
+
   const formatDateLabel = (date) => {
     return date?.toLocaleDateString("en-UK", {
       weekday: "short",
@@ -139,22 +149,20 @@ const FreeSessionManagement = () => {
         <div className="flex items-center bg-gray-100 rounded-xl p-1">
           <button
             onClick={() => setViewMode("calendar")}
-            className={`flex items-center gap-2 px-4 py-2 rounded-lg transition-all ${
-              viewMode === "calendar"
+            className={`flex items-center gap-2 px-4 py-2 rounded-lg transition-all ${viewMode === "calendar"
                 ? "bg-white text-[var(--Main)] shadow-sm"
                 : "text-gray-500 hover:text-gray-700"
-            }`}
+              }`}
           >
             <Calendar size={18} />
             Calendar View
           </button>
           <button
             onClick={() => setViewMode("seats")}
-            className={`flex items-center gap-2 px-4 py-2 rounded-lg transition-all ${
-              viewMode === "seats"
+            className={`flex items-center gap-2 px-4 py-2 rounded-lg transition-all ${viewMode === "seats"
                 ? "bg-white text-[var(--Main)] shadow-sm"
                 : "text-gray-500 hover:text-gray-700"
-            }`}
+              }`}
           >
             <Grid3x3 size={18} />
             Seats View
@@ -169,111 +177,112 @@ const FreeSessionManagement = () => {
 
       {/* Calendar View */}
       {viewMode === "calendar" && (
-      <>
+        <>
 
-      {/* Top Section: Calendar + Slot Creation */}
-      <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
-        {/* Calendar Section */}
-        <div className="bg-white p-6 rounded-2xl shadow space-y-6">
-          <h2 className="font-medium text-lg text-[var(--Main)]">
-            Select Date
-          </h2>
+          {/* Top Section: Calendar + Slot Creation */}
+          <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
+            {/* Calendar Section */}
+            <div className="bg-white p-6 rounded-2xl shadow space-y-6">
+              <h2 className="font-medium text-lg text-[var(--Main)]">
+                Select Date
+              </h2>
 
-          <div className="flex justify-center">
-            <FreeSessionCalendar
-              isAdmin={true}
-              showSlots={false}
-              externalDate={selectedDate}
-              onDateSelect={handleDateChange}
-            />
+              <div className="flex justify-center">
+                <FreeSessionCalendar
+                  isAdmin={true}
+                  showSlots={false}
+                  externalDate={selectedDate}
+                  onDateSelect={handleDateChange}
+                />
+              </div>
+
+              <button
+                onClick={() => setShowForm(true)}
+                disabled={isLoadingSlots}
+                className="w-full py-2 bg-[var(--Yellow)] hover:bg-opacity-90 transition-colors rounded-xl disabled:opacity-50"
+              >
+                Create Time Slot for {formatDateLabel(selectedDate)}
+              </button>
+            </div>
+
+
+            {/* Slot List Section */}
+            <div className="bg-white p-6 rounded-2xl shadow">
+              <h2 className="font-medium text-lg text-[var(--Main)] mb-4">
+                Time Slots for{" "}
+                <span className="font-medium text-base text-[var(--SubText)]">
+                  {selectedDate.toLocaleDateString("en-UK", {
+                    weekday: "long",
+                    year: "numeric",
+                    month: "long",
+                    day: "numeric",
+                  })}
+                </span>
+              </h2>
+
+              {isLoadingSlots ? (
+                <div className="text-center py-4 text-[var(--SubText)]">
+                  Loading time slots...
+                </div>
+              ) : (
+                <FreeSessionSlotList
+                  slots={slots}
+                  onSlotSelect={handleSlotSelect}
+                  selectedSlot={selectedSlot}
+                  onToggleStatus={handleToggleStatus}
+                />
+              )}
+            </div>
           </div>
 
-          <button
-            onClick={() => setShowForm(true)}
-            disabled={isLoadingSlots}
-            className="w-full py-2 bg-[var(--Yellow)] hover:bg-opacity-90 transition-colors rounded-xl disabled:opacity-50"
-          >
-            Create Time Slot for {formatDateLabel(selectedDate)}
-          </button>
-        </div>
+          {/* Bottom Section: Group Management */}
+          <div className="bg-white p-6 rounded-2xl shadow mt-6">
+            <h2 className="font-medium text-lg text-[var(--Main)] mb-6 border-b pb-4">
+              {selectedSlotId
+                ? `Managing Groups for: ${selectedSlot ? `${formatTime(selectedSlot.startTime)} - ${formatTime(selectedSlot.endTime)}` : "Loading..."}`
+                : `Showing All Slots for ${selectedDate.toLocaleDateString()}`
+              }
+            </h2>
 
+            <DragDropContext onDragEnd={handleDragEnd}>
+              <div className="flex gap-6 overflow-x-auto pb-6 custom-scrollbar min-h-[500px]">
+                {slots
+                  .filter(s => !selectedSlotId || s._id === selectedSlotId)
+                  .map(slot => (
+                    <div key={slot._id} className="min-w-[400px] flex-shrink-0 p-4 border border-gray-100 rounded-2xl bg-gray-50/30 self-start">
+                      <div className="flex items-center gap-2 mb-4 sticky top-0 bg-transparent backdrop-blur-sm z-10 py-1">
+                        <div className="h-2 w-2 rounded-full bg-blue-500" />
+                        <h3 className="font-bold text-blue-900">
+                          {formatTime(slot.startTime)} - {formatTime(slot.endTime)}
+                        </h3>
+                      </div>
+                      <FreeSessionGroupManager
+                        slot={slot}
+                        onBookingMoved={handleBookingMoved}
+                        isMoving={isMoving}
+                        hideHeader={true}
+                      />
+                    </div>
+                  ))}
 
-        {/* Slot List Section */}
-        <div className="bg-white p-6 rounded-2xl shadow">
-          <h2 className="font-medium text-lg text-[var(--Main)] mb-4">
-            Time Slots for{" "}
-            <span className="font-medium text-base text-[var(--SubText)]">
-              {selectedDate.toLocaleDateString("en-UK", {
-                weekday: "long",
-                year: "numeric",
-                month: "long",
-                day: "numeric",
-              })}
-            </span>
-          </h2>
+                {slots.length === 0 && !isLoadingSlots && (
+                  <div className="text-center py-12 text-[var(--SubText)] w-full">
+                    No slots found for this date.
+                  </div>
+                )}
+              </div>
+            </DragDropContext>
+          </div>
 
-          {isLoadingSlots ? (
-            <div className="text-center py-4 text-[var(--SubText)]">
-              Loading time slots...
-            </div>
-          ) : (
-            <FreeSessionSlotList
-              slots={slots}
-              onSlotSelect={handleSlotSelect}
-              selectedSlot={selectedSlot}
+          {/* Slot Creation Form Modal */}
+          {showForm && (
+            <FreeSessionSlotForm
+              date={formatDateLabel(selectedDate)}
+              onSubmit={handleCreateSlot}
+              onCancel={() => setShowForm(false)}
             />
           )}
-        </div>
-      </div>
-
-      {/* Bottom Section: Group Management */}
-      <div className="bg-white p-6 rounded-2xl shadow mt-6">
-        <h2 className="font-medium text-lg text-[var(--Main)] mb-6 border-b pb-4">
-          {selectedSlotId
-            ? `Managing Groups for: ${selectedSlot ? `${formatTime(selectedSlot.startTime)} - ${formatTime(selectedSlot.endTime)}` : "Loading..."}`
-            : `Showing All Slots for ${selectedDate.toLocaleDateString()}`
-          }
-        </h2>
-
-        <DragDropContext onDragEnd={handleDragEnd}>
-          <div className="flex gap-6 overflow-x-auto pb-6 custom-scrollbar min-h-[500px]">
-            {slots
-              .filter(s => !selectedSlotId || s._id === selectedSlotId)
-              .map(slot => (
-                <div key={slot._id} className="min-w-[400px] flex-shrink-0 p-4 border border-gray-100 rounded-2xl bg-gray-50/30 self-start">
-                  <div className="flex items-center gap-2 mb-4 sticky top-0 bg-transparent backdrop-blur-sm z-10 py-1">
-                    <div className="h-2 w-2 rounded-full bg-blue-500" />
-                    <h3 className="font-bold text-blue-900">
-                      {formatTime(slot.startTime)} - {formatTime(slot.endTime)}
-                    </h3>
-                  </div>
-                  <FreeSessionGroupManager
-                    slot={slot}
-                    onBookingMoved={handleBookingMoved}
-                    isMoving={isMoving}
-                    hideHeader={true}
-                  />
-                </div>
-              ))}
-
-            {slots.length === 0 && !isLoadingSlots && (
-              <div className="text-center py-12 text-[var(--SubText)] w-full">
-                No slots found for this date.
-              </div>
-            )}
-          </div>
-        </DragDropContext>
-      </div>
-
-      {/* Slot Creation Form Modal */}
-      {showForm && (
-        <FreeSessionSlotForm
-          date={formatDateLabel(selectedDate)}
-          onSubmit={handleCreateSlot}
-          onCancel={() => setShowForm(false)}
-        />
-      )}
-      </>
+        </>
       )}
     </main>
   );

@@ -1,12 +1,12 @@
 import React, { useState } from "react";
 import { useAdminGetUsers, useAddUserNote, useToggleSubscription } from "@/hooks/Actions/users/useCurdsUsers";
-import { FaSearch, FaCheckCircle, FaTimesCircle, FaClock, FaUserGraduate, FaChevronLeft, FaChevronRight } from "react-icons/fa";
+import { FaSearch, FaCheckCircle, FaTimesCircle, FaChevronLeft, FaChevronRight } from "react-icons/fa";
 import { Link } from "react-router-dom";
 import Swal from "sweetalert2";
 
 const UsersManagement = () => {
     const [page, setPage] = useState(1);
-    const [filters, setFilters] = useState({ search: "", isSubscribed: "" });
+    const [filters, setFilters] = useState({ search: "", isSubscribed: "", isFrozen: "" });
     const { data: usersData, isLoading, refetch } = useAdminGetUsers({ ...filters, page, limit: 10 });
     const { mutate: addNote } = useAddUserNote();
     const { mutate: toggleSubscription } = useToggleSubscription();
@@ -45,7 +45,7 @@ const UsersManagement = () => {
             </div>
 
             {/* Filters */}
-            <section className="bg-white p-6 rounded-3xl shadow-xl border border-gray-100 grid grid-cols-1 md:grid-cols-2 gap-6">
+            <section className="bg-white p-6 rounded-3xl shadow-xl border border-gray-100 grid grid-cols-1 md:grid-cols-3 gap-6">
                 <div className="relative">
                     <FaSearch className="absolute left-4 top-1/2 -translate-y-1/2 text-gray-400" />
                     <input
@@ -66,9 +66,22 @@ const UsersManagement = () => {
                             setPage(1);
                         }}
                     >
-                        <option value="">All Statuses</option>
+                        <option value="">All Subscriptions</option>
                         <option value="true">Subscribed</option>
                         <option value="false">Not Subscribed</option>
+                    </select>
+                </div>
+                <div>
+                    <select
+                        className="w-full px-4 py-3 bg-gray-50 border border-transparent rounded-2xl focus:ring-2 focus:ring-[var(--Yellow)] transition-all outline-none"
+                        onChange={(e) => {
+                            setFilters({ ...filters, isFrozen: e.target.value });
+                            setPage(1);
+                        }}
+                    >
+                        <option value="">All Freeze Status</option>
+                        <option value="true">Frozen</option>
+                        <option value="false">Active</option>
                     </select>
                 </div>
             </section>
@@ -110,16 +123,23 @@ const UsersManagement = () => {
                                                         </div>
                                                     </td>
                                                     <td className="px-6 py-6 text-center">
-                                                        <button
-                                                            onClick={() => handleToggleSub(u._id, u.isSubscribed)}
-                                                            className={`inline-flex items-center gap-2 px-4 py-2 rounded-xl text-xs font-black uppercase tracking-tighter transition-all ${u.isSubscribed
-                                                                ? "bg-green-100 text-green-700 hover:bg-green-200 shadow-sm"
-                                                                : "bg-gray-100 text-gray-400 hover:bg-gray-200"
-                                                                }`}
-                                                        >
-                                                            {u.isSubscribed ? <FaCheckCircle /> : <FaTimesCircle />}
-                                                            {u.isSubscribed ? "Subscribed" : "Inactive"}
-                                                        </button>
+                                                        <div className="flex items-center justify-center gap-2">
+                                                            <button
+                                                                onClick={() => handleToggleSub(u._id, u.isSubscribed)}
+                                                                className={`inline-flex items-center gap-2 px-4 py-2 rounded-xl text-xs font-black uppercase tracking-tighter transition-all ${u.isSubscribed
+                                                                    ? "bg-green-100 text-green-700 hover:bg-green-200 shadow-sm"
+                                                                    : "bg-gray-100 text-gray-400 hover:bg-gray-200"
+                                                                    }`}
+                                                            >
+                                                                {u.isSubscribed ? <FaCheckCircle /> : <FaTimesCircle />}
+                                                                {u.isSubscribed ? "Subscribed" : "Inactive"}
+                                                            </button>
+                                                            {u.isFrozen && (
+                                                                <span className="inline-flex items-center gap-1 px-3 py-1.5 rounded-xl text-[10px] font-black uppercase tracking-tighter bg-cyan-100 text-cyan-700 shadow-sm">
+                                                                    ❄️ Frozen
+                                                                </span>
+                                                            )}
+                                                        </div>
                                                     </td>
                                                     <td className="px-6 py-6">
                                                         <div className="space-y-1">

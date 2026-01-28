@@ -1,6 +1,4 @@
-import React, { useState } from "react";
-import { FaEye, FaEyeSlash, FaEdit } from "react-icons/fa";
-import { useAdmin } from "../../AdminContext";
+import { FaEdit } from "react-icons/fa";
 import { useGetUserProfile } from "@/hooks/Actions/users/useCurdsUsers";
 import { useNavigate } from "react-router-dom";
 

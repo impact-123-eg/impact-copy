@@ -1,5 +1,5 @@
 // components/FreeSessionCalendar.jsx
-import React, { useState, useEffect } from "react";
+import { useState } from "react";
 import { useTranslation } from "react-i18next";
 import { useGetAvailableSlotsForUser } from "@/hooks/Actions/free-sessions/useFreeSessionBookingCruds";
 import { Calendar } from "@/Components/ui/calendar";

@@ -1,6 +1,5 @@
 import endPoints from "@/config/endPoints";
 import queryKeys from "@/config/queryKeys";
-import { useAuth } from "@/context/AuthContext";
 import useDeleteData from "@/hooks/curdsHook/useDeleteData";
 import useGetData from "@/hooks/curdsHook/useGetData";
 import usePatchData from "@/hooks/curdsHook/usePatchData";

@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from "react";
+import { useEffect, useState } from "react";
 import { useParams, Link } from "react-router-dom";
 import axios from "axios";
 import { toast } from "react-hot-toast";
@@ -111,7 +111,7 @@ const GroupDetails = () => {
                 { headers: { Authorization: `Bearer ${token}` } }
             );
             setSessions(res.data.sort((a, b) => new Date(a.date) - new Date(b.date)));
-        } catch (error) {
+        } catch (_error) {
             toast.error("Failed to load sessions");
         }
     };
@@ -121,7 +121,7 @@ const GroupDetails = () => {
             await axios.patch(`${API_BASE_URL}/sessions/${sessionId}`, { status }, { headers: { Authorization: `Bearer ${token}` } });
             toast.success(`Session ${status} successfully`);
             fetchSessions(group._id);
-        } catch (error) {
+        } catch (_error) {
             toast.error("Failed to update session status");
         }
     };
@@ -165,7 +165,7 @@ const GroupDetails = () => {
             setGroup(res.data);
             toast.success("Group settings updated");
             setIsGroupEditModalOpen(false);
-        } catch (error) {
+        } catch (_error) {
             toast.error("Failed to update group");
         } finally {
             setSavingModal(false);
@@ -217,7 +217,7 @@ const GroupDetails = () => {
             setStudentSearchTerm("");
             setSelectedStudentId("");
             fetchGroupDetails();
-        } catch (error) {
+        } catch (_error) {
             toast.error("Failed to add student");
         }
     };

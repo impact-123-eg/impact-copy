@@ -1,11 +1,11 @@
-import React, { useEffect, useState } from "react";
+import { useEffect, useState } from "react";
 import { useTranslation } from "../../node_modules/react-i18next";
 import { useLocation, useNavigate } from "react-router-dom";
 import cntris from "../data/Countries.json";
 import Swal from "sweetalert2";
 import { toast } from "react-hot-toast";
 import { db, collection, addDoc } from "../data/firebaseConfig";
-import { query, where, getDocs, or, serverTimestamp } from "firebase/firestore";
+import { serverTimestamp } from "firebase/firestore";
 import vector from "../assets/arrowvector.png";
 import { Toaster } from "react-hot-toast";
 

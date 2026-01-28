@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from "react";
+import { useEffect, useState } from "react";
 import axios from "axios";
 import { toast } from "react-hot-toast";
 import { useAuth } from "../../context/AuthContext";
@@ -47,7 +47,7 @@ const Groups = () => {
             );
             toast.success(`Group ${status} successfully`);
             fetchGroups();
-        } catch (error) {
+        } catch (_error) {
             toast.error("Failed to update status");
         }
     };
@@ -92,7 +92,7 @@ const Groups = () => {
             toast.success("Group created successfully");
             setIsCreateModalOpen(false);
             fetchGroups();
-        } catch (error) {
+        } catch (_error) {
             toast.error("Failed to create group");
         }
     };
