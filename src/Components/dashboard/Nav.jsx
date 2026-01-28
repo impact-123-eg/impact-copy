@@ -8,15 +8,26 @@ import { MdOutlineLogout, MdPersonOutline, MdHome, MdClose } from "react-icons/m
 import { useAuth } from "@/context/AuthContext";
 import ConfirmModal from "../ConfirmModal";
 import { HiUserGroup, HiCalendarDays, HiClipboardDocumentList, HiBookOpen, HiAcademicCap, HiCurrencyDollar, HiArrowTrendingUp } from "react-icons/hi2";
+import { navigation } from "../../config/navigation";
+
+const iconMap = {
+  RxDashboard,
+  HiAcademicCap,
+  HiUserGroup,
+  HiClipboardDocumentList,
+  HiBookOpen,
+  HiCalendarDays,
+  RxCalendar,
+  MdPersonOutline,
+  GiPapers,
+  HiCurrencyDollar,
+  HiArrowTrendingUp,
+  CiSettings,
+};
 
 function Nav() {
   const location = useLocation();
   const { user, handleLogout } = useAuth();
-  const isAdmin = user?.role === "admin";
-  const isTeamLeader = user?.role === "team_leader";
-  const isSales = user?.role === "sales";
-  const isInstructor = user?.role === "instructor";
-  const isSeo = user?.role === "seo";
   const [modalOpen, setModalOpen] = useState(false);
   const [isCollapsed, setIsCollapsed] = useState(false);
   const [isMobileOpen, setIsMobileOpen] = useState(false);
@@ -28,59 +39,35 @@ function Nav() {
     setExpandedItems(prev => ({ ...prev, [name]: !prev[name] }));
   };
 
-  const menuItems = [
-    (isAdmin || isTeamLeader) && {
-      name: "Dashboard",
-      icon: <RxDashboard size={18} />,
-      path: "/dash/",
-    },
-    // Academic Section
-    (isAdmin || isInstructor) && {
-      name: "Academic",
-      icon: <HiAcademicCap size={18} />,
-      children: [
-        isInstructor && { name: "My Groups", icon: <HiUserGroup size={16} />, path: "/dash/groups" },
-        isInstructor && { name: "Assignments", icon: <HiClipboardDocumentList size={16} />, path: "/dash/pending-assignments" },
-        isAdmin && { name: "Courses", icon: <HiBookOpen size={16} />, path: "/dash/courses" },
-        (isAdmin || isTeamLeader || isSales) && { name: "Free Tests", icon: <HiClipboardDocumentList size={16} />, path: "/dash/free-tests" },
-        isAdmin && { name: "Free Sessions", icon: <HiCalendarDays size={16} />, path: "/dash/free-sessions" },
-      ].filter(Boolean)
-    },
-    // Management Section
-    (isAdmin || isTeamLeader || isSales) && {
-      name: "Management",
-      icon: <RxCalendar size={18} />,
-      children: [
-        { name: "Booking", icon: <HiCalendarDays size={16} />, path: "/dash/booking" },
-        isAdmin && { name: "Groups", icon: <HiUserGroup size={16} />, path: "/dash/groups" },
-        isAdmin && { name: "Students", icon: <MdPersonOutline size={16} />, path: "/dash/users" },
-        isAdmin && { name: "Payments", icon: <RxCalendar size={16} />, path: "/dash/payment" },
-        isAdmin && { name: "Affiliate", icon: <HiClipboardDocumentList size={16} />, path: "/dash/affiliate-settings" },
-      ].filter(Boolean)
-    },
-    // Content Section
-    (isAdmin || isSeo) && {
-      name: "Content",
-      icon: <GiPapers size={18} />,
-      children: [{ name: "Pages", icon: <GiPapers size={16} />, path: "/dash/pages" }]
-    },
-    // Finance Section
-    isAdmin && {
-      name: "Finance",
-      icon: <HiCurrencyDollar size={18} />,
-      children: [
-        { name: "Revenues", icon: <HiArrowTrendingUp size={16} />, path: "/dash/finance/revenues" },
-        { name: "Expenses", icon: <HiArrowTrendingUp size={16} />, path: "/dash/finance/expenses" },
-        { name: "Payroll", icon: <HiCurrencyDollar size={16} />, path: "/dash/finance/payroll" },
-      ]
-    },
-    // Settings
-    isAdmin && {
-      name: "Settings",
-      icon: <CiSettings size={18} />,
-      path: "/dash/settings",
-    },
-  ].filter(Boolean);
+  const currentRole = user?.role;
+
+  const filterNavItems = (items) => {
+    return items
+      .map((item) => {
+        // Check if role is allowed
+        if (item.allowedRoles && !item.allowedRoles.includes(currentRole)) return null;
+
+        const newItem = { ...item };
+
+        // Handle children
+        if (newItem.children) {
+          newItem.children = filterNavItems(newItem.children);
+          // If no children left after filtering, don't show parent
+          if (newItem.children.length === 0) return null;
+        }
+
+        // Map icon string to component
+        const IconComponent = iconMap[item.icon];
+        newItem.icon = IconComponent ? (
+          <IconComponent size={item.children ? 18 : 16} /> // Parent 18, Child 16 roughly
+        ) : null;
+
+        return newItem;
+      })
+      .filter(Boolean);
+  };
+
+  const menuItems = filterNavItems(navigation);
 
   const isActive = (itemPath) => {
     if (!itemPath) return false;
