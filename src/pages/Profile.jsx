@@ -124,8 +124,8 @@ const Profile = () => {
                         <FaSnowflake className="text-cyan-600 text-xl" />
                     </div>
                     <div>
-                        <h3 className="font-bold text-cyan-800">Account Frozen</h3>
-                        <p className="text-cyan-700">Please contact support to unfreeze your account.</p>
+                        <h3 className="font-bold text-cyan-800">{t("profile", "accountFrozen", "Account Frozen")}</h3>
+                        <p className="text-cyan-700">{t("profile", "accountFrozenDesc", "Please contact support to unfreeze your account.")}</p>
                     </div>
                 </div>
             )}
@@ -372,7 +372,7 @@ const Profile = () => {
                                                                             {t("profile", "joinLink", "Join Link")}
                                                                         </a>
                                                                     ) : user?.isFrozen ? (
-                                                                        <span className="text-xs text-cyan-600 font-medium">Account Frozen</span>
+                                                                        <span className="text-xs text-cyan-600 font-medium">{t("profile", "accountFrozen", "Account Frozen")}</span>
                                                                     ) : (
                                                                         <span className="text-xs text-gray-400 font-medium">{t("profile", "noLink", "No Link")}</span>
                                                                     )}
@@ -476,7 +476,7 @@ const Profile = () => {
                                                     {!user?.isFrozen && group.zoomLink ? (
                                                         <a href={group.zoomLink} target="_blank" rel="noreferrer" className="text-blue-600 underline">{t("profile", "joinClass", "Join Class")}</a>
                                                     ) : user?.isFrozen ? (
-                                                        <span className="text-cyan-600">Account Frozen</span>
+                                                        <span className="text-cyan-600">{t("profile", "accountFrozen", "Account Frozen")}</span>
                                                     ) : (
                                                         t("profile", "noLink", "No link available yet")
                                                     )}

@@ -22,9 +22,22 @@ export function useI18n() {
         initialize
     } = i18nStore;
 
+    // Check if current route is an admin page
+    const isAdminRoute = () => {
+        return location.pathname.startsWith('/dash');
+    };
+
+    // Enhanced translation function that returns default for admin routes
+    const adminSafeT = (namespace, key, defaultMessage) => {
+        if (isAdminRoute()) {
+            return defaultMessage || key;
+        }
+        return t(namespace, key, defaultMessage);
+    };
+
     /**
      * Prepends the current locale to a path if it's not already there.
-     * @param {string} path 
+     * @param {string} path
      * @returns {string} Localized path
      */
     const localizePath = (path) => {
@@ -87,6 +100,8 @@ export function useI18n() {
         loadPageContent,
         preloadAllPages,
         t,
+        // Admin-safe translation function that returns hardcoded English for admin pages
+        adminSafeT,
         getPageKeys,
         hasTranslation,
         initialize,

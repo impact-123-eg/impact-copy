@@ -79,8 +79,10 @@ function StudentsBooking() {
   // Filter for instructors only if possible, otherwise show all employees
   const instructors = employees.filter(e => e.role === "instructor");
 
-  const handleSearchChange = (e) =>
-    setSearchQuery(e.target.value.toLowerCase());
+  const handleSearchChange = (e) => {
+    setSearchQuery(e.target.value);
+    setPage(1);
+  };
 
   const getStatusCount = (status) =>
     bookings.filter((b) => b.status === status).length;

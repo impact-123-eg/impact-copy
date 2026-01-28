@@ -1,5 +1,5 @@
 // pages/dashboard/finance/Payroll.jsx
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { useGetAllPayrolls, useAddPayroll, useUpdatePayroll, useDeletePayroll, useApprovePayroll, useMarkPayrollAsPaid, useGetPayrollSummary, useGetInstructorsForPayroll, useCalculatePayroll } from "@/hooks/Actions/finance/useFinanceCruds";
 import { Modal } from "react-responsive-modal";
 import "react-responsive-modal/styles.css";
@@ -9,8 +9,8 @@ import ConfirmModal from "@/Components/ConfirmModal";
 
 function Payroll() {
   const [filters, setFilters] = useState({
-    startDate: "",
-    endDate: "",
+    startDate: new Date(new Date().getFullYear(), new Date().getMonth(), 1).toISOString().split("T")[0],
+    endDate: new Date().toISOString().split("T")[0],
     instructorId: "",
     status: "",
   });
@@ -37,9 +37,51 @@ function Payroll() {
   const { mutate: markPaid, isPending: isMarkingPaid } = useMarkPayrollAsPaid();
   const { mutate: calculatePayroll, isPending: isCalculating } = useCalculatePayroll();
 
+  // Auto-fill total hours when instructor and period are selected
+  useEffect(() => {
+    if (editingPayroll?._id) return; // Skip for existing payrolls
+
+    const { instructor, periodStart, periodEnd } = editingPayroll || {};
+
+    if (instructor && periodStart && periodEnd) {
+      const timeoutId = setTimeout(() => {
+        calculatePayroll({
+          url: "/api/payroll/calculate",
+          data: {
+            instructorId: instructor,
+            periodStart,
+            periodEnd,
+            hourlyRate: editingPayroll.hourlyRate || 0,
+          },
+        }, {
+          onSuccess: (response) => {
+            const result = response.data;
+            setEditingPayroll((prev) => ({
+              ...prev,
+              totalHours: result.totalHours,
+              baseSalary: result.baseSalary,
+              grossSalary: result.grossSalary,
+              netSalary: result.netSalary,
+              sessions: result.sessions,
+              calculationMethod: "automatic",
+            }));
+            toast.success("Hours calculated successfully");
+          },
+          onError: () => {
+            // Slient fail or custom toast? User might be typing date. 
+            // Better not to spam errors if just date is invalid or partial.
+          }
+        });
+      }, 800); // 800ms debounce
+
+      return () => clearTimeout(timeoutId);
+    }
+  }, [editingPayroll?.instructor, editingPayroll?.periodStart, editingPayroll?.periodEnd]);
+
+
   const payrolls = payrollsData?.data?.data || [];
   const summary = summaryData?.data?.summary || { totalGross: 0, totalNet: 0, paidAmount: 0, pendingAmount: 0, count: 0 };
-  const instructors = instructorsData?.data?.data || [];
+  const instructors = instructorsData?.data || [];
 
   const statusOptions = [
     { value: "draft", label: "Draft" },
@@ -56,7 +98,7 @@ function Payroll() {
   const handleAddClick = () => {
     setEditingPayroll({
       instructor: "",
-      periodStart: new Date().toISOString().split("T")[0],
+      periodStart: new Date(new Date().getFullYear(), new Date().getMonth(), 1).toISOString().split("T")[0],
       periodEnd: new Date().toISOString().split("T")[0],
       hourlyRate: "",
       totalHours: 0,
@@ -76,7 +118,7 @@ function Payroll() {
   const handleCalculateClick = () => {
     setCalculateData({
       instructorId: "",
-      periodStart: new Date().toISOString().split("T")[0],
+      periodStart: new Date(new Date().getFullYear(), new Date().getMonth(), 1).toISOString().split("T")[0],
       periodEnd: new Date().toISOString().split("T")[0],
       hourlyRate: "",
     });
@@ -259,13 +301,13 @@ function Payroll() {
             />
           </div>
           <div>
-            <label className="block text-sm font-medium text-[var(--Main)] mb-2">Instructor</label>
+            <label className="block text-sm font-medium text-[var(--Main)] mb-2">Employee</label>
             <select
               value={filters.instructorId}
               onChange={(e) => handleFilterChange("instructorId", e.target.value)}
               className="w-full bg-[var(--Input)] py-3 px-4 rounded-xl border border-transparent focus:outline-none focus:ring-2 focus:ring-[var(--Yellow)]"
             >
-              <option value="">All Instructors</option>
+              <option value="">All Employees</option>
               {instructors.map((inst) => (
                 <option key={inst._id} value={inst._id}>{inst.name}</option>
               ))}
@@ -300,7 +342,7 @@ function Payroll() {
               <thead className="bg-[var(--Light)]">
                 <tr className="text-left text-[var(--SubText)]">
                   <th className="p-4 font-medium">Period</th>
-                  <th className="p-4 font-medium">Instructor</th>
+                  <th className="p-4 font-medium">Employee</th>
                   <th className="p-4 font-medium">Hours</th>
                   <th className="p-4 font-medium">Hourly Rate</th>
                   <th className="p-4 font-medium">Gross</th>
@@ -337,12 +379,11 @@ function Payroll() {
                       {Number(payroll.netSalary || 0).toFixed(2)} EGP
                     </td>
                     <td className="p-4">
-                      <span className={`px-2 py-1 rounded-full text-xs font-medium ${
-                        payroll.status === "paid" ? "bg-green-100 text-green-800" :
+                      <span className={`px-2 py-1 rounded-full text-xs font-medium ${payroll.status === "paid" ? "bg-green-100 text-green-800" :
                         payroll.status === "approved" ? "bg-blue-100 text-blue-800" :
-                        payroll.status === "pending_approval" ? "bg-yellow-100 text-yellow-800" :
-                        "bg-gray-100 text-gray-800"
-                      }`}>
+                          payroll.status === "pending_approval" ? "bg-yellow-100 text-yellow-800" :
+                            "bg-gray-100 text-gray-800"
+                        }`}>
                         {payroll.status.replace(/_/g, " ")}
                       </span>
                     </td>
@@ -411,16 +452,23 @@ function Payroll() {
         <h2 className="text-xl font-bold text-[var(--Main)] mb-4">Calculate Payroll</h2>
         <form onSubmit={handleCalculateSubmit} className="space-y-4">
           <div>
-            <label className="block text-sm font-medium text-[var(--Main)] mb-2">Instructor *</label>
+            <label className="block text-sm font-medium text-[var(--Main)] mb-2">Employee *</label>
             <select
               required
               value={calculateData.instructorId}
-              onChange={(e) => setCalculateData(prev => ({ ...prev, instructorId: e.target.value }))}
+              onChange={(e) => {
+                const selectedUser = instructors.find(i => i._id === e.target.value);
+                setCalculateData(prev => ({
+                  ...prev,
+                  instructorId: e.target.value,
+                  hourlyRate: selectedUser?.hourlyRate || ""
+                }));
+              }}
               className="w-full bg-[var(--Input)] py-3 px-4 rounded-xl border border-transparent focus:outline-none focus:ring-2 focus:ring-[var(--Yellow)]"
             >
-              <option value="">Select Instructor</option>
+              <option value="">Select Employee</option>
               {instructors.map((inst) => (
-                <option key={inst._id} value={inst._id}>{inst.name}</option>
+                <option key={inst._id} value={inst._id}>{inst.name} ({inst.role})</option>
               ))}
             </select>
           </div>
@@ -494,16 +542,27 @@ function Payroll() {
         </h2>
         <form onSubmit={handleFormSubmit} className="space-y-4">
           <div>
-            <label className="block text-sm font-medium text-[var(--Main)] mb-2">Instructor *</label>
+            <label className="block text-sm font-medium text-[var(--Main)] mb-2">Employee *</label>
             <select
               required
               value={editingPayroll?.instructor || ""}
-              onChange={(e) => setEditingPayroll(prev => ({ ...prev, instructor: e.target.value }))}
+              onChange={(e) => {
+                const selectedUser = instructors.find(i => i._id === e.target.value);
+                const rate = selectedUser?.hourlyRate || 0;
+                setEditingPayroll(prev => ({
+                  ...prev,
+                  instructor: e.target.value,
+                  hourlyRate: rate,
+                  baseSalary: (prev?.totalHours || 0) * rate,
+                  grossSalary: ((prev?.totalHours || 0) * rate) + (prev?.totalAdjustments || 0),
+                  netSalary: ((prev?.totalHours || 0) * rate) + (prev?.totalAdjustments || 0) - (prev?.deductions || 0)
+                }));
+              }}
               className="w-full bg-[var(--Input)] py-3 px-4 rounded-xl border border-transparent focus:outline-none focus:ring-2 focus:ring-[var(--Yellow)]"
             >
-              <option value="">Select Instructor</option>
+              <option value="">Select Employee</option>
               {instructors.map((inst) => (
-                <option key={inst._id} value={inst._id}>{inst.name}</option>
+                <option key={inst._id} value={inst._id}>{inst.name} ({inst.role})</option>
               ))}
             </select>
           </div>

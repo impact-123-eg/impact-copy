@@ -7,7 +7,7 @@ import { CiSettings } from "react-icons/ci";
 import { MdOutlineLogout, MdPersonOutline, MdHome, MdClose } from "react-icons/md";
 import { useAuth } from "@/context/AuthContext";
 import ConfirmModal from "../ConfirmModal";
-import { HiUserGroup, HiCalendarDays, HiClipboardDocumentList, HiBookOpen, HiAcademicCap, HiCurrencyDollar, HiTrendingUp } from "react-icons/hi2";
+import { HiUserGroup, HiCalendarDays, HiClipboardDocumentList, HiBookOpen, HiAcademicCap, HiCurrencyDollar, HiArrowTrendingUp } from "react-icons/hi2";
 
 function Nav() {
   const location = useLocation();
@@ -69,8 +69,8 @@ function Nav() {
       name: "Finance",
       icon: <HiCurrencyDollar size={18} />,
       children: [
-        { name: "Revenues", icon: <HiTrendingUp size={16} />, path: "/dash/finance/revenues" },
-        { name: "Expenses", icon: <HiTrendingUp size={16} />, path: "/dash/finance/expenses" },
+        { name: "Revenues", icon: <HiArrowTrendingUp size={16} />, path: "/dash/finance/revenues" },
+        { name: "Expenses", icon: <HiArrowTrendingUp size={16} />, path: "/dash/finance/expenses" },
         { name: "Payroll", icon: <HiCurrencyDollar size={16} />, path: "/dash/finance/payroll" },
       ]
     },

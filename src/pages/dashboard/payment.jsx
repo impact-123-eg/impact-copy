@@ -32,8 +32,9 @@ function Payment() {
     { value: "paypal", label: "PayPal" },
   ];
 
-  const handleSearchChange = (e) =>
-    setSearchQuery(e.target.value.toLowerCase());
+  const handleSearchChange = (e) => {
+    setSearchQuery(e.target.value);
+  };
 
   // Use server-side filtered bookings directly
   const filteredBookings = bookings;

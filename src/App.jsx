@@ -163,15 +163,15 @@ function App() {
                 />
               }
             />
-            <Route
+            {/* <Route
               path="affiliate-settings"
               element={
                 <ProtectedRoute
                   element={<AffiliateSettings />}
                   requiredRoles={["admin"]}
                 />
-              }
-            />
+              } */}
+            {/* /> */}
             <Route
               path="settings/add-employee"
               element={
