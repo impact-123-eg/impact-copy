@@ -13,7 +13,9 @@ function useClientLocation() {
         const ipData = await ipResponse.json();
         const ip = ipData.ip;
 
-        const geoResponse = await fetch(`https://ipwho.is/${ip}`);
+        const geoResponse = await fetch(
+          `https://api.ipwho.org/ip/${ip}?apiKey=${import.meta.env.VITE_IP_WHO_KEY}`,
+        );
         const geoData = await geoResponse.json();
 
         setGeoData(geoData);

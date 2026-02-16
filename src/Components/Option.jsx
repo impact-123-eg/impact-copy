@@ -22,17 +22,19 @@ function Option({ option, isBooking = false }) {
   const { geoData, loading: locationLoading } = useClientLocation();
 
   // Determine target currency based on geo data
-  const targetCurrency = geoData?.country_code
-    ? countryToCurrency[geoData.country_code]?.toLowerCase() || "usd"
+  const countryCode = geoData?.data?.geoLocation?.countryCode;
+
+  const targetCurrency = countryCode
+    ? countryToCurrency[countryCode]?.toLowerCase() || "usd"
     : "usd";
 
   const convertedPriceBefore = convert(
     option.priceBefore,
-    targetCurrency
+    targetCurrency,
   )?.toFixed(2);
   const convertedPriceAfter = convert(
     option.priceAfter,
-    targetCurrency
+    targetCurrency,
   )?.toFixed(2);
 
   const loading = locationLoading || exchangeLoading;
@@ -70,18 +72,18 @@ function Option({ option, isBooking = false }) {
                   {loading
                     ? "Loading..."
                     : Number(option.priceBefore) > 0
-                    ? convertedPriceBefore != null
-                      ? `${convertedPriceBefore} ${targetCurrency.toUpperCase()}`
-                      : `${option.priceBefore} USD`
-                    : null}
+                      ? convertedPriceBefore != null
+                        ? `${convertedPriceBefore} ${targetCurrency.toUpperCase()}`
+                        : `${option.priceBefore} USD`
+                      : null}
                 </h3>
               )}
               <h3 className="text-4xl md:text-4xl font-bold">
                 {loading
                   ? "Loading..."
                   : convertedPriceAfter != null
-                  ? `${convertedPriceAfter} ${targetCurrency.toUpperCase()}`
-                  : `${option.priceAfter} USD`}
+                    ? `${convertedPriceAfter} ${targetCurrency.toUpperCase()}`
+                    : `${option.priceAfter} USD`}
               </h3>
             </div>
 
@@ -92,7 +94,7 @@ function Option({ option, isBooking = false }) {
                   option?.sessionNo <= (AR ? 2 : 1) ||
                     (option?.sessionNo > 10 && AR)
                     ? "session"
-                    : "sessions"
+                    : "sessions",
                 )}
               </h1>
               <p>{formatDuration(option?.totalTimeInWeeks, t, AR)}</p>
@@ -101,7 +103,7 @@ function Option({ option, isBooking = false }) {
                 {t(
                   option?.sessionPerWeek <= 2
                     ? "categories.sessionsPerWeek.one"
-                    : "categories.sessionsPerWeek.more"
+                    : "categories.sessionsPerWeek.more",
                 )}
               </p>
               <p>
@@ -110,7 +112,7 @@ function Option({ option, isBooking = false }) {
                 {t(
                   option?.hours <= (AR ? 2 : 1)
                     ? "categories.hoursPerSession.one"
-                    : "categories.hoursPerSession.more"
+                    : "categories.hoursPerSession.more",
                 )}
               </p>
               <p>{t(`categories.scheduleType.${option?.scheduleType}`)}</p>
